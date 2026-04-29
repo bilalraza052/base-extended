@@ -1,0 +1,22 @@
+<div class="row">
+  <div class="col-md-3"></div>
+  <div class="col-md-9">
+    <div class="mx-2">
+
+  
+        <!-- @if(formElements && formElements.length > 0){ -->
+        <osl-dynamic-form [skeletonLoading]="true" [elements]="formElements" [(model)]="model"></osl-dynamic-form>
+
+        <!-- } -->
+
+    </div>
+  </div>
+</div>
+
+
+<ng-template #mainEngineConsumptionGrid>
+        <osl-form-grid  tableHeight="200px" [columns]="colList" [(datasource)]="listData"></osl-form-grid>
+</ng-template>
+
+
+

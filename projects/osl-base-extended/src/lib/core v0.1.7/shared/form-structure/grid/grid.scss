@@ -1,0 +1,329 @@
+.osl-grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font-size: var(--osl-text-font-size);
+  font-family: inherit;
+  border: 1px solid var(--osl-border-color);
+  border-radius: var(--osl-border-radius);
+  overflow: hidden;
+  background: #ffffff;
+}
+
+// ── Scrollable table area ─────────────────────────────────────
+// Height is driven by [style.height]="tableHeight" binding on the element.
+// overflow-x: auto → horizontal scroll when columns overflow.
+// overflow-y: auto → vertical scroll within the calc'd height.
+.osl-grid-table-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  // fallback if no binding reaches the element
+  min-height: 200px;
+}
+
+// ── Table ────────────────────────────────────────────────────
+.osl-grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+// ── Sticky Header ─────────────────────────────────────────────
+.osl-grid-thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.osl-grid-th {
+  background: #f3f4f6;
+  color: #4b5563;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 2px solid var(--osl-border-color);
+  border-right: 1px solid var(--osl-border-color);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    background: #e5e7eb;
+  }
+
+  &--last {
+    border-right: none;
+  }
+}
+
+.osl-grid-th-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.osl-grid-sort-icon {
+  font-size: 11px;
+  color: #9ca3af;
+
+  &--active {
+    color: var(--osl-primary);
+  }
+
+  &--idle {
+    opacity: 0.35;
+  }
+}
+
+// ── Body Rows ─────────────────────────────────────────────────
+.osl-grid-row {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.12s;
+
+  &:hover {
+    background: #f9fafb;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.osl-grid-td {
+  padding: 10px 14px;
+  color: #111827;
+  font-size: var(--osl-text-font-size);
+  vertical-align: middle;
+  white-space: nowrap;
+  border-right: 1px solid #f3f4f6;
+
+  &--last {
+    border-right: none;
+  }
+}
+
+// ── Empty State ───────────────────────────────────────────────
+.osl-grid-empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: var(--osl-text-font-size);
+}
+
+// ── Pagination Bar ────────────────────────────────────────────
+.osl-grid-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--osl-border-color);
+  background: #f9fafb;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.osl-grid-pagination__info {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.osl-grid-pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: nowrap;
+}
+
+.osl-grid-pagination__size {
+  display: flex;
+  align-items: center;
+  min-width: 120px;
+  justify-content: flex-end;
+}
+
+// ── Page Buttons ──────────────────────────────────────────────
+.osl-grid-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--osl-border-color);
+  border-radius: var(--osl-border-radius);
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  &--nav {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  &--num {
+    min-width: 30px;
+    padding: 0;
+    font-size: 13px;
+  }
+
+  &--active {
+    background: var(--osl-primary);
+    border-color: var(--osl-primary);
+    color: #ffffff;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      background: var(--osl-primary-hover);
+      border-color: var(--osl-primary-hover);
+    }
+  }
+}
+
+.osl-grid-page-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: #9ca3af;
+  font-size: 13px;
+  pointer-events: none;
+}
+
+// ── Page Size Select ──────────────────────────────────────────
+.osl-grid-page-size {
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--osl-border-color);
+  border-radius: var(--osl-border-radius);
+  background: #ffffff;
+  color: #374151;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+
+  &:focus {
+    border-color: var(--osl-focus-border-color);
+  }
+}
+
+// ── Actions Column ────────────────────────────────────────────
+.osl-grid-th--actions {
+  width: 80px;
+  min-width: 80px;
+  cursor: default;
+  text-align: center;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+.osl-grid-td--actions {
+  width: 80px;
+  min-width: 80px;
+  text-align: center;
+  padding: 6px 8px;
+  white-space: nowrap;
+}
+
+.osl-grid-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--osl-border-color);
+  border-radius: var(--osl-border-radius);
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  margin: 0 2px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+  }
+
+  &:hover {
+    border-color: var(--osl-primary);
+    color: var(--osl-primary);
+    background: rgba(99, 102, 241, 0.06);
+  }
+
+  &--danger {
+    &:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.06);
+    }
+  }
+}
+
+// ── Skeleton Loading ──────────────────────────────────────────
+@keyframes osl-skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.osl-skeleton {
+  height: 14px;
+  border-radius: 4px;
+  background: #e5e7eb;
+  animation: osl-skeleton-pulse 1.4s ease-in-out infinite;
+  width: 80%;
+
+  &--actions {
+    width: 52px;
+    margin: 0 auto;
+  }
+}
+
+.osl-grid-row--skeleton {
+  pointer-events: none;
+}
+
+.icon{
+  background-repeat: no-repeat;
+            background-position: center;
+            display: inline-block !important;
+            vertical-align: middle;
+            width: 18%;
+            height: 250px;
+            background-image: url(../../../../assets/empty-state-charts\ \(1\).svg);
+            background-size: 100%;
+            animation: moveUpDown 3s ease-in-out infinite;
+}
+
+@keyframes moveUpDown {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px); /* Moves 20px up */
+  }
+}

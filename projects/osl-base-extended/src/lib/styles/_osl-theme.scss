@@ -1,0 +1,74 @@
+// ─────────────────────────────────────────────
+//  OSL Component Library – Theme Variables
+//  Override any variable in your own styles.scss:
+//    :root { --osl-primary: #7c3aed; }
+// ─────────────────────────────────────────────
+:root {
+  // ── Button / Brand palette ──────────────────
+  --osl-primary:            #2563eb;
+  --osl-primary-hover:      #1d4ed8;
+  --osl-primary-text:       #ffffff;
+
+  --osl-secondary:          #6b7280;
+  --osl-secondary-hover:    #4b5563;
+  --osl-secondary-text:     #ffffff;
+
+  --osl-success:            #16a34a;
+  --osl-success-hover:      #15803d;
+  --osl-success-text:       #ffffff;
+
+  --osl-danger:             #dc2626;
+  --osl-danger-hover:       #b91c1c;
+  --osl-danger-text:        #ffffff;
+
+  --osl-warning:            #d97706;
+  --osl-warning-hover:      #b45309;
+  --osl-warning-text:       #ffffff;
+
+  --osl-info:               #0891b2;
+  --osl-info-hover:         #0e7490;
+  --osl-info-text:          #ffffff;
+
+  // ── Form controls ───────────────────────────
+  --osl-border-color:       #d1d5db;
+  --osl-border-radius:      4px;
+  --osl-focus-border-color: #111827;
+  --osl-control-height:     35px;
+  --osl-control-padding:    5px;
+  --osl-label-font-size:    14px;
+  --osl-hint-font-size:     12px;
+  --osl-text-font-size:    13px;
+  --osl-disabled-bg:        #f5f5f5;
+  --osl-disabled-opacity:   0.65;
+
+  // ── Validation ──────────────────────────────
+  --osl-error-color:        #dc2626;
+
+  // ── Toggle ──────────────────────────────────
+  --osl-toggle-active-bg:   #2563eb;
+  --osl-toggle-inactive-bg: #d1d5db;
+
+  // ── Checkbox / Radio accent ──────────────────
+  --osl-accent-color:       #2563eb;
+
+  // ── Autocomplete dropdown ────────────────────
+  --osl-dropdown-hover-bg:  #f3f4f6;
+
+  // ── File upload ──────────────────────────────
+  --osl-file-browse-bg:     #f5f5f5;
+  --osl-border-subtle:      rgba(255,255,255,0.06);
+  --osl-border: #3b2b2b5e;
+
+  --osl-black: #000000;
+  
+  
+}
+.f-s-20{
+  font-size: 20px;
+}
+.f-w-600{
+  font-weight: 600;
+}
+.txt-clr-black{
+  color: var(--osl-black);
+}

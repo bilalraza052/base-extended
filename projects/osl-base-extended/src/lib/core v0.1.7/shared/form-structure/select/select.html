@@ -1,0 +1,13 @@
+<div class="d-flex flex-column">
+    <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">{{label}} <span class="txt-clr-red">{{required?'*':''}}</span></label>
+    <select [ngModel]="model" (ngModelChange)="onModelChange($event)" [required]="required" [disabled]="disabled"
+        #myField="ngModel" [class.error]="myField.touched && myField.invalid" (change)="changeEv.emit(model)">
+        <option value="" disabled selected hidden>Select...</option>
+        @for(item of datasource; track item){
+            <option [value]="getValue(item)">{{getDisplay(item)}}</option>
+        }
+    </select>
+    @if(myField.touched && myField.invalid && required){
+        <mat-hint class="hint">{{label}} is Required!</mat-hint>
+    }
+</div>

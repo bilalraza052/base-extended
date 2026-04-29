@@ -1,0 +1,7 @@
+<div class="d-flex flex-column">
+    <label class="label">{{label}}</label>
+    <label class="toggle" [class.toggle-disabled]="disabled">
+        <input type="checkbox" [ngModel]="model" (ngModelChange)="onModelChange($event)" [disabled]="disabled">
+        <span class="slider"></span>
+    </label>
+</div>

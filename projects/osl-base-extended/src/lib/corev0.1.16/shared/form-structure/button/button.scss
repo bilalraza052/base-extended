@@ -1,0 +1,189 @@
+.osl-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    border-radius: var(--osl-border-radius);
+    cursor: pointer;
+    font-size: var(--osl-label-font-size);
+    font-weight: 500;
+    line-height: 1;
+    transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+    white-space: nowrap;
+    outline: none;
+
+    // ── Sizes ───────────────────────────────────────
+    &--sm {
+        height: 28px;
+        padding: 0 var(--osl-hint-font-size);
+        font-size: var(--osl-hint-font-size);
+        mat-icon{
+        font-size: var(--osl-hint-font-size);
+
+        }
+    }
+    &--md {
+        height: 36px;
+        padding: 0 18px;
+        font-size: var(--osl-label-font-size);
+    }
+    &--lg {
+        height: 44px;
+        padding: 0 24px;
+        font-size: 16px;
+    }
+    &--full {
+        width: 100%;
+    }
+
+    // ── Disabled / Loading state ────────────────────
+    &:disabled {
+        opacity: var(--osl-disabled-opacity);
+        cursor: not-allowed;
+    }
+
+    // ── Solid variants ──────────────────────────────
+    &--primary {
+        background-color: var(--osl-primary);
+        color: var(--osl-primary-text);
+        &:hover:not(:disabled) { background-color: var(--osl-primary-hover); }
+    }
+    &--secondary {
+        background-color: var(--osl-secondary);
+        color: var(--osl-secondary-text);
+        &:hover:not(:disabled) { background-color: var(--osl-secondary-hover); }
+    }
+    &--success {
+        background-color: var(--osl-success);
+        color: var(--osl-success-text);
+        &:hover:not(:disabled) { background-color: var(--osl-success-hover); }
+    }
+    &--danger {
+        background-color: var(--osl-danger);
+        color: var(--osl-danger-text);
+        &:hover:not(:disabled) { background-color: var(--osl-danger-hover); }
+    }
+    &--warning {
+        background-color: var(--osl-warning);
+        color: var(--osl-warning-text);
+        &:hover:not(:disabled) { background-color: var(--osl-warning-hover); }
+    }
+    &--info {
+        background-color: var(--osl-info);
+        color: var(--osl-info-text);
+        &:hover:not(:disabled) { background-color: var(--osl-info-hover); }
+    }
+
+    // ── Outline variants ────────────────────────────
+    &--outline-primary {
+        background-color: transparent;
+        border: 1.5px solid var(--osl-primary);
+        color: var(--osl-primary);
+        &:hover:not(:disabled) {
+            background-color: var(--osl-primary);
+            color: var(--osl-primary-text);
+        }
+    }
+    &--outline-secondary {
+        background-color: transparent;
+        border: 1.5px solid var(--osl-secondary);
+        color: var(--osl-secondary);
+        &:hover:not(:disabled) {
+            background-color: var(--osl-secondary);
+            color: var(--osl-secondary-text);
+        }
+    }
+    &--outline-success {
+        background-color: transparent;
+        border: 1.5px solid var(--osl-success);
+        color: var(--osl-success);
+        &:hover:not(:disabled) {
+            background-color: var(--osl-success);
+            color: var(--osl-success-text);
+        }
+    }
+    &--outline-danger {
+        background-color: transparent;
+        border: 1.5px solid var(--osl-danger);
+        color: var(--osl-danger);
+        &:hover:not(:disabled) {
+            background-color: var(--osl-danger);
+            color: var(--osl-danger-text);
+        }
+    }
+    &--outline-warning {
+        background-color: transparent;
+        border: 1.5px solid var(--osl-warning);
+        color: var(--osl-warning);
+        &:hover:not(:disabled) {
+            background-color: var(--osl-warning);
+            color: var(--osl-warning-text);
+        }
+    }
+    &--outline-info {
+        background-color: transparent;
+        border: 1.5px solid var(--osl-info);
+        color: var(--osl-info);
+        &:hover:not(:disabled) {
+            background-color: var(--osl-info);
+            color: var(--osl-info-text);
+        }
+    }
+}
+
+// ── Loading spinner ─────────────────────────────────
+.osl-btn__spinner {
+    display: inline-block;
+    width: var(--osl-label-font-size);
+    height: var(--osl-label-font-size);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: osl-spin 0.7s linear infinite;
+}
+
+@keyframes osl-spin {
+    to { transform: rotate(360deg); }
+}
+
+.osl-btn__label-icon{
+    color: var(--color-white);
+}
+/* ── Icon Buttons ── */
+.icon-btn {
+ display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--osl-border-color);
+  border-radius: var(--osl-border-radius);
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  margin: 0 2px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+  }
+
+  &:hover {
+    border-color: var(--osl-primary);
+    color: var(--osl-primary);
+    background: rgba(99, 102, 241, 0.06);
+  }
+
+  &--danger {
+    &:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.06);
+    }
+  }
+}

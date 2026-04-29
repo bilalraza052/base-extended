@@ -1,0 +1,154 @@
+<div class="osl-grid-wrapper">
+
+  <div class="osl-grid-table-container" [style.height]="tableHeight">
+    <table class="osl-grid-table">
+      <thead class="osl-grid-thead">
+        <tr>
+          @if (loading && columns.length === 0) {
+            @for (sk of skeletonColumns; track $index) {
+              <th class="osl-grid-th osl-grid-th--skeleton">
+                <div class="osl-skeleton osl-skeleton--header"></div>
+              </th>
+            }
+          } @else {
+            @for (col of columns; track col.key; let last = $last) {
+              <th
+                class="osl-grid-th"
+                [class.osl-grid-th--last]="last"
+                [class.osl-grid-th--actions]="col.isActions"
+                (click)="sort(col.key, col.isActions)"
+              >
+                @if (!col.isActions) {
+                  <span class="osl-grid-th-inner">
+                    {{ col.label }}
+                    <span class="osl-grid-sort-icon" [class.osl-grid-sort-icon--active]="sortKey === col.key">
+                      @if (sortKey === col.key) {
+                        {{ sortAsc ? '↑' : '↓' }}
+                      } @else {
+                        <span class="osl-grid-sort-icon--idle">⇅</span>
+                      }
+                    </span>
+                  </span>
+                }
+              </th>
+            }
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading) {
+          @for (sk of skeletonRows; track $index) {
+            <tr class="osl-grid-row osl-grid-row--skeleton">
+              @if (columns.length > 0) {
+                @for (col of columns; track col.key; let last = $last) {
+                  <td class="osl-grid-td" [class.osl-grid-td--last]="last" [class.osl-grid-td--actions]="col.isActions">
+                    @if (col.isActions) {
+                      <div class="osl-skeleton osl-skeleton--actions"></div>
+                    } @else {
+                      <div class="osl-skeleton"></div>
+                    }
+                  </td>
+                }
+              } @else {
+                @for (sk2 of skeletonColumns; track $index; let last = $last) {
+                  <td class="osl-grid-td" [class.osl-grid-td--last]="last">
+                    <div class="osl-skeleton"></div>
+                  </td>
+                }
+              }
+            </tr>
+          }
+        } @else {
+          @if (pagedData.length === 0) {
+            <tr>
+              <td [attr.colspan]="columns.length" class="osl-grid-empty">
+                <div class="d-flex align-items-center justify-content-center floating-element">
+                  <div class="mx-4">
+                    <p class="f-s-20 f-w-600 text-start">No Records match the <br> current filters.</p>
+                    <p class="text-start">Expecting to see new Records? Try again in <br> a few seconds as the system catches up</p>
+                  </div>
+                  <i class="icon"></i>
+
+                </div>
+              </td>
+            </tr>
+          }
+          @for (row of pagedData; track $index) {
+            <tr class="osl-grid-row" [class.pointer]="isSelectable" (click)="onRowClick.emit(row)">
+              @for (col of columns; track col.key; let last = $last) {
+                @if (col.isActions) {
+                  <td class="osl-grid-td osl-grid-td--actions" [class.osl-grid-td--last]="last">
+                    <button class="osl-grid-icon-btn" (click)="editClick.emit(row)" title="Edit">
+                      <mat-icon>mode_edit_outline</mat-icon>
+                    </button>
+                    <button class="osl-grid-icon-btn osl-grid-icon-btn--danger" (click)="deleteClick.emit(row)" title="Delete">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </td>
+                } @else {
+                  <td class="osl-grid-td" [class.osl-grid-td--last]="last">{{ getCellValue(row, col) }}</td>
+                }
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (isPaginated) {
+    <div class="osl-grid-pagination">
+
+      <span class="osl-grid-pagination__info">
+        @if (loading) {
+          Loading...
+        } @else if (_total > 0) {
+          {{ startRecord }}–{{ endRecord }} of {{ _total }} records
+        } @else {
+          No records
+        }
+      </span>
+
+      <div class="osl-grid-pagination__controls">
+        <button class="osl-grid-page-btn osl-grid-page-btn--nav" (click)="goToPage(1)" [disabled]="currentPage === 1 || loading" title="First page">
+          «
+        </button>
+        <button class="osl-grid-page-btn osl-grid-page-btn--nav" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1 || loading" title="Previous page">
+          ‹ Prev
+        </button>
+
+        @for (page of pageNumbers; track $index) {
+          @if (page === -1) {
+            <span class="osl-grid-page-ellipsis">…</span>
+          } @else {
+            <button
+              class="osl-grid-page-btn osl-grid-page-btn--num"
+              [class.osl-grid-page-btn--active]="page === currentPage"
+              [disabled]="loading"
+              (click)="goToPage(page)"
+            >
+              {{ page }}
+            </button>
+          }
+        }
+
+        <button class="osl-grid-page-btn osl-grid-page-btn--nav" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages || loading" title="Next page">
+          Next ›
+        </button>
+        <button class="osl-grid-page-btn osl-grid-page-btn--nav" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages || loading" title="Last page">
+          »
+        </button>
+      </div>
+
+      <div class="osl-grid-pagination__size">
+        <select class="osl-grid-page-size" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)" [disabled]="loading">
+          @for (opt of pageSizeOptions; track opt) {
+            <option [value]="opt">{{ opt }} per page</option>
+          }
+        </select>
+      </div>
+
+    </div>
+  }
+
+</div>

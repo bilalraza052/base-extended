@@ -1,0 +1,51 @@
+<div class="d-flex flex-column">
+    <label class="label" [class.txt-clr-red]="isInvalid">
+        {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
+    </label>
+    <div class="autocomplete-wrapper" [class.error]="isInvalid" [class.autocomplete-wrapper--api]="searchType == 'Api'">
+        <input
+            [value]="inputValue"
+            (input)="onInput($any($event.target).value)"
+            (focus)="onFocus()"
+            (blur)="onBlur()"
+            (focusout)="onFocusOut()"
+            [disabled]="disabled || loading"
+           [formControl]="inputControl"
+            [class.error]="isInvalid"
+            [placeholder]="loading ? 'Loading...' : placeholder"
+            autocomplete="off"
+            (keyup.enter)="searchType == 'Api' ? openLister() : null"
+        >
+        @if(loading) {
+            <span class="ac-spinner"></span>
+        } @else {
+            @if(inputValue && !disabled) {
+                <button type="button" class="ac-clear" [class.ac-clear--shifted]="searchType == 'Api'" (mousedown)="clearValue($event)" tabindex="-1" title="Clear">
+                    <mat-icon>close</mat-icon>
+                </button>
+            }
+            @if(searchType == 'Api' && !disabled) {
+                <button  type="button" class="ac-lister-btn" (mousedown)="$event.preventDefault(); openLister()" tabindex="-1" title="Browse list or press Enter">
+                    <!-- <img src="assets/enter (2).png" alt="Enter" class="ac-lister-img"> -->
+                     <mat-icon>manage_search</mat-icon>
+                </button>
+            }
+        }
+        @if(showDropdown && !loading) {
+            <div class="dropdown">
+                @if(filteredItems.length > 0) {
+                    @for(item of filteredItems; track item) {
+                        <div class="dropdown-item" (mousedown)="selectItem(item)">{{getDisplay(item)}}</div>
+                    }
+                } @else {
+                    @if(searchType == 'Local'){
+                        <div class="no-results">No results found</div>
+                    }
+                }
+            </div>
+        }
+    </div>
+    @if(isInvalid) {
+        <mat-hint class="hint">{{label}} is Required!</mat-hint>
+    }
+</div>

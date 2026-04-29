@@ -1,0 +1,56 @@
+<div class="d-flex flex-column">
+    @if(label){
+    <div [oslSkeleton]="skeletonLoading">
+    <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">
+        <span [oslSkeleton]="skeletonLoading">{{label}} <span class="txt-clr-red">{{required?'*':''}}</span></span>
+    </label>
+    </div>
+}
+
+    <div class="input-wrapper" [oslSkeleton]="skeletonLoading" [class.plain]="!hasWrapper" [class.error]="myField.touched && myField.invalid" [class.input-disabled]="disabled">
+        @if(prefixIcon) {
+            <mat-icon class="input-icon prefix-icon">{{prefixIcon}}</mat-icon>
+        }
+        <input
+    
+            [type]="inputType"
+            [ngModel]="model"
+            (ngModelChange)="onModelChange($event)"
+            (change)="onChange()"
+            [required]="required"
+            [disabled]="disabled"
+            [placeholder]="placeholder"
+            [attr.min]="min || null"
+            [attr.max]="max || null"
+            [attr.minlength]="minLength"
+            [attr.maxlength]="maxLength"
+            [email]="type === 'email'"
+            #myField="ngModel"
+            class="inner-input"
+        >
+        @if(type === 'password') {
+            <button type="button" class="password-toggle" (click)="togglePassword()" tabindex="-1">
+                <mat-icon>{{showPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+        }
+        @if(suffixIcon && type !== 'password') {
+            <mat-icon class="input-icon suffix-icon">{{suffixIcon}}</mat-icon>
+        }
+    </div>
+
+    @if(myField.touched && myField.invalid) {
+        @if(myField.errors?.['required']) {
+            <mat-hint class="hint">{{label}} is Required!</mat-hint>
+        } @else if(myField.errors?.['email']) {
+            <mat-hint class="hint">Please enter a valid email address.</mat-hint>
+        } @else if(myField.errors?.['minlength']) {
+            <mat-hint class="hint">Minimum {{minLength}} characters required.</mat-hint>
+        } @else if(myField.errors?.['maxlength']) {
+            <mat-hint class="hint">Maximum {{maxLength}} characters allowed.</mat-hint>
+        } @else if(myField.errors?.['min']) {
+            <mat-hint class="hint">Value must be at least {{min}}.</mat-hint>
+        } @else if(myField.errors?.['max']) {
+            <mat-hint class="hint">Value must be at most {{max}}.</mat-hint>
+        }
+    }
+</div>

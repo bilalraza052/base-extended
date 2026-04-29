@@ -1,0 +1,60 @@
+<div class="p-2">
+
+  <!-- Header -->
+  <div class="osl-setup-header">
+    <h5 class="mb-0">{{ title }}</h5>
+    <div class="d-flex align-items-center gap-2">
+      <osl-searchbar class="mx-2" (onSearch)="onSearch.emit($event)"></osl-searchbar>
+      <osl-button
+        variant="secondary"
+        size="sm"
+        [label]="'Add ' + title"
+        (clickEv)="openAddDialog()"
+      ></osl-button>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="osl-setup-body my-2">
+    <osl-grid
+      [columns]="columnsWithActions"
+      [datasource]="datasource"
+      [isPaginated]="isPaginated"
+      [pageSize]="pageSize"
+      [autoMode]="autoMode"
+      [tableHeight]="tableHeight"
+      [totalRecords]="totalRecords"
+      [loading]="loading"
+      (editClick)="openEditDialog($event)"
+      (deleteClick)="onDeleteClick($event)"
+      (pageChange)="pageChange.emit($event)"
+      (pageSizeChange)="pageSizeChange.emit($event)"
+      (sortChange)="sortChange.emit($event)"
+      [isSelectable]="true"
+      (onRowClick)="onRowClick.emit($event)"
+    />
+  </div>
+
+</div>
+
+<!-- Dialog: Form Body -->
+<ng-template #formBodyTpl>
+  <osl-dynamic-form
+    [elements]="formElements"
+    [(model)]="dialogModel"
+  ></osl-dynamic-form>
+</ng-template>
+
+<!-- Dialog: Form Footer -->
+<ng-template #formFooterTpl>
+  <div class="osl-setup-dialog-footer">
+    <button mat-stroked-button class="dialog-cancel-btn" (click)="cancelDialog()">
+      <mat-icon>close</mat-icon>
+      Cancel
+    </button>
+    <button mat-flat-button class="dialog-save-btn" (click)="saveDialog()">
+      <mat-icon>{{ dialogMode === 'add' ? 'add_circle' : 'save' }}</mat-icon>
+      {{ dialogMode === 'add' ? 'Add ' + title : 'Save Changes' }}
+    </button>
+  </div>
+</ng-template>

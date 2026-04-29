@@ -1,0 +1,108 @@
+.label {
+    font-size: var(--osl-label-font-size);
+    margin-bottom: 5px;
+}
+
+.select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: var(--osl-control-height);
+    width: 100%;
+    border-radius: var(--osl-border-radius);
+    border: 1px solid var(--osl-border-color);
+    transition: border-color 0.5s;
+
+    &:focus-within {
+        border-color: var(--osl-focus-border-color);
+    }
+
+    &.error {
+        border-color: var(--osl-error-color);
+    }
+
+    &.select-disabled {
+        background: #f5f5f5;
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    select {
+        flex: 1;
+        height: 100%;
+        width: 100%;
+        font-size: var(--osl-text-font-size);
+        border: none;
+        outline: none;
+        background: transparent;
+        padding: 0 32px 0 8px;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+
+        &:disabled {
+            cursor: not-allowed;
+        }
+    }
+}
+
+.select-arrow {
+    position: absolute;
+    right: 6px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #888;
+    pointer-events: none;
+    user-select: none;
+}
+
+.select-clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 28px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: #aaa;
+    z-index: 1;
+
+    mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+    }
+
+    &:hover {
+        color: #333;
+    }
+}
+
+.select-spinner {
+    position: absolute;
+    left: 8px;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--osl-border-color);
+    border-top-color: var(--osl-focus-border-color);
+    border-radius: 50%;
+    animation: select-spin 0.7s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes select-spin {
+    to { transform: rotate(360deg); }
+}
+
+.hint {
+    color: var(--osl-error-color);
+    margin-top: 2px;
+    font-size: var(--osl-hint-font-size);
+}
+
+.txt-clr-red {
+    color: var(--osl-error-color);
+}

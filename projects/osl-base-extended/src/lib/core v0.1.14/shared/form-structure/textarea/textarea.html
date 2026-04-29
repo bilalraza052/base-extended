@@ -1,0 +1,37 @@
+<div class="d-flex flex-column">
+    <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">
+        {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
+    </label>
+    <textarea
+        [rows]="rows"
+        [ngModel]="model"
+        (ngModelChange)="onModelChange($event)"
+        (change)="changeEv.emit(model)"
+        [required]="required"
+        [disabled]="disabled"
+        [placeholder]="placeholder"
+        [attr.maxlength]="maxLength"
+        [attr.minlength]="minLength"
+        [style.resize]="resize"
+        #myField="ngModel"
+        [class.error]="myField.touched && myField.invalid"
+    ></textarea>
+    <div class="textarea-footer">
+        @if(myField.touched && myField.invalid) {
+            @if(myField.errors?.['required']) {
+                <mat-hint class="hint">{{label}} is Required!</mat-hint>
+            } @else if(myField.errors?.['minlength']) {
+                <mat-hint class="hint">Minimum {{minLength}} characters required.</mat-hint>
+            } @else if(myField.errors?.['maxlength']) {
+                <mat-hint class="hint">Maximum {{maxLength}} characters allowed.</mat-hint>
+            }
+        } @else {
+            <span></span>
+        }
+        @if(showCounter) {
+            <span class="char-counter" [class.counter-limit]="currentLength >= maxLength!">
+                {{currentLength}}/{{maxLength}}
+            </span>
+        }
+    </div>
+</div>

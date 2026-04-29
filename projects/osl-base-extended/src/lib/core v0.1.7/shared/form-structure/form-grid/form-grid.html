@@ -1,0 +1,220 @@
+<div class="osl-fg-wrapper">
+
+  <!-- Toolbar -->
+  @if (canAdd) {
+    <div class="osl-fg-toolbar">
+      <button class="osl-fg-add-btn" (click)="addRow()" [disabled]="loading">
+        <span class="osl-fg-add-btn__icon">+</span>
+        {{ addLabel }}
+      </button>
+    </div>
+  }
+
+  <!-- Table -->
+  <div class="osl-fg-table-container">
+    <table class="osl-fg-table">
+      <thead class="osl-fg-thead">
+        <tr>
+          @for (col of columns; track col.key) {
+            <th class="osl-fg-th" [style.width]="col.width">
+              {{ col.displayName }}
+            </th>
+          }
+          @if (canDelete) {
+            <th class="osl-fg-th osl-fg-th--actions"></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+
+        @if (loading) {
+          @for (sk of skeletonRows; track $index) {
+            <tr class="osl-fg-row osl-fg-row--skeleton">
+              @for (col of columns; track col.key) {
+                <td class="osl-fg-td"><div class="osl-fg-skeleton"></div></td>
+              }
+              @if (canDelete) {
+                <td class="osl-fg-td osl-fg-td--actions"><div class="osl-fg-skeleton osl-fg-skeleton--sm"></div></td>
+              }
+            </tr>
+          }
+        } @else if (pagedData.length === 0) {
+          <tr>
+            <td [attr.colspan]="columns.length + (canDelete ? 1 : 0)" class="osl-fg-empty">
+              <div class="osl-fg-empty-inner">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>
+                  <line x1="9" y1="9" x2="9" y2="21"/>
+                </svg>
+                <p>No rows yet. {{ canAdd ? 'Click "' + addLabel + '" to get started.' : '' }}</p>
+              </div>
+            </td>
+          </tr>
+        } @else {
+          @for (row of pagedData; track $index; let i = $index) {
+            <tr class="osl-fg-row">
+              @for (col of columns; track col.key) {
+                <td class="osl-fg-td" [style.width]="col.width">
+                  @if (col.formElem) {
+                    <div class="osl-fg-cell-form">
+                      @switch (col.formElem.elementType) {
+                        @case ('textbox') {
+                          <osl-input
+                            [label]="colLabel(col)"
+                            [disabled]="isDisabled(row, col.formElem)"
+                            [required]="isRequired(row, col.formElem)"
+                            [model]="row[col.key]"
+                            (modelChange)="onCellChange(row, col, $event)"
+                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                          </osl-input>
+                        }
+                        @case ('textarea') {
+                          <osl-textarea
+                            [label]="colLabel(col)"
+                            [disabled]="isDisabled(row, col.formElem)"
+                            [required]="isRequired(row, col.formElem)"
+                            [rows]="col.formElem.textareaRows ? col.formElem.textareaRows.toString() : undefined"
+                            [model]="row[col.key]"
+                            (modelChange)="onCellChange(row, col, $event)"
+                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                          </osl-textarea>
+                        }
+                        @case ('select') {
+                          <osl-select
+                            [label]="colLabel(col)"
+                            [disabled]="isDisabled(row, col.formElem)"
+                            [required]="isRequired(row, col.formElem)"
+                            [datasource]="col.formElem.datasource || []"
+                            [displayField]="col.formElem.displayField || ''"
+                            [valueField]="col.formElem.valueField || ''"
+                            [model]="row[col.key]"
+                            (modelChange)="onCellChange(row, col, $event)"
+                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                          </osl-select>
+                        }
+                        @case ('autocomplete') {
+                          <osl-autocomplete
+                            [label]="colLabel(col)"
+                            [disabled]="isDisabled(row, col.formElem)"
+                            [required]="isRequired(row, col.formElem)"
+                            [datasource]="col.formElem.datasource || []"
+                            [displayField]="col.formElem.displayField || ''"
+                            [valueField]="col.formElem.valueField || ''"
+                            [model]="row[col.key]"
+                            (modelChange)="onCellChange(row, col, $event)"
+                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                          </osl-autocomplete>
+                        }
+                        @case ('radio') {
+                          <osl-radio
+                            [label]="colLabel(col)"
+                            [disabled]="isDisabled(row, col.formElem)"
+                            [required]="isRequired(row, col.formElem)"
+                            [datasource]="col.formElem.datasource || []"
+                            [displayField]="col.formElem.displayField || ''"
+                            [valueField]="col.formElem.valueField || ''"
+                            [model]="row[col.key]"
+                            (modelChange)="onCellChange(row, col, $event)"
+                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                          </osl-radio>
+                        }
+                        @case ('checkbox') {
+                          <osl-checkbox
+                            [label]="colLabel(col)"
+                            [disabled]="isDisabled(row, col.formElem)"
+                            [model]="row[col.key]"
+                            (modelChange)="onCellChange(row, col, $event)"
+                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                          </osl-checkbox>
+                        }
+                        @case ('slide-toggle') {
+                          <osl-slide-toggle
+                            [label]="colLabel(col)"
+                            [disabled]="isDisabled(row, col.formElem)"
+                            [model]="row[col.key]"
+                            (modelChange)="onCellChange(row, col, $event)"
+                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                          </osl-slide-toggle>
+                        }
+                        @case ('datepicker') {
+                          <osl-datepicker
+                            [label]="colLabel(col)"
+                            [disabled]="isDisabled(row, col.formElem)"
+                            [required]="isRequired(row, col.formElem)"
+                            [model]="row[col.key]"
+                            (modelChange)="onCellChange(row, col, $event)"
+                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                          </osl-datepicker>
+                        }
+                        @case ('file-uploader') {
+                          <osl-file-upload
+                            [label]="colLabel(col)"
+                            [disabled]="isDisabled(row, col.formElem)"
+                            [required]="isRequired(row, col.formElem)"
+                            [accept]="col.formElem.accept || ''"
+                            [model]="row[col.key]"
+                            (modelChange)="onCellChange(row, col, $event)"
+                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                          </osl-file-upload>
+                        }
+                      }
+                    </div>
+                  } @else {
+                    <span class="osl-fg-cell-text">{{ row[col.key] ?? '--' }}</span>
+                  }
+                </td>
+              }
+              @if (canDelete) {
+                <td class="osl-fg-td osl-fg-td--actions">
+                  <button class="osl-fg-delete-btn" (click)="deleteRow(i)" title="Delete row">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        }
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  @if (isPaginated && _total > 0) {
+    <div class="osl-fg-pagination">
+      <span class="osl-fg-pagination__info">
+        {{ startRecord }}–{{ endRecord }} of {{ _total }} rows
+      </span>
+
+      <div class="osl-fg-pagination__controls">
+        <button class="osl-fg-page-btn osl-fg-page-btn--nav" (click)="goToPage(1)" [disabled]="currentPage === 1">«</button>
+        <button class="osl-fg-page-btn osl-fg-page-btn--nav" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">‹ Prev</button>
+
+        @for (page of pageNumbers; track $index) {
+          @if (page === -1) {
+            <span class="osl-fg-page-ellipsis">…</span>
+          } @else {
+            <button
+              class="osl-fg-page-btn osl-fg-page-btn--num"
+              [class.osl-fg-page-btn--active]="page === currentPage"
+              (click)="goToPage(page)">
+              {{ page }}
+            </button>
+          }
+        }
+
+        <button class="osl-fg-page-btn osl-fg-page-btn--nav" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Next ›</button>
+        <button class="osl-fg-page-btn osl-fg-page-btn--nav" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">»</button>
+      </div>
+
+      <div class="osl-fg-pagination__size">
+        <select class="osl-fg-page-size" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+          @for (opt of pageSizeOptions; track opt) {
+            <option [value]="opt">{{ opt }} / page</option>
+          }
+        </select>
+      </div>
+    </div>
+  }
+
+</div>

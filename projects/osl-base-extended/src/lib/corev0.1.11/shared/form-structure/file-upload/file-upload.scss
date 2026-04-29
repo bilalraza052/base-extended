@@ -1,0 +1,133 @@
+.label {
+    font-size: var(--osl-label-font-size);
+    margin-bottom: 5px;
+}
+
+.file-input {
+    display: none;
+}
+
+.drop-zone {
+    width: 100%;
+    min-height: var(--osl-control-height);
+    border-radius: var(--osl-border-radius);
+    border: 1.5px dashed var(--osl-border-color);
+    cursor: pointer;
+    transition: border-color 0.3s, background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+
+    &:hover:not(.file-disabled) {
+        border-color: var(--osl-focus-border-color);
+        background: rgba(0, 0, 0, 0.01);
+    }
+
+    &.drag-over {
+        border-color: var(--osl-focus-border-color);
+        background: rgba(0, 0, 0, 0.03);
+    }
+
+    &.has-file {
+        border-style: solid;
+        border-color: var(--osl-border-color);
+    }
+
+    &.error {
+        border-color: var(--osl-error-color);
+    }
+
+    &.file-disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: #f5f5f5;
+    }
+}
+
+.drop-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: #888;
+    pointer-events: none;
+}
+
+.upload-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #bbb;
+}
+
+.drop-text {
+    font-size: var(--osl-label-font-size);
+}
+
+.browse-link {
+    color: var(--osl-focus-border-color);
+    font-weight: 500;
+}
+
+.drop-meta {
+    font-size: var(--osl-hint-font-size);
+    color: #bbb;
+}
+
+.file-list {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    pointer-events: none;
+}
+
+.file-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #888;
+    flex-shrink: 0;
+}
+
+.file-name {
+    flex: 1;
+    font-size: var(--osl-text-font-size);
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.clear-btn {
+    pointer-events: all;
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #aaa;
+    padding: 0;
+    flex-shrink: 0;
+
+    mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+    }
+
+    &:hover {
+        color: var(--osl-error-color);
+    }
+}
+
+.hint {
+    color: var(--osl-error-color);
+    margin-top: 2px;
+    font-size: var(--osl-hint-font-size);
+}
+
+.txt-clr-red {
+    color: var(--osl-error-color);
+}

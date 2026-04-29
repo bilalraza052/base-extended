@@ -1,0 +1,14 @@
+<div class="d-flex flex-column">
+    @if(label) {
+        <span class="label">{{label}}</span>
+    }
+    <div class="toggle-row" [class.reverse]="labelPosition === 'before'">
+        <label class="toggle" [class.toggle-disabled]="disabled">
+            <input type="checkbox" [ngModel]="model" (ngModelChange)="onModelChange($event)" [disabled]="disabled">
+            <span class="slider"></span>
+        </label>
+        @if(stateLabel) {
+            <span class="state-label" [class.state-on]="model" [class.state-off]="!model">{{stateLabel}}</span>
+        }
+    </div>
+</div>

@@ -1,0 +1,9 @@
+<div class="d-flex flex-column">
+    <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">{{label}} <span class="txt-clr-red">{{required?'*':''}}</span></label>
+    <input type="date" [ngModel]="model" (ngModelChange)="onModelChange($event)" [required]="required"
+        [disabled]="disabled" #myField="ngModel" [class.error]="myField.touched && myField.invalid"
+        (change)="changeEv.emit(model)">
+    @if(myField.touched && myField.invalid && required){
+        <mat-hint class="hint">{{label}} is Required!</mat-hint>
+    }
+</div>

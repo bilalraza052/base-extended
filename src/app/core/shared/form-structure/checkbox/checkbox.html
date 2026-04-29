@@ -1,0 +1,18 @@
+<div class="d-flex flex-column">
+
+    <label class="checkbox-wrapper"  [oslSkeleton]="skeletonLoading" [class.checkbox-disabled]="disabled" [class.checkbox-invalid]="isInvalid">
+        <input
+            #checkboxEl
+            type="checkbox"
+            [ngModel]="model"
+            (ngModelChange)="onModelChange($event)"
+            [disabled]="disabled"
+        >
+        <span class="checkbox-label"  [oslSkeleton]="skeletonLoading">
+            {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
+        </span>
+    </label>
+    @if(isInvalid) {
+        <mat-hint class="hint">{{label}} is Required!</mat-hint>
+    }
+</div>

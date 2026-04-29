@@ -1,0 +1,45 @@
+<div class="dialog-container">
+
+  <!-- Header -->
+  @if(typeof dialogData.header == 'string') {
+    <div class="dialog-header" mat-dialog-title>
+      <div class="dialog-header-left">
+        <div class="dialog-icon-ring">
+          <mat-icon class="dialog-icon">
+            {{ dialogData.header.startsWith('Add') ? 'add_circle' : dialogData.header.startsWith('Edit') ? 'edit' : 'info' }}
+          </mat-icon>
+        </div>
+        <div class="dialog-title-group">
+          <span class="dialog-mode-label">
+            {{ dialogData.header.startsWith('Add') ? 'Creating New' : dialogData.header.startsWith('Edit') ? 'Editing' : '' }}
+          </span>
+          <span class="dialog-heading">{{ dialogData.header }}</span>
+        </div>
+      </div>
+      <button mat-icon-button class="dialog-close-btn" mat-dialog-close>
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  } @else {
+    <ng-container *ngTemplateOutlet="dialogData.header; context: { $implicit: dialogData }"></ng-container>
+  }
+
+  <!-- Body -->
+  <mat-dialog-content class="dialog-content">
+    @if(dialogData.formBody) {
+      <div class="dialog-body">
+        <ng-container *ngTemplateOutlet="dialogData.formBody; context: { $implicit: dialogData }"></ng-container>
+      </div>
+    }
+  </mat-dialog-content>
+
+  <!-- Footer -->
+  @if(dialogData.formFooter) {
+    <mat-dialog-actions class="dialog-actions">
+      <div class="dialog-footer">
+        <ng-container *ngTemplateOutlet="dialogData.formFooter; context: { $implicit: dialogData }"></ng-container>
+      </div>
+    </mat-dialog-actions>
+  }
+
+</div>

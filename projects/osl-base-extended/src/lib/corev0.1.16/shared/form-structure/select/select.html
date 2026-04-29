@@ -1,0 +1,37 @@
+<div class="d-flex flex-column">
+    <div [oslSkeleton]="skeletonLoading">
+        <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">
+            {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
+        </label>
+
+    </div>
+
+    <div class="select-wrapper" [oslSkeleton]="skeletonLoading" [class.error]="myField.touched && myField.invalid" [class.select-disabled]="disabled || loading">
+        @if(loading) {
+            <span class="select-spinner"></span>
+        }
+        <select
+            [ngModel]="model"
+            (ngModelChange)="onModelChange($event)"
+            (change)="onChange()"
+            [required]="required"
+            [disabled]="disabled || loading"
+            #myField="ngModel"
+        >
+            <option value="" [disabled]="required" [hidden]="required" selected>{{placeholder}}</option>
+            @for(item of datasource; track item) {
+                <option [value]="getValue(item)">{{getDisplay(item)}}</option>
+            }
+        </select>
+        @if(clearable && hasValue && !disabled && !loading) {
+            <button type="button" class="select-clear" (click)="onClear($event)" title="Clear">
+                <mat-icon>close</mat-icon>
+            </button>
+        }
+        <mat-icon class="select-arrow">expand_more</mat-icon>
+    </div>
+
+    @if(myField.touched && myField.invalid && required) {
+        <mat-hint class="hint">{{label}} is Required!</mat-hint>
+    }
+</div>
