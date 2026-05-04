@@ -1,5 +1,5 @@
 @if(elements && elements.length > 0) {
-    <div class="row w-100">
+    <div class="row align-items-center w-100">
         @for(elem of elements; track elem) {
             @if(!(elem.hideIf ? elem.hideIf(model) : elem.hide)) {
                 <ng-container *ngTemplateOutlet="formField; context: { $implicit: elem }"></ng-container>
@@ -218,6 +218,13 @@
             @case ("templateRef"){
                  <div [class]="'col-md-'+elem.columns+' mt-3'">
                         <ng-container *ngTemplateOutlet="elem.templateRef; context: { $implicit: elem}"></ng-container>
+
+                
+                </div>
+            }
+                @case ("spacer"){
+                 <div [class]="'col-md-'+elem.columns+' mt-3'">
+                        <!-- <ng-container *ngTemplateOutlet="elem.templateRef; context: { $implicit: elem}"></ng-container> -->
 
                 
                 </div>
