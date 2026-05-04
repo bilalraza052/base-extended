@@ -40,7 +40,7 @@ export class DynamicForm implements OnInit, OnChanges {
     for (const elem of list) {
       if (elem.elementType === 'fieldset' && elem.rows?.length) {
         this._loadForList(elem.rows);
-      } else if (elem.apiService && elem.apiMethod && elem.searchType == 'Local') {
+      } else if (elem.apiService && elem.apiMethod &&(!elem.searchType || elem.searchType == 'Local')) {
         elem.loadingIf = ()=>true
       const data =  await this.datasourceCache.load(elem.apiService, elem.apiMethod, elem.apiBody)
         elem.loadingIf = ()=>false
@@ -64,7 +64,7 @@ export class DynamicForm implements OnInit, OnChanges {
 export interface elements {
   columns: number;
   label: string;
-  elementType: 'button' | 'checkbox' | 'textbox' | 'textarea' | 'radio' | 'select' | 'datepicker' | 'file-uploader' | 'autocomplete' | 'slide-toggle' | 'fieldset' | 'templateRef';
+  elementType: 'button' | 'checkbox' | 'textbox' | 'textarea' | 'radio' | 'select' | 'datepicker' | 'file-uploader' | 'autocomplete' | 'slide-toggle' | 'fieldset' | 'templateRef' | 'spacer';
   key: string;
   /** Child elements rendered inside a fieldset. Only used when elementType is 'fieldset'. */
   rows?: elements[];
