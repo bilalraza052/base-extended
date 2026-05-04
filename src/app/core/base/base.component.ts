@@ -4,6 +4,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { Router } from "@angular/router";
 import { Dialog, DialogWrapper } from "../shared/components/dialog-wrapper/dialog-wrapper";
 import { DeleteConfirmation, DeleteConfirmationData } from "../shared/components/delete-confirmation/delete-confirmation";
+
 @Injectable()
 
 export class baseComponent{
@@ -14,6 +15,41 @@ export class baseComponent{
             message = message.join(',')
         }
         this.showSnack(message)
+    }
+
+    protected isValidBeforeSave(formElements: any[], model: any): string[] {
+        const errors: string[] = [];
+        this._collectValidationErrors(formElements, model, errors);
+        return errors;
+    }
+
+    private _collectValidationErrors(formElements: any[], model: any, errors: string[]): void {
+        for (const el of formElements) {
+            if (el.elementType === 'fieldset') {
+                if (el.rows?.length) {
+                    this._collectValidationErrors(el.rows, model, errors);
+                }
+                continue;
+            }
+
+            if (el.elementType === 'button' || el.elementType === 'templateRef' || el.elementType === 'spacer') {
+                continue;
+            }
+
+            if (el.hideIf?.(model)) {
+                continue;
+            }
+
+            const isRequired = el.required || el.requiredIf?.(model);
+            if (isRequired) {
+                const value = model[el.key];
+                const isEmpty = value === null || value === undefined || value === ''
+                    || (Array.isArray(value) && value.length === 0);
+                if (isEmpty) {
+                    errors.push(`${el.label} is required`);
+                }
+            }
+        }
     }
 
 
