@@ -3,6 +3,8 @@
     margin-bottom: 5px;
 }
 
+// ── Single select ─────────────────────────────────────────────────────────────
+
 .select-wrapper {
     position: relative;
     display: flex;
@@ -46,6 +48,7 @@
     }
 }
 
+// Arrow for single select — absolute so it doesn't shift the native <select>
 .select-arrow {
     position: absolute;
     right: 6px;
@@ -55,8 +58,10 @@
     color: #888;
     pointer-events: none;
     user-select: none;
+    transition: transform 0.2s;
 }
 
+// Clear button for single select
 .select-clear {
     display: flex;
     align-items: center;
@@ -96,6 +101,181 @@
 @keyframes select-spin {
     to { transform: rotate(360deg); }
 }
+
+// ── Multi select ──────────────────────────────────────────────────────────────
+
+.multi-select-wrapper {
+    position: relative;
+    width: 100%;
+    border-radius: var(--osl-border-radius);
+    border: 1px solid var(--osl-border-color);
+    transition: border-color 0.5s;
+    background: white;
+
+    &:focus-within,
+    &.multi-select-open {
+        border-color: var(--osl-focus-border-color);
+    }
+
+    &.error {
+        border-color: var(--osl-error-color);
+    }
+
+    &.select-disabled {
+        background: #f5f5f5;
+        opacity: 0.7;
+        cursor: not-allowed;
+
+        .multi-trigger {
+            cursor: not-allowed;
+        }
+    }
+}
+
+.multi-trigger {
+    display: flex;
+    align-items: center;
+    height: var(--osl-control-height);
+    padding: 0 6px 0 8px;
+    cursor: pointer;
+    user-select: none;
+    gap: 2px;
+    // No overflow: hidden — clipping is handled by text-overflow on the label spans
+}
+
+.multi-placeholder {
+    font-size: var(--osl-text-font-size);
+    color: #aaa;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.multi-selected-text {
+    font-size: var(--osl-text-font-size);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.multi-spinner {
+    position: static;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    margin-right: 4px;
+}
+
+// Clear button for multi mode: in-flow, never overlaps the arrow
+.multi-clear-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    color: #aaa;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+    z-index: 1;
+
+    mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+    }
+
+    &:hover {
+        color: #333;
+        background: #f0f0f0;
+    }
+}
+
+// Arrow for multi mode: in-flow, rotates when open
+.multi-arrow {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #888;
+    flex-shrink: 0;
+    pointer-events: none;
+    user-select: none;
+    transition: transform 0.2s;
+
+    &.rotated {
+        transform: rotate(180deg);
+    }
+}
+
+.multi-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: -1px;
+    right: -1px;
+    z-index: 1000;
+    background: white;
+    border-top: none;
+    border-radius: 0 0 var(--osl-border-radius) var(--osl-border-radius);
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.multi-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: var(--osl-text-font-size);
+    cursor: pointer;
+    user-select: none;
+
+    input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        cursor: pointer;
+        accent-color: var(--osl-focus-border-color);
+        pointer-events: none; // clicks handled by parent div
+    }
+
+    span {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &:hover {
+        background: #f5f5f5;
+    }
+
+    &.select-all-option {
+        font-weight: 600;
+        color: var(--osl-focus-border-color);
+    }
+}
+
+.multi-divider {
+    border-top: 1px solid var(--osl-border-color);
+    margin: 2px 0;
+}
+
+.multi-empty {
+    padding: 10px 12px;
+    font-size: var(--osl-label-font-size);
+    color: #aaa;
+    font-style: italic;
+    text-align: center;
+}
+
+// ── Shared ────────────────────────────────────────────────────────────────────
 
 .hint {
     color: var(--osl-error-color);

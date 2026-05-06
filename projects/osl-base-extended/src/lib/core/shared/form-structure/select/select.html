@@ -1,6 +1,6 @@
 <div class="d-flex flex-column">
     @if (label) {
-        <div [oslSkeleton]="skeletonLoading">
+        <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
             <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">
                 {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
             </label>
@@ -9,7 +9,7 @@
 
     }
 
-    <div class="select-wrapper" [oslSkeleton]="skeletonLoading" [class.error]="myField.touched && myField.invalid" [class.select-disabled]="disabled || loading">
+    <div class="select-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme" [class.error]="myField.touched && myField.invalid" [class.select-disabled]="disabled || loading">
         @if(loading) {
             <span class="select-spinner"></span>
         }

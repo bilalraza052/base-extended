@@ -3,6 +3,22 @@
     margin-bottom: 5px;
 }
 
+.txt-clr-red { color: var(--osl-error-color); }
+
+.hint {
+    color: var(--osl-error-color);
+    margin-top: 2px;
+    font-size: var(--osl-hint-font-size);
+}
+
+// ── Wrapper ───────────────────────────────────────────────────────────────────
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+// ── Native input ──────────────────────────────────────────────────────────────
 input[type='date'],
 input[type='datetime-local'],
 input[type='time'],
@@ -13,32 +29,87 @@ input[type='week'] {
     border-radius: var(--osl-border-radius);
     outline: none;
     border: 1px solid var(--osl-border-color);
-    padding: 0 8px;
+    padding: 0 10px;
     font-size: var(--osl-text-font-size);
     font-family: inherit;
-    transition: border-color 0.5s;
+    color: #333;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    color-scheme: light;
+    letter-spacing: 0.01em;
 
-    &:focus {
+    &:hover:not(:disabled) {
         border-color: var(--osl-focus-border-color);
     }
 
+    &:focus {
+        border-color: var(--osl-focus-border-color);
+        box-shadow: 0 0 0 3px var(--osl-focus-shadow, rgba(99, 102, 241, 0.14));
+    }
+
     &:disabled {
-        background: #f5f5f5;
+        background-color: #f5f5f5;
         cursor: not-allowed;
         opacity: 0.7;
     }
 
     &.error {
         border-color: var(--osl-error-color);
+
+        &:focus {
+            box-shadow: 0 0 0 3px var(--osl-error-shadow, rgba(220, 38, 38, 0.14));
+        }
     }
-}
 
-.hint {
-    color: var(--osl-error-color);
-    margin-top: 2px;
-    font-size: var(--osl-hint-font-size);
-}
+    // ── Calendar / clock icon ─────────────────────────────────────────────────
+    &::-webkit-calendar-picker-indicator {
+        width: 16px;
+        height: 16px;
+        padding: 3px;
+        margin-right: 2px;
+        border-radius: 4px;
+        cursor: pointer;
+        opacity: 0.45;
+        transition: opacity 0.15s, background-color 0.15s;
 
-.txt-clr-red {
-    color: var(--osl-error-color);
+        &:hover {
+            opacity: 0.9;
+            background-color: rgba(0, 0, 0, 0.07);
+        }
+    }
+
+    // ── Inner edit area ───────────────────────────────────────────────────────
+    &::-webkit-datetime-edit {
+        padding: 0;
+        line-height: 1;
+    }
+
+    &::-webkit-datetime-edit-fields-wrapper {
+        padding: 0;
+    }
+
+    // Separators ( / or : or space )
+    &::-webkit-datetime-edit-text {
+        color: #bbb;
+        padding: 0 1px;
+    }
+
+    // Individual fields – highlight selected segment with theme colour
+    &::-webkit-datetime-edit-year-field,
+    &::-webkit-datetime-edit-month-field,
+    &::-webkit-datetime-edit-day-field,
+    &::-webkit-datetime-edit-hour-field,
+    &::-webkit-datetime-edit-minute-field,
+    &::-webkit-datetime-edit-second-field,
+    &::-webkit-datetime-edit-week-field,
+    &::-webkit-datetime-edit-ampm-field {
+        border-radius: 3px;
+        padding: 1px 2px;
+
+        &:focus {
+            background-color: var(--osl-focus-border-color, #4361ee);
+            color: #fff;
+            outline: none;
+        }
+    }
 }

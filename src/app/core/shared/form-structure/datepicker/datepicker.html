@@ -1,29 +1,27 @@
 <div class="d-flex flex-column">
     @if (label) {
-        <div  [oslSkeleton]="skeletonLoading">
+        <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
             <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">
-                {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
+                {{label}} <span class="txt-clr-red">{{required ? '*' : ''}}</span>
             </label>
-    
         </div>
-
     }
-    <div  [oslSkeleton]="skeletonLoading">
-    <input
-        [type]="dateType"
-        [ngModel]="model"
-        (ngModelChange)="onModelChange($event)"
-        (change)="changeEv.emit(model)"
-        [required]="required"
-        [disabled]="disabled"
-        [placeholder]="placeholder"
-        [attr.min]="minDate || null"
-        [attr.max]="maxDate || null"
-        #myField="ngModel"
-        [class.error]="myField.touched && myField.invalid"
-    >
+    <div class="input-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
+        <input
+            [type]="dateType"
+            [ngModel]="model"
+            (ngModelChange)="onModelChange($event)"
+            (change)="changeEv.emit(model)"
+            [required]="required"
+            [disabled]="disabled"
+            [placeholder]="placeholder"
+            [attr.min]="minDate || null"
+            [attr.max]="maxDate || null"
+            #myField="ngModel"
+            [class.error]="myField.touched && myField.invalid"
+        >
     </div>
-    @if(myField.touched && myField.invalid && required) {
+    @if (myField.touched && myField.invalid && required) {
         <mat-hint class="hint">{{label}} is Required!</mat-hint>
     }
 </div>

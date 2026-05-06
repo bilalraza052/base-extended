@@ -223,12 +223,22 @@ export class Example extends baseComponent {
     super();
   }
   ngOnInit(){
+    this.model.imoNo = '2026-05-23T00:00:00'
+      this.cd.detectChanges()
+      this.cd.markForCheck()
+    setTimeout(()=>{
+      this.model.testObj= {
+        name:"Bilal",
+        value:"KR"
+      }
+      this.model.country = "KR"
+    
+      
+    },2000)
+
   
     this.beforeDisplay = (row)=>{
-      row.testObj= {
-        name:"Bilal",
-        value:58
-      }
+      row
       row.status = 58
       return row
 
@@ -247,7 +257,7 @@ export class Example extends baseComponent {
             key: 'type',
             valueField: 'id',
             displayField: 'displayName',
-  
+            apiService:this.service,
             apiMethod: 'getCombo',
             // datasource: [
             //   {
@@ -266,9 +276,10 @@ export class Example extends baseComponent {
           },
           {
             columns: 3,
-            elementType: 'textbox',
+            elementType: 'datepicker',
             label: 'IMO',
             key: 'imoNo',
+            // maxDate:'5-4-2026'
           },
           {
             columns: 3,
@@ -371,10 +382,12 @@ export class Example extends baseComponent {
             columns: 4,
             label: 'Country',
             elementType: 'autocomplete',
-          
+            apiService:this.service,
             apiMethod: 'loadAutocomplete',
             apiConfigMethod: 'config',
             searchType: 'Api',
+            // isListerAutocomplete:false,
+           
             displayField: 'name',
             valueField: 'value',
             objectName: 'testObj',
@@ -635,6 +648,85 @@ export class Example extends baseComponent {
           }
         ]
        },
+      {
+        columns: 12,
+        elementType: 'fieldset',
+        label: 'Multi-Select / Chips / Multi-Autocomplete Demo',
+        key: 'newFeaturesFieldset',
+        rows: [
+          {
+            columns: 4,
+            elementType: 'select',
+            label: 'Ports (Multi-Select with Select All)',
+            key: 'ports',
+            selectMultiple: true,
+            showSelectAll: true,
+            clearable: true,
+            displayField: 'label',
+            valueField: 'value',
+            datasource: [
+              { label: 'Karachi', value: 'KHI' },
+              { label: 'Port Qasim', value: 'PQA' },
+              { label: 'Gwadar', value: 'GWD' },
+              { label: 'Dubai', value: 'DXB' },
+              { label: 'Singapore', value: 'SGP' },
+            ],
+          },
+          {
+            columns: 4,
+            elementType: 'select',
+            label: 'Flags (Multi-Select, no Select All)',
+            key: 'flags',
+            selectMultiple: true,
+            showSelectAll: false,
+            clearable: true,
+            displayField: 'label',
+            valueField: 'value',
+            datasource: [
+              { label: 'Pakistan', value: 'PK' },
+              { label: 'Panama', value: 'PA' },
+              { label: 'Marshall Islands', value: 'MH' },
+              { label: 'Liberia', value: 'LR' },
+              { label: 'Bahamas', value: 'BS' },
+            ],
+          },
+          {
+            columns: 4,
+            elementType: 'chips-input',
+            label: 'Certificate Numbers (Chips Input)',
+            key: 'certificateNumbers',
+            placeholder: 'Type a number and press Enter...',
+            required: true,
+          },
+          {
+            columns: 6,
+            elementType: 'autocomplete',
+            label: 'Crew Nationalities (Multi Autocomplete)',
+            key: 'crewNationalities',
+            autocompleteMultiple: true,
+            displayField: 'name',
+            valueField: 'code',
+            searchType: 'Local',
+            datasource: [
+              { name: 'Pakistani', code: 'PK' },
+              { name: 'Filipino', code: 'PH' },
+              { name: 'Indian', code: 'IN' },
+              { name: 'Chinese', code: 'CN' },
+              { name: 'Indonesian', code: 'ID' },
+              { name: 'Myanmar', code: 'MM' },
+              { name: 'Ukrainian', code: 'UA' },
+              { name: 'Russian', code: 'RU' },
+            ],
+          },
+          {
+            columns: 6,
+            elementType: 'chips-input',
+            label: 'Trading Routes (Chips Input)',
+            key: 'tradingRoutes',
+            placeholder: 'Add a route and press Enter...',
+          },
+        ],
+      },
     ];
       
      this.colList = [

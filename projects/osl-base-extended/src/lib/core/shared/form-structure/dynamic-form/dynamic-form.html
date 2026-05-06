@@ -16,6 +16,7 @@
                 <div [class]="'col-md-'+elem.columns+' mt-2'">
                     <osl-input
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
                         [label]="elem.label"
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
@@ -39,6 +40,7 @@
                     <osl-textarea
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
@@ -59,6 +61,7 @@
                     <osl-select
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
@@ -79,6 +82,7 @@
                     <osl-radio
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
@@ -97,6 +101,7 @@
                     <osl-slide-toggle
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [labelPosition]="elem.labelPosition || 'after'"
@@ -113,6 +118,7 @@
                     <osl-autocomplete
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
@@ -128,6 +134,7 @@
                         [object]="model[elem.objectName]"
                         [searchType]="elem.searchType"
                         [configMethodName]="elem.apiConfigMethod"
+                        [isLister]="elem.isListerAutocomplete"
                         
                         
                     ></osl-autocomplete>
@@ -138,6 +145,7 @@
                 <div [class]="'col-md-'+elem.columns+' mt-2'">
                     <osl-file-upload
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [label]="elem.label"
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
@@ -155,6 +163,7 @@
                 <div [class]="'col-md-'+elem.columns+' mt-2'">
                     <osl-datepicker
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [label]="elem.label"
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
@@ -173,6 +182,7 @@
                 <div [class]="'col-md-'+elem.columns+' mt-2'">
                     <osl-checkbox
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [label]="elem.label"
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
@@ -200,7 +210,7 @@
                 <div [class]="'col-md-'+elem.columns+' mt-3'">
                     <fieldset class="osl-fieldset">
                         @if(elem.label) {
-                            <legend class="osl-fieldset-legend" [oslSkeleton]="skeletonLoading">
+                            <legend class="osl-fieldset-legend" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
                                 <span class="osl-fieldset-legend__text">{{ elem.label }}</span>
                             </legend>
                         }

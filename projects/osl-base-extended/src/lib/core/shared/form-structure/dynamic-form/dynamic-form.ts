@@ -12,15 +12,23 @@ import { TextareaResize } from '../textarea/textarea';
 })
 export class DynamicForm implements OnInit, OnChanges {
   @Input('elements') elements: elements[] = [];
-  @Input('model')  model:any
+  private _model: any;
+  @Input('model')  set model(val:any){
+    this._model = val
+
+  }
+  get model(){
+    return this._model
+  }
   @Input('skeletonLoading') skeletonLoading: boolean = false;
+  @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
 
   @Output() modelChange = new EventEmitter<any>();
 
 
   private datasourceCache = inject(DatasourceCacheService);
   constructor(public cdr:ChangeDetectorRef){
-    
+
   }
   ngOnInit(): void {
     this.loadApiDatasources();
@@ -40,16 +48,16 @@ export class DynamicForm implements OnInit, OnChanges {
     for (const elem of list) {
       if (elem.elementType === 'fieldset' && elem.rows?.length) {
         this._loadForList(elem.rows);
-      } else if (elem.apiService && elem.apiMethod &&(!elem.searchType || elem.searchType == 'Local')) {
+      } else if (elem.apiService && elem.apiMethod && (!elem.searchType || elem.searchType == 'Local')) {
         elem.loadingIf = ()=>true
-      const data =  await this.datasourceCache.load(elem.apiService, elem.apiMethod, elem.apiBody)
+      const data =  await this.datasourceCache.load(elem.apiService, elem.apiMethod, elem.apiBody? elem.apiBody(this.model):null)
         elem.loadingIf = ()=>false
         this.cdr.markForCheck()
 
         if(data && data.length > 0){
           elem.datasource = data;
 
-        
+
         }
       }
     }
@@ -64,7 +72,7 @@ export class DynamicForm implements OnInit, OnChanges {
 export interface elements {
   columns: number;
   label: string;
-  elementType: 'button' | 'checkbox' | 'textbox' | 'textarea' | 'radio' | 'select' | 'datepicker' | 'file-uploader' | 'autocomplete' | 'slide-toggle' | 'fieldset' | 'templateRef' | 'spacer';
+  elementType: 'button' | 'checkbox' | 'textbox' | 'textarea' | 'radio' | 'select' | 'datepicker' | 'file-uploader' | 'autocomplete' | 'slide-toggle' | 'fieldset' | 'templateRef' | 'chips-input' | 'spacer';
   key: string;
   /** Child elements rendered inside a fieldset. Only used when elementType is 'fieldset'. */
   rows?: elements[];
@@ -83,7 +91,7 @@ export interface elements {
   apiService?: any;
   apiMethod?: string;
   apiConfigMethod?: string;
-  apiBody?: any;
+  apiBody?:(model:any)=>any,
 
   // ── osl-input ─────────────────────────────────────
   inputType?: InputType;
@@ -105,6 +113,10 @@ export interface elements {
   // ── osl-select ────────────────────────────────────
   selectPlaceholder?: string;
   clearable?: boolean;
+  /** Enable multi-select mode — model becomes any[]. */
+  selectMultiple?: boolean;
+  /** Show a "Select All" checkbox at the top of the multi-select dropdown. Only applies when selectMultiple is true. */
+  showSelectAll?: boolean;
 
   // ── osl-datepicker ────────────────────────────────
   dateType?: DateInputType;
@@ -129,8 +141,11 @@ export interface elements {
 
   // ── osl-autocomplete ──────────────────────────────
   autocompletePlaceholder?: string;
+  /** Enable multiple selection with checkboxes — model becomes any[]. */
+  autocompleteMultiple?: boolean;
 
   templateRef?:TemplateRef<any>
   searchType?:'Api' | 'Local';
-  objectName?:string
+  objectName?:string;
+  isListerAutocomplete?:boolean
 }

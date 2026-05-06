@@ -1,6 +1,6 @@
 <div class="d-flex flex-column">
     @if(label){
-        <div  [oslSkeleton]="skeletonLoading">
+        <div  [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
             <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">
                 {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
             </label>
@@ -8,7 +8,7 @@
         </div>
     }
         
-    <div [oslSkeleton]="skeletonLoading">
+    <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
     <textarea
         [rows]="rows"
         [ngModel]="model"

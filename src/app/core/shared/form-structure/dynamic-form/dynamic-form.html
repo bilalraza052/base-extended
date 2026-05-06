@@ -1,5 +1,5 @@
 @if(elements && elements.length > 0) {
-    <div class="row w-100">
+    <div class="row align-items-center w-100">
         @for(elem of elements; track elem) {
             @if(!(elem.hideIf ? elem.hideIf(model) : elem.hide)) {
                 <ng-container *ngTemplateOutlet="formField; context: { $implicit: elem }"></ng-container>
@@ -16,6 +16,7 @@
                 <div [class]="'col-md-'+elem.columns+' mt-2'">
                     <osl-input
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
                         [label]="elem.label"
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
@@ -39,6 +40,7 @@
                     <osl-textarea
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
@@ -59,6 +61,7 @@
                     <osl-select
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
@@ -68,9 +71,26 @@
                         [placeholder]="elem.selectPlaceholder || 'Select...'"
                         [loading]="elem.loadingIf ? elem.loadingIf(model) : false"
                         [clearable]="!!elem.clearable"
+                        [multiple]="!!elem.selectMultiple"
+                        [showSelectAll]="!!elem.showSelectAll"
                         (changeEv)="elem.change ? elem.change(model) : null"
                         [(model)]="model[elem.key]"
                     ></osl-select>
+                </div>
+            }
+
+            @case ("chips-input") {
+                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                    <osl-chips-input
+                        [skeletonLoading]="skeletonLoading"
+                        [skeletonTheme]="skeletonTheme"
+                        [label]="elem.label"
+                        [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
+                        [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
+                        [placeholder]="elem.placeholder || 'Type and press Enter...'"
+                        (changeEv)="elem.change ? elem.change(model) : null"
+                        [(model)]="model[elem.key]"
+                    ></osl-chips-input>
                 </div>
             }
 
@@ -79,6 +99,7 @@
                     <osl-radio
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
@@ -97,6 +118,7 @@
                     <osl-slide-toggle
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [labelPosition]="elem.labelPosition || 'after'"
@@ -113,6 +135,7 @@
                     <osl-autocomplete
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
@@ -121,15 +144,17 @@
                         [valueField]="elem.valueField || ''"
                         [placeholder]="elem.autocompletePlaceholder || 'Type to search...'"
                         [loading]="elem.loadingIf ? elem.loadingIf(model) : false"
+                        [multiple]="!!elem.autocompleteMultiple"
                         (changeEv)="elem.change ? elem.change(model) : null"
                         [(model)]="model[elem.key]"
                         [methodName]="elem.apiMethod"
                         [service]="elem.apiService"
                         [object]="model[elem.objectName]"
                         [searchType]="elem.searchType"
-                        [configMethodName]="elem.apiConfigMethod"
-                        
-                        
+                        [configMethodName]="elem.apiConfigMethod"4
+                        [isLister]="elem.isListerAutocomplete"
+
+
                     ></osl-autocomplete>
                 </div>
             }
@@ -138,6 +163,7 @@
                 <div [class]="'col-md-'+elem.columns+' mt-2'">
                     <osl-file-upload
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [label]="elem.label"
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
@@ -155,6 +181,7 @@
                 <div [class]="'col-md-'+elem.columns+' mt-2'">
                     <osl-datepicker
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [label]="elem.label"
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
@@ -173,6 +200,7 @@
                 <div [class]="'col-md-'+elem.columns+' mt-2'">
                     <osl-checkbox
                     [skeletonLoading]="skeletonLoading"
+                    [skeletonTheme]="skeletonTheme"
 
                         [label]="elem.label"
                         [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
@@ -187,7 +215,7 @@
             @case ("button") {
                 <div [class]="'col-md-'+elem.columns+' mt-2'">
                     <osl-button
-                    
+
                         [label]="elem.label"
                         [loading]="elem.loadingIf ? elem.loadingIf(model) : false"
                         variant="secondary"
@@ -200,7 +228,7 @@
                 <div [class]="'col-md-'+elem.columns+' mt-3'">
                     <fieldset class="osl-fieldset">
                         @if(elem.label) {
-                            <legend class="osl-fieldset-legend" [oslSkeleton]="skeletonLoading">
+                            <legend class="osl-fieldset-legend" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
                                 <span class="osl-fieldset-legend__text">{{ elem.label }}</span>
                             </legend>
                         }
@@ -219,7 +247,12 @@
                  <div [class]="'col-md-'+elem.columns+' mt-3'">
                         <ng-container *ngTemplateOutlet="elem.templateRef; context: { $implicit: elem}"></ng-container>
 
-                
+
+                </div>
+            }
+             @case ("spacer") {
+                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                 
                 </div>
             }
 

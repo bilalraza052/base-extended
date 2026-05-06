@@ -1,40 +1,98 @@
 <div class="d-flex flex-column">
-    @if (label) {
-        <div [oslSkeleton]="skeletonLoading">
-            <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">
-                {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
-            </label>
-    
-        </div>
-
-    }
-
-    <div class="select-wrapper" [oslSkeleton]="skeletonLoading" [class.error]="myField.touched && myField.invalid" [class.select-disabled]="disabled || loading">
-        @if(loading) {
-            <span class="select-spinner"></span>
+    @if (!multiple) {
+        @if (label) {
+            <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
+                <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">
+                    {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
+                </label>
+            </div>
         }
-        <select
-            [ngModel]="model"
-            (ngModelChange)="onModelChange($event)"
-            (change)="onChange()"
-            [required]="required"
-            [disabled]="disabled || loading"
-            #myField="ngModel"
-        >
-            <option value="" [disabled]="required" [hidden]="required" selected>{{placeholder}}</option>
-            @for(item of datasource; track item) {
-                <option [value]="getValue(item)">{{getDisplay(item)}}</option>
+        <div class="select-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme" [class.error]="myField.touched && myField.invalid" [class.select-disabled]="disabled || loading">
+            @if(loading) {
+                <span class="select-spinner"></span>
             }
-        </select>
-        @if(clearable && hasValue && !disabled && !loading) {
-            <button type="button" class="select-clear" (click)="onClear($event)" title="Clear">
-                <mat-icon>close</mat-icon>
-            </button>
+            <select
+                [ngModel]="model"
+                (ngModelChange)="onModelChange($event)"
+                (change)="onChange()"
+                [required]="required"
+                [disabled]="disabled || loading"
+                #myField="ngModel"
+            >
+                <option value="" [disabled]="required" [hidden]="required" selected>{{placeholder}}</option>
+                @for(item of datasource; track item) {
+                    <option [value]="getValue(item)">{{getDisplay(item)}}</option>
+                }
+            </select>
+            @if(clearable && hasValue && !disabled && !loading) {
+                <button type="button" class="select-clear" (click)="onClear($event)" title="Clear">
+                    <mat-icon>close</mat-icon>
+                </button>
+            }
+            <mat-icon class="select-arrow">expand_more</mat-icon>
+        </div>
+        @if(myField.touched && myField.invalid && required) {
+            <mat-hint class="hint">{{label}} is Required!</mat-hint>
         }
-        <mat-icon class="select-arrow">expand_more</mat-icon>
-    </div>
-
-    @if(myField.touched && myField.invalid && required) {
-        <mat-hint class="hint">{{label}} is Required!</mat-hint>
+    } @else {
+        @if (label) {
+            <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
+                <label class="label" [class.txt-clr-red]="isMultiInvalid">
+                    {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
+                </label>
+            </div>
+        }
+        <div class="multi-select-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme"
+             [class.multi-select-open]="isOpen"
+             [class.select-disabled]="disabled || loading"
+             [class.error]="isMultiInvalid">
+            <div class="multi-trigger" (click)="toggleDropdown()">
+                @if(loading) {
+                    <span class="select-spinner multi-spinner"></span>
+                }
+                @if(!hasValue) {
+                    <span class="multi-placeholder">{{placeholder}}</span>
+                } @else {
+                    <span class="multi-selected-text">{{selectedDisplayLabels}}</span>
+                }
+                <!-- Clear and arrow are always in-flow at the right end, never overlap -->
+                @if(clearable && hasValue && !disabled && !loading) {
+                    <button type="button" class="multi-clear-btn" (click)="onClear($event)" title="Clear all">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                }
+                <mat-icon class="multi-arrow" [class.rotated]="isOpen">expand_more</mat-icon>
+            </div>
+            @if(isOpen) {
+                <div class="multi-dropdown">
+                    @if(showSelectAll) {
+                        <div class="multi-option select-all-option" (click)="toggleSelectAll($event)">
+                            <input type="checkbox"
+                                   [checked]="isAllSelected"
+                                   [indeterminate]="isIndeterminate"
+                                   tabindex="-1"
+                                   (click)="$event.preventDefault()">
+                            <span>Select All</span>
+                        </div>
+                        <div class="multi-divider"></div>
+                    }
+                    @for(item of datasource; track item) {
+                        <div class="multi-option" (click)="toggleItem(item, $event)">
+                            <input type="checkbox"
+                                   [checked]="isSelected(item)"
+                                   tabindex="-1"
+                                   (click)="$event.preventDefault()">
+                            <span>{{getDisplay(item)}}</span>
+                        </div>
+                    }
+                    @if(datasource.length === 0) {
+                        <div class="multi-empty">No options available</div>
+                    }
+                </div>
+            }
+        </div>
+        @if(isMultiInvalid) {
+            <mat-hint class="hint">{{label}} is Required!</mat-hint>
+        }
     }
 </div>

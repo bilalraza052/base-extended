@@ -1,5 +1,5 @@
 <div class="d-flex flex-column">
-    <div  [oslSkeleton]="skeletonLoading">
+    <div  [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
     <label class="label" [class.txt-clr-red]="isInvalid">
         {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
     </label>
@@ -16,7 +16,7 @@
     >
 
     <div
-     [oslSkeleton]="skeletonLoading"
+     [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme"
         class="drop-zone"
         [class.error]="isInvalid || sizeError"
         [class.file-disabled]="disabled"

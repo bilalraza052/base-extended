@@ -1,6 +1,6 @@
 <div class="d-flex flex-column">
     @if(label){
-        <div [oslSkeleton]="skeletonLoading">
+        <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
             <label class="label" [class.txt-clr-red]="isInvalid">
                 {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
             </label>
@@ -8,7 +8,7 @@
         </div>
 
     }
-    <div class="autocomplete-wrapper" [oslSkeleton]="skeletonLoading" [class.error]="isInvalid" [class.autocomplete-wrapper--api]="searchType == 'Api'">
+    <div class="autocomplete-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme" [class.error]="isInvalid" [class.autocomplete-wrapper--api]="searchType == 'Api'">
         <input
             [value]="inputValue"
             (input)="onInput($any($event.target).value)"
@@ -30,7 +30,7 @@
                     <mat-icon>close</mat-icon>
                 </button>
             }
-            @if(searchType == 'Api' && !disabled) {
+            @if(searchType == 'Api' && isLister && !disabled) {
                 <button  type="button" class="ac-lister-btn" (mousedown)="$event.preventDefault(); openLister()" tabindex="-1" title="Browse list or press Enter">
                     <!-- <img src="assets/enter (2).png" alt="Enter" class="ac-lister-img"> -->
                      <mat-icon>manage_search</mat-icon>

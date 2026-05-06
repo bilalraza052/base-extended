@@ -26,157 +26,12 @@ export class ExampleService extends Httpbase {
           name:"Hello4",
           value:'helloworld3' 
         },{
-          name:"Hello4",
-          value:'helloworld3' 
-        },{
-          name:"Hello4",
-          value:'helloworld3' 
-        },{
-          name:"Hello4",
-          value:'helloworld3' 
-        },{
-          name:"Hello4",
-          value:'helloworld3' 
-        },{
-          name:"Hello4",
-          value:'helloworld3' 
-        },{
-          name:"Hello4",
-          value:'helloworld3' 
-        },{
-          name:"Hello4",
-          value:'helloworld3' 
-        },{
-          name:"Hello4",
-          value:'helloworld3' 
-        },{
-          name:"Hello4",
-          value:'helloworld3' 
-        },{
-          name:"Hello4",
-          value:'helloworld3' 
-        },{
-          name:"Hello4",
-          value:'helloworld3' 
-        },{
-          name:"Hello5",
-          value:'helloworld5' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
           name:"Hello6",
           value:'helloworld6' 
         },
         {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },
-        {
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
-          name:"Hello6",
-          value:'helloworld6' 
-        },{
           name:"Hello10",
-          value:'helloworld6' 
+          value:'helloworld10' 
         },
         
       ]
@@ -203,5 +58,8 @@ export class ExampleService extends Httpbase {
     }, 250);
   });
 
+  }
+  async getCombo(){
+    return await this.get("hello")
   }
 }

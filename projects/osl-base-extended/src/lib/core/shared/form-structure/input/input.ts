@@ -24,6 +24,7 @@ export class Oslinput {
   @Input('prefixIcon') prefixIcon: string = '';
   @Input('suffixIcon') suffixIcon: string = '';
   @Input('skeletonLoading') skeletonLoading: boolean = false;
+  @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
 
   @Output() modelChange = new EventEmitter<any>();
   @Output() changeEv = new EventEmitter<any>();

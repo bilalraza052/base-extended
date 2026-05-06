@@ -26,7 +26,24 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
   @Input('label') label: string = '';
   @Input('required') required: boolean = false;
   @Input('disabled') disabled: boolean = false;
-  @Input('model') model: any = null;
+ private _model: any;
+  private _object: any;
+  @Input('model') set model(val:any){
+    if(val){
+      this._model = val;
+      if(this.object){
+        this.datasource = [this.object]
+        this.filteredItems = [...this.datasource]
+        this.syncInputFromModel()
+
+      }
+    }
+    
+  }
+
+  get model(){
+    return this._model
+  }
   @Input('datasource') datasource: any[] = [];
   @Input('displayField') displayField: string = '';
   @Input('valueField') valueField: string = '';
@@ -36,8 +53,21 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
   @Input('methodName') methodName: string = '';
   @Input('configMethodName') configMethodName: string = '';
   @Input('service') service: any;
-  @Input('object') object: any;
+   @Input('object') set object(val:any){
+      if(val){
+        this._object = val;
+        this.datasource = [val]
+        this.filteredItems = [...this.datasource]
+      }
+      if(this.model){
+        this.syncInputFromModel()
+
+      }
+    }
   @Input('skeletonLoading') skeletonLoading: boolean = false;
+  @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
+  @Input('isLister') isLister: boolean = false;
+
   @Output() modelChange = new EventEmitter<any>();
   @Output() changeEv = new EventEmitter<any>();
   private listerComponent = inject(AUTOCOMPLETE_LISTER_COMPONENT);
@@ -81,7 +111,12 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
 
   ngOnInit() {
     if (this.searchType == 'Api' && this.methodName && this.service) {
-      this.placeholder = 'Type to Search Or Press Enter';
+       if(this.isLister){
+          this.placeholder = 'Type to Search Or Press Enter';
+        }else{
+          this.placeholder = 'Type to Search';
+
+        }
       this.inputControl.valueChanges
         .pipe(debounceTime(500), distinctUntilChanged())
         .subscribe(async (value) => {

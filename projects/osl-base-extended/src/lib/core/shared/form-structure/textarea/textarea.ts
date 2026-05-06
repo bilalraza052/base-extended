@@ -22,7 +22,7 @@ export class Osltextarea {
   @Output() modelChange = new EventEmitter<any>();
   @Output() changeEv = new EventEmitter<any>();
   @Input('skeletonLoading') skeletonLoading: boolean = false;
-
+  @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
 
   get currentLength(): number {
     return this.model ? String(this.model).length : 0;

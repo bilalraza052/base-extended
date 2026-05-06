@@ -1,56 +1,132 @@
 <div class="d-flex flex-column">
     @if(label){
-        <div [oslSkeleton]="skeletonLoading">
+        <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
             <label class="label" [class.txt-clr-red]="isInvalid">
                 {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
             </label>
-    
         </div>
-
     }
-    <div class="autocomplete-wrapper" [oslSkeleton]="skeletonLoading" [class.error]="isInvalid" [class.autocomplete-wrapper--api]="searchType == 'Api'">
-        <input
-            [value]="inputValue"
-            (input)="onInput($any($event.target).value)"
-            (focus)="onFocus()"
-            (blur)="onBlur()"
-            (focusout)="onFocusOut()"
-            [disabled]="disabled || loading"
-           [formControl]="inputControl"
-            [class.error]="isInvalid"
-            [placeholder]="loading ? 'Loading...' : placeholder"
-            autocomplete="off"
-            (keyup.enter)="searchType == 'Api' ? openLister() : null"
-        >
-        @if(loading) {
-            <span class="ac-spinner"></span>
-        } @else {
-            @if(inputValue && !disabled) {
-                <button type="button" class="ac-clear" [class.ac-clear--shifted]="searchType == 'Api'" (mousedown)="clearValue($event)" tabindex="-1" title="Clear">
-                    <mat-icon>close</mat-icon>
-                </button>
-            }
-            @if(searchType == 'Api' && !disabled) {
-                <button  type="button" class="ac-lister-btn" (mousedown)="$event.preventDefault(); openLister()" tabindex="-1" title="Browse list or press Enter">
-                    <!-- <img src="assets/enter (2).png" alt="Enter" class="ac-lister-img"> -->
-                     <mat-icon>manage_search</mat-icon>
-                </button>
-            }
-        }
-        @if(showDropdown && !loading) {
-            <div class="dropdown">
-                @if(filteredItems.length > 0) {
-                    @for(item of filteredItems; track item) {
-                        <div class="dropdown-item" (mousedown)="selectItem(item)">{{getDisplay(item)}}</div>
-                    }
-                } @else {
-                    @if(searchType == 'Local'){
-                        <div class="no-results">No results found</div>
-                    }
+
+    @if(!multiple) {
+        <!-- ── Single autocomplete ──────────────────────────────────────────── -->
+        <div class="autocomplete-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme" [class.error]="isInvalid" [class.autocomplete-wrapper--api]="searchType == 'Api'">
+            <input
+                [value]="inputValue"
+                (input)="onInput($any($event.target).value)"
+                (focus)="onFocus()"
+                (blur)="onBlur()"
+                (focusout)="onFocusOut()"
+                [disabled]="disabled || loading"
+                [formControl]="inputControl"
+                [class.error]="isInvalid"
+                [placeholder]="loading ? 'Loading...' : placeholder"
+                autocomplete="off"
+                (keyup.enter)="searchType == 'Api' ? openLister() : null"
+            >
+            @if(loading) {
+                <span class="ac-spinner"></span>
+            } @else {
+                @if(inputValue && !disabled) {
+                    <button type="button" class="ac-clear" [class.ac-clear--shifted]="searchType == 'Api'" (mousedown)="clearValue($event)" title="Clear">
+                        <mat-icon>close</mat-icon>
+                    </button>
                 }
+                @if(searchType == 'Api' && isLister && !disabled) {
+                    <button type="button" class="ac-lister-btn" (mousedown)="$event.preventDefault(); openLister()" title="Browse list or press Enter">
+                        <mat-icon>manage_search</mat-icon>
+                    </button>
+                }
+            }
+            @if(showDropdown && !loading) {
+                <div class="dropdown">
+                    @if(filteredItems.length > 0) {
+                        @for(item of filteredItems; track item) {
+                            <div class="dropdown-item" (mousedown)="selectItem(item)">{{getDisplay(item)}}</div>
+                        }
+                    } @else {
+                        @if(searchType == 'Local'){
+                            <div class="no-results">No results found</div>
+                        }
+                    }
+                </div>
+            }
+        </div>
+    } @else {
+        <!-- ── Multiple autocomplete ────────────────────────────────────────── -->
+        <div class="ac-multi-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme"
+             [class.ac-multi--focused]="showDropdown"
+             [class.ac-multi--disabled]="disabled || loading"
+             [class.error]="isInvalid"
+             (click)="focusMultiInput()">
+
+            <!-- Left: chips + search input, scrollable when many chips are selected -->
+            <div class="ac-multi-body">
+                @for(val of selectedValues; track val) {
+                    <span class="ac-chip">
+                        <span class="ac-chip-label">{{getDisplayForValue(val)}}</span>
+                        @if(!disabled) {
+                            <button type="button" class="ac-chip-remove"
+                                    (mousedown)="removeMultiItem(val, $event)"
+                                    title="Remove">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        }
+                    </span>
+                }
+                <input
+                    #multiInput
+                    class="ac-multi-input"
+                    [value]="inputValue"
+                    (input)="onInput($any($event.target).value)"
+                    (focus)="onFocus()"
+                [formControl]="inputControl"
+                
+                    (blur)="onBlur()"
+                    [disabled]="disabled || loading"
+                    [placeholder]="selectedValues.length === 0 ? (loading ? 'Loading...' : placeholder) : ''"
+                    autocomplete="off"
+                >
             </div>
-        }
-    </div>
+
+            <!-- Right: count badge / clear / chevron -->
+            <div class="ac-multi-controls">
+                @if(loading) {
+                    <span class="ac-spinner ac-spinner--inline"></span>
+                }
+                @if(!loading && selectedValues.length > 0 && !disabled) {
+                    <!-- <span class="ac-count-badge">{{selectedValues.length}}</span> -->
+                    <button type="button" class="ac-multi-clear-btn"
+                            (mousedown)="clearMultiValue($event)"
+                            title="Clear all">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                }
+                <mat-icon class="ac-multi-chevron" [class.ac-multi-chevron--open]="showDropdown">expand_more</mat-icon>
+            </div>
+
+            @if(showDropdown && !loading) {
+                <div class="ac-dropdown">
+                    @if(filteredItems.length > 0) {
+                        @for(item of filteredItems; track item) {
+                            <div class="ac-dropdown-item"
+                                 [class.ac-dropdown-item--selected]="isItemSelected(item)"
+                                 (mousedown)="toggleMultiItem(item, $event)">
+                                <span class="ac-dropdown-check">
+                                    @if(isItemSelected(item)) {
+                                        <mat-icon>check</mat-icon>
+                                    }
+                                </span>
+                                <span class="ac-dropdown-label">{{getDisplay(item)}}</span>
+                            </div>
+                        }
+                    } @else if(searchType == 'Local') {
+                        <div class="ac-dropdown-empty">No results found</div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
     @if(isInvalid) {
         <mat-hint class="hint">{{label}} is Required!</mat-hint>
     }

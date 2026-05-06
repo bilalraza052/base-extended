@@ -1,11 +1,11 @@
 <div class="d-flex flex-column">
     @if(label) {
-        <div [oslSkeleton]="skeletonLoading">
+        <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
             <span class="label">{{label}}</span>
 
         </div>
     }
-    <div class="toggle-row" [class.reverse]="labelPosition === 'before'" [oslSkeleton]="skeletonLoading">
+    <div class="toggle-row" [class.reverse]="labelPosition === 'before'" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
         <label class="toggle" [class.toggle-disabled]="disabled">
             <input type="checkbox" [ngModel]="model" (ngModelChange)="onModelChange($event)" [disabled]="disabled">
             <span class="slider"></span>

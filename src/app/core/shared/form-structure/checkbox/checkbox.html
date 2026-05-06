@@ -1,6 +1,6 @@
 <div class="d-flex flex-column">
 
-    <label class="checkbox-wrapper"  [oslSkeleton]="skeletonLoading" [class.checkbox-disabled]="disabled" [class.checkbox-invalid]="isInvalid">
+    <label class="checkbox-wrapper"  [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme" [class.checkbox-disabled]="disabled" [class.checkbox-invalid]="isInvalid">
         <input
             #checkboxEl
             type="checkbox"
@@ -8,7 +8,7 @@
             (ngModelChange)="onModelChange($event)"
             [disabled]="disabled"
         >
-        <span class="checkbox-label"  [oslSkeleton]="skeletonLoading">
+        <span class="checkbox-label"  [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
             {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
         </span>
     </label>

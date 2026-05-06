@@ -24,6 +24,7 @@ import { OslGrid } from "./grid/grid";
 import { OslFormGrid } from "./form-grid/form-grid";
 import { OslAutocompleteLister } from "./autocomplete-lister/autocomplete-lister";
 import { OslSkeletonModule } from "../directive/skeleton/skeleton.module";
+import { OslChipsInput } from "./chips-input/chips-input";
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { OslSkeletonModule } from "../directive/skeleton/skeleton.module";
     OslSearchbar,
     OslGrid,
     OslFormGrid,
-    OslAutocompleteLister
+    OslAutocompleteLister,
+    OslChipsInput
   ],
   imports: [
     NgTemplateOutlet,
@@ -67,7 +69,7 @@ import { OslSkeletonModule } from "../directive/skeleton/skeleton.module";
     OslCheckbox,
     OslButton,
     OslSetup,
-    OslSearchbar,OslAutocompleteLister],
+    OslSearchbar, OslAutocompleteLister, OslChipsInput],
   providers: [
     { provide: AUTOCOMPLETE_LISTER_COMPONENT, useValue: OslAutocompleteLister },
   ],

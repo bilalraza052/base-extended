@@ -3,6 +3,8 @@
     margin-bottom: 5px;
 }
 
+// ── Single autocomplete ───────────────────────────────────────────────────────
+
 .autocomplete-wrapper {
     position: relative;
     display: flex;
@@ -29,7 +31,6 @@
         }
 
         &::placeholder {
-            font-size: var(--osl-label-font-size);
             color: #aaa;
             font-size: 12px;
         }
@@ -50,6 +51,18 @@
     border-radius: 50%;
     animation: ac-spin 0.7s linear infinite;
     pointer-events: none;
+
+    &--corner {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
+    }
+
+    &--inline {
+        position: static;
+        flex-shrink: 0;
+    }
 }
 
 @keyframes ac-spin {
@@ -96,7 +109,6 @@
     cursor: pointer;
     border-radius: 4px;
     color: #aaa;
-
     opacity: 0.75;
     transition: opacity 0.15s, transform 0.1s;
 
@@ -109,13 +121,6 @@
     }
 }
 
-.ac-lister-img {
-    width: 24px;
-    height: 24px;
-    display: block;
-    pointer-events: none;
-}
-
 .autocomplete-wrapper--api {
     input {
         padding-right: 64px;
@@ -124,12 +129,11 @@
 
 .dropdown {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 5px);
     left: 0;
     right: 0;
     z-index: 1000;
     background: white;
-    border: 1px solid var(--osl-border-color);
     border-top: none;
     border-radius: 0 0 var(--osl-border-radius) var(--osl-border-radius);
     max-height: 200px;
@@ -147,12 +151,313 @@
     }
 }
 
+.dropdown-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    font-size: var(--osl-label-font-size);
+    cursor: pointer;
+    user-select: none;
+
+    input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        cursor: pointer;
+        accent-color: var(--osl-focus-border-color);
+        pointer-events: none;
+    }
+
+    span {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &:hover {
+        background: #f5f5f5;
+    }
+}
+
 .no-results {
     padding: 8px 10px;
     font-size: var(--osl-label-font-size);
     color: #aaa;
     font-style: italic;
 }
+
+// ── Multiple autocomplete ─────────────────────────────────────────────────────
+
+.ac-multi-wrapper {
+    display: flex;
+    align-items: stretch;
+    position: relative;
+    width: 100%;
+    min-height: var(--osl-control-height);
+    border-radius: var(--osl-border-radius);
+    border: 1px solid var(--osl-border-color);
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: text;
+
+    &.ac-multi--focused,
+    &:focus-within {
+        border-color: var(--osl-focus-border-color);
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.08);
+    }
+
+    &.error {
+        border-color: var(--osl-error-color);
+
+        &.ac-multi--focused,
+        &:focus-within {
+            box-shadow: none;
+        }
+    }
+
+    &.ac-multi--disabled {
+        background: #f5f5f5;
+        opacity: 0.7;
+        cursor: not-allowed;
+
+        .ac-multi-input {
+            cursor: not-allowed;
+        }
+    }
+}
+
+// Left region: chips + search input, scrollable when many chips
+.ac-multi-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    padding: 4px 6px 4px 8px;
+    gap: 4px;
+    max-height: 88px;
+    overflow-y: auto;
+}
+
+.ac-multi-input {
+    flex: 1;
+    min-width: 100px;
+    border: none;
+    outline: none;
+    font-size: var(--osl-text-font-size);
+    background: transparent;
+    padding: 3px 0;
+    line-height: 1.5;
+    cursor: text;
+
+    &::placeholder {
+        color: #bbb;
+        font-size: var(--osl-label-font-size);
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+    }
+}
+
+// Right region: count badge / clear / chevron — always visible, full height
+.ac-multi-controls {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 2px;
+    padding: 0 6px 0 4px;
+    border-left: 1px solid #e8e8e8;
+    align-self: stretch;
+}
+
+// Blue pill showing how many items are selected
+.ac-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: var(--osl-focus-border-color);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.ac-multi-clear-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: #aaa;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+
+    mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+    }
+
+    &:hover {
+        color: #333;
+        background: #f0f0f0;
+    }
+}
+
+.ac-multi-chevron {
+    color: #999;
+    flex-shrink: 0;
+    pointer-events: none;
+    user-select: none;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s;
+
+    &.ac-multi-chevron--open {
+        transform: rotate(180deg);
+    }
+}
+
+// ── Chips ─────────────────────────────────────────────────────────────────────
+
+.ac-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    background: #e8f0fe;
+    color: #1558b0;
+    border: 1px solid #c5d8f8;
+    border-radius: 4px;
+    padding: 2px 2px 2px 8px;
+    font-size: var(--osl-label-font-size, 12px);
+    max-width: 160px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.4;
+}
+
+.ac-chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ac-chip-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 1px;
+    cursor: pointer;
+    color: #7a9fd4;
+    flex-shrink: 0;
+    border-radius: 2px;
+    transition: background 0.15s, color 0.15s;
+
+    mat-icon {
+        font-size: 12px;
+        width: 12px;
+        height: 12px;
+    }
+
+    &:hover {
+        color: #1558b0;
+        background: rgba(21, 88, 176, 0.14);
+    }
+}
+
+// ── Dropdown (multi mode) ─────────────────────────────────────────────────────
+
+.ac-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: -1px;
+    right: -1px;
+    z-index: 1000;
+    background: #fff;
+    border-radius: 0 0 var(--osl-border-radius) var(--osl-border-radius);
+    border: 1px solid var(--osl-focus-border-color);
+    border-top: none;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ac-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: var(--osl-text-font-size);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+
+    &:hover {
+        background: #f5f5f5;
+    }
+
+    &.ac-dropdown-item--selected {
+        background: rgba(25, 118, 210, 0.05);
+
+        .ac-dropdown-label {
+            color: var(--osl-focus-border-color);
+            font-weight: 500;
+        }
+
+        &:hover {
+            background: rgba(25, 118, 210, 0.1);
+        }
+    }
+}
+
+// Fixed-width column for the check icon — keeps text aligned regardless of selection state
+.ac-dropdown-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+
+    mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        color: var(--osl-focus-border-color);
+    }
+}
+
+.ac-dropdown-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ac-dropdown-empty {
+    padding: 10px 12px;
+    font-size: var(--osl-label-font-size);
+    color: #aaa;
+    font-style: italic;
+    text-align: center;
+}
+
+// ── Shared ────────────────────────────────────────────────────────────────────
 
 .hint {
     color: var(--osl-error-color);

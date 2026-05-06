@@ -15,6 +15,7 @@ export class OslCheckbox implements OnChanges {
   @Input('model') model: boolean = false;
   @Input('indeterminate') indeterminate: boolean = false;
   @Input('skeletonLoading') skeletonLoading: boolean = false;
+  @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
 
   @Output() modelChange = new EventEmitter<boolean>();
   @Output() changeEv = new EventEmitter<boolean>();

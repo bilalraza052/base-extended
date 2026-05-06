@@ -12,11 +12,16 @@ export class OslDatepicker {
   @Input('label') label: string = '';
   @Input('required') required: boolean = false;
   @Input('disabled') disabled: boolean = false;
-  @Input('model') model: string = '';
+  private _model: string = '';
+  @Input('model') set model(val: string) {
+    this._model = val?.includes('T') ? val.split('T')[0] : (val ?? '');
+  }
+  get model(): string { return this._model; }
   @Input('dateType') dateType: DateInputType = 'date';
   @Input('placeholder') placeholder: string = '';
   @Input('minDate') minDate: string = '';
   @Input('skeletonLoading') skeletonLoading: boolean = false;
+  @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
 
   @Input('maxDate') maxDate: string = '';
   @Output() modelChange = new EventEmitter<string>();

@@ -16,6 +16,7 @@ export class OslFileUpload {
   /** Max file size in bytes. 0 = no limit. */
   @Input('maxSize') maxSize: number = 0;
   @Input('skeletonLoading') skeletonLoading: boolean = false;
+  @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
 
   @Output() modelChange = new EventEmitter<File | File[] | null>();
   @Output() changeEv = new EventEmitter<File | File[] | null>();

@@ -16,6 +16,7 @@ export class OslRadio {
   @Input('valueField') valueField: string = '';
   @Input('inline') inline: boolean = false;
   @Input('skeletonLoading') skeletonLoading: boolean = false;
+  @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
 
   @Output() modelChange = new EventEmitter<any>();
   @Output() changeEv = new EventEmitter<any>();

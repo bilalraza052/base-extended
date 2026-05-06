@@ -14,6 +14,7 @@ export class OslSlideToggle {
   @Input('trueLabel') trueLabel: string = '';
   @Input('falseLabel') falseLabel: string = '';
   @Input('skeletonLoading') skeletonLoading: boolean = false;
+  @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
 
   @Output() modelChange = new EventEmitter<boolean>();
   @Output() changeEv = new EventEmitter<boolean>();
