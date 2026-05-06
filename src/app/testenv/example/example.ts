@@ -219,8 +219,72 @@ export class Example extends baseComponent {
     },
   ];
   beforeDisplay:((row: any) => any) | undefined;
+  loader: boolean =false;
   constructor(public cd: ChangeDetectorRef, public service:ExampleService,public skeletonService:OslSkeletonThemeService) {
     super();
+  }
+  
+  async getAllVessel(page = 1, pageSize = 10, searchValue:any) {
+    this.cd.markForCheck()
+
+    this.cd.detectChanges()
+
+    this.loader= true
+    // const res = await this.service.getAllVessels({
+    //   page: page,
+    //   pageSize: pageSize,
+    //   searchValue: searchValue,
+    // });
+    // if (!res.isSuccessful) return this.showError(res.error);
+    setTimeout(()=>{
+      this.loader= false
+      this.listData = [
+        {
+          vesselTypeId:1
+        }
+      ]
+ this.cd.detectChanges()
+    this.cd.markForCheck()
+    },200)
+   
+  
+    // this.listData = res.result?.data || [];
+  }
+  onSearch(){
+  
+  }
+  async onPageChange(event:any) {
+    console.log(event)
+    await this.getAllVessel(event.page, event.pageSize, event.searchValue);
+     this.cd.detectChanges()
+    this.cd.markForCheck()
+  }
+
+  ngAfterViewInit() {
+    // this.getAllVessel()
+
+    this.columns = [
+      {
+        key: 'vesselName',
+        label: 'Vessel Name',
+      },
+      {
+        key: 'vesselTypeId',
+        label: 'Type',
+      },
+      {
+        key: 'imo',
+        label: 'IMO',
+      },
+      {
+        key: 'callSign',
+        label: 'Call Sign',
+      },
+      {
+        key: 'flag',
+        label: 'Flag',
+      },
+    ];
   }
   ngOnInit(){
     this.model.imoNo = '2026-05-23T00:00:00'
@@ -767,37 +831,5 @@ export class Example extends baseComponent {
     ]
   
   }
-  ngAfterViewInit(){
-    
-  
-    
-  }
-  onSearch(query: string) {
-    this.showSuccess('Searching: ' + query);
-  }
 
-  onSave(event: OslSetupSaveEvent) {
-    if (event.mode === 'add') {
-      this.leads = [...this.leads, event.model];
-      this.showSuccess('Lead added successfully.');
-    } else {
-      this.leads = this.leads.map((l) =>
-        l.email === event.model.email ? { ...l, ...event.model } : l,
-      );
-      this.showSuccess('Lead updated successfully.');
-    }
-  }
-
-  onDelete(row: any) {
-    this.leads = this.leads.filter((l) => l !== row);
-    this.showSuccess('"' + row.name + '" deleted.');
-  }
-
-  simulateLoading() {
-    this.loading = true;
-    setTimeout(() => {
-      this.loading = false;
-      this.cd.markForCheck();
-    }, 2500);
-  }
 }

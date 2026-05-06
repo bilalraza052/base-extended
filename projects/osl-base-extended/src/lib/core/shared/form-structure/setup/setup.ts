@@ -9,7 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { OslGridColumn, OslPageEvent, OslSortEvent } from '../grid/grid';
+import { OslGrid, OslGridColumn, OslPageEvent, OslSortEvent } from '../grid/grid';
 import { elements } from '../dynamic-form/dynamic-form';
 import { DialogWrapper } from '../../../shared/components/dialog-wrapper/dialog-wrapper';
 import { DeleteConfirmation, DeleteConfirmationData } from '../../../shared/components/delete-confirmation/delete-confirmation';
@@ -61,6 +61,7 @@ export class OslSetup {
   @Output() pageSizeChange = new EventEmitter<OslPageEvent>();
   @Output() sortChange = new EventEmitter<OslSortEvent>();
   @Output() onRowClick = new EventEmitter<any>();
+@ViewChild('gridRef') gridRef:OslGrid | undefined
 
   // ── Dialog state ──────────────────────────────────────────────
   dialogModel: any = {};
@@ -68,7 +69,17 @@ export class OslSetup {
   private _dialogRef: MatDialogRef<any> | null = null;
 
   get hasForm(): boolean {
-    return this.formElements?.length > 0;
+    return this.formElements?.length > 0 || !! this.onAddEditFn;
+  }
+   onSearchSetup(event:any){
+    if(this.gridRef)this.gridRef.currentPage = 1
+    this.pageChange.emit({
+      page:1,
+      pageSize:this.gridRef?.pageSize || 10,
+      searchValue:event
+    })
+    this.onSearch.emit(event)
+
   }
 
   /** Prepends the actions column when formElements are provided. */

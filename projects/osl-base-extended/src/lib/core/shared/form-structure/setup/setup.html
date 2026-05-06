@@ -4,7 +4,7 @@
   <div class="osl-setup-header">
     <h5 class="mb-0">{{ title }}</h5>
     <div class="d-flex align-items-center gap-2">
-      <osl-searchbar #searchbar class="mx-2" (onSearch)="onSearch.emit($event)"></osl-searchbar>
+     <osl-searchbar #searchbar class="mx-2" (onSearch)="onSearchSetup($event)"></osl-searchbar>
       @if(!isLister){
         <osl-button 
           variant="secondary"
@@ -20,6 +20,7 @@
   <!-- Grid -->
   <div class="osl-setup-body my-2">
     <osl-grid
+       #gridRef
       [columns]="columnsWithActions"
       [datasource]="datasource"
       [isPaginated]="isPaginated"
@@ -28,6 +29,7 @@
       [tableHeight]="tableHeight"
       [totalRecords]="totalRecords"
       [loading]="loading"
+      
       (editClick)="openEditDialog($event)"
       (deleteClick)="onDeleteClick($event)"
       (pageChange)="onPageChange(pageChange,$event)"
