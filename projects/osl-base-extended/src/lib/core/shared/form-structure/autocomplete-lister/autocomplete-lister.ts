@@ -47,12 +47,12 @@ export class OslAutocompleteLister {
       this.cd.markForCheck()
 
     if(!res.isSuccessful) return;
-    this.datasource = res.result
+    this.datasource = res.result?.data || []
     setTimeout(()=>{
       this.loader = false
 
     },20)
-    this.recordCount = Number(res.headers?.get('recordCount')|| 0)
+    this.recordCount = res.result?.recordsFiltered
   }
   onPageChange(event:OslPageEvent){
     this.search(event.searchValue,event.page,event.pageSize)
