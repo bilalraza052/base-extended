@@ -22,13 +22,14 @@
     <osl-grid
       #gridRef
       [columns]="columnsWithActions"
-      [datasource]="datasource"
+      [(datasource)]="datasource"
       [isPaginated]="isPaginated"
       [pageSize]="pageSize"
       [autoMode]="autoMode"
       [tableHeight]="tableHeight"
       [totalRecords]="totalRecords"
       [loading]="loading"
+      [moreMenuActions]="moreMenuActions"
       (editClick)="openEditDialog($event)"
       (deleteClick)="onDeleteClick($event)"
       (pageChange)="onPageChange(pageChange,$event)"
@@ -44,6 +45,7 @@
 <!-- Dialog: Form Body -->
 <ng-template #formBodyTpl>
   <osl-dynamic-form
+  [skeletonLoading]="formLoading"
     [elements]="formElements"
     [(model)]="dialogModel"
   ></osl-dynamic-form>
@@ -53,10 +55,12 @@
 <ng-template #formFooterTpl>
   <div class="osl-setup-dialog-footer">
 
-    
-    <button mat-flat-button class="dialog-save-btn" (click)="saveDialog()">
-      <!-- <mat-icon>{{ dialogMode === 'add' ? 'add_circle' : 'save' }}</mat-icon> -->
-      Save
-    </button>
+
+    <osl-button [loading]="saveLoading" variant="secondary" label="Save" (click)="saveDialog()"></osl-button>
   </div>
+</ng-template>
+
+<!-- Wrapper that bridges DialogWrapper's implicit context to the custom footer template -->
+<ng-template #customFooterWrapperTpl let-data>
+  <ng-container *ngTemplateOutlet="customFormFooter!; context: { $implicit: { dialogModel: dialogModel, dialogMode: dialogMode, dialogRef: data.dialogRef } }"></ng-container>
 </ng-template>

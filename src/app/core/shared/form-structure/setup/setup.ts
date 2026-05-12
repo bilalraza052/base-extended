@@ -9,7 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { OslGrid, OslGridColumn, OslPageEvent, OslSortEvent } from '../grid/grid';
+import { OslGrid, OslGridColumn, OslMenuAction, OslPageEvent, OslSortEvent } from '../grid/grid';
 import { elements } from '../dynamic-form/dynamic-form';
 import { DialogWrapper } from '../../../shared/components/dialog-wrapper/dialog-wrapper';
 import { DeleteConfirmation, DeleteConfirmationData } from '../../../shared/components/delete-confirmation/delete-confirmation';
@@ -31,6 +31,7 @@ export class OslSetup {
 
   @ViewChild('formBodyTpl') formBodyTpl!: TemplateRef<any>;
   @ViewChild('formFooterTpl') formFooterTpl!: TemplateRef<any>;
+  @ViewChild('customFooterWrapperTpl') customFooterWrapperTpl!: TemplateRef<any>;
   @ViewChild('searchbar') searchbar?: OslSearchbar;
 
   // ── Inputs ────────────────────────────────────────────────────
@@ -49,12 +50,17 @@ export class OslSetup {
   @Input('beforeDisplay')beforeDisplay :((model: any) => any | undefined) | undefined;
 
   @Input('onAddEditFn') onAddEditFn:((row?: any) => void | undefined) | undefined;
+  // @Input('onSave') onSave:((row?: any) => void | undefined) | undefined;
   @Input('isLister') isLister:boolean = false
+  @Input('moreMenuActions') moreMenuActions: OslMenuAction[] = []
+  @Input('customFormFooter') customFormFooter: TemplateRef<any> | undefined
+  @Input('customHeaderTemp') customHeaderTemp: TemplateRef<any> | undefined
+  @Input('partialCustomHeaderTemp') partialCustomHeaderTemp: TemplateRef<any> | undefined
 
   // ── Outputs ───────────────────────────────────────────────────
   @Output() onSearch = new EventEmitter<string>();
   @Output() onAdd = new EventEmitter<void>();
-  @Output() onSave = new EventEmitter<OslSetupSaveEvent>();
+
   @Output() onEdit = new EventEmitter<any>();
   @Output() onDelete = new EventEmitter<any>();
   @Output() pageChange = new EventEmitter<OslPageEvent>();
@@ -62,11 +68,14 @@ export class OslSetup {
   @Output() sortChange = new EventEmitter<OslSortEvent>();
   @Output() onRowClick = new EventEmitter<any>();
 @ViewChild('gridRef') gridRef:OslGrid | undefined
+ @Input('onSave') onSave:((row?: any) => void | undefined) | undefined;
 
   // ── Dialog state ──────────────────────────────────────────────
   dialogModel: any = {};
   dialogMode: 'add' | 'edit' = 'add';
+  saveLoading:boolean = false
   private _dialogRef: MatDialogRef<any> | null = null;
+  formLoading: boolean =false;
 
   get hasForm(): boolean {
     return this.formElements?.length > 0 || !!this.onAddEditFn;
@@ -91,15 +100,17 @@ export class OslSetup {
 
   }
   onPageChange(eventEmitter:EventEmitter<OslPageEvent>,event:OslPageEvent){
-
+    
     eventEmitter.emit({...event,searchValue:this.searchbar?.searchControl?.value})
 
   }
 
-  openAddDialog(): void {
+  async openAddDialog(): Promise<void> {
     this.dialogMode = 'add';
     if(this.beforeDisplay){
+   
       this.dialogModel = this.beforeDisplay(this.dialogModel)
+      
     }else{
       this.dialogModel = {};
     }
@@ -111,20 +122,28 @@ export class OslSetup {
     this._openDialog();
   }
 
-  openEditDialog(row: any): void {
+  async openEditDialog(row: any): Promise<void> {
     this.dialogMode = 'edit';
-     if(this.beforeDisplay){
-      this.dialogModel = this.beforeDisplay(row)
-    }else{
-      this.dialogModel = { ...row };
-    }
-  
-    this.onEdit.emit(row);
+      this.onEdit.emit(row);
     if(this.onAddEditFn){
       this.onAddEditFn(row)
       return;
     }
+    
     this._openDialog();
+     if(this.beforeDisplay){
+      // this.datasource.find(x=>x[this.primaryKey]==)
+      this.formLoading = true
+      this.dialogModel = await this.beforeDisplay(row)
+      this.formLoading = false
+    
+    }else{
+      this.dialogModel = { ...row };
+    }
+    
+  
+  
+  
   }
 
   onDeleteClick(row: any): void {
@@ -148,8 +167,12 @@ export class OslSetup {
     this._dialogRef = null;
   }
 
-  saveDialog(): void {
-    this.onSave.emit({ model: { ...this.dialogModel }, mode: this.dialogMode });
+  async saveDialog() {
+    if(this.onSave){
+      this.saveLoading = true
+      await this.onSave({ model: { ...this.dialogModel }, mode: this.dialogMode })
+      this.saveLoading = false
+    }
     this._dialogRef?.close();
     this._dialogRef = null;
   }
@@ -160,9 +183,10 @@ export class OslSetup {
       maxWidth:'90vw',
 
       data: {
-        header: (this.dialogMode === 'add' ? 'Add ' : 'Edit ') + this.title,
+        header: this.customHeaderTemp ?? ((this.dialogMode === 'add' ? 'Add ' : 'Edit ') + this.title),
+        partialHeader: this.partialCustomHeaderTemp,
         formBody: this.formBodyTpl,
-        formFooter: this.formFooterTpl,
+        formFooter: this.customFormFooter ? this.customFooterWrapperTpl : this.formFooterTpl,
       },
     });
   }

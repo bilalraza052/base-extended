@@ -38,7 +38,7 @@
             }
         }
         @if(showDropdown && !loading) {
-            <div class="dropdown">
+            <div class="dropdown" [ngStyle]="dropdownStyle">
                 @if(filteredItems.length > 0) {
                     @for(item of filteredItems; track item) {
                         <div class="dropdown-item" (mousedown)="selectItem(item)">{{getDisplay(item)}}</div>

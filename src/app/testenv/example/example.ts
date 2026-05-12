@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, TemplateRef, ViewChild } from '@angular/core';
 import { baseComponent } from '../../core/base/base.component';
 import { FormStructureModule } from '../../core/shared/form-structure/form-structure.module';
-import { OslGridColumn } from '../../core/shared/form-structure/grid/grid';
+import { OslGridColumn, OslMenuAction } from '../../core/shared/form-structure/grid/grid';
 import { elements } from '../../core/shared/form-structure/dynamic-form/dynamic-form';
 import { OslSetupSaveEvent } from '../../core/shared/form-structure/setup/setup';
 import { OslFormGridColumn } from '../../core/shared/form-structure/form-grid/form-grid';
@@ -9,6 +9,7 @@ import { ExampleService } from '../service/example';
 import { OslSkeletonModule } from '../../core/shared/directive/skeleton/skeleton.module';
 import { SkeletonTheme } from '../../core/shared/directive/skeleton/skeleton.directive';
 import { OslSkeletonThemeService } from '../../core/shared/directive/skeleton/skeleton-theme.service';
+import { raceWith } from 'rxjs';
 
 @Component({
   selector: 'app-example',
@@ -21,6 +22,15 @@ export class Example extends baseComponent {
     listData:any[]=[]
   colList:OslFormGridColumn[]=[]
   model:any={}
+  moreMenu:OslMenuAction[]=[
+    {
+      label:'Approve',
+      click(row) {
+        console.log(raceWith)
+        
+      },
+    }
+  ]
   @ViewChild('mainEngineConsumptionGrid',{static:true}) mainEngineConsumptionGrid:TemplateRef<any> | undefined
 
   leads: any[] = [
@@ -219,6 +229,7 @@ export class Example extends baseComponent {
     },
   ];
   beforeDisplay:((row: any) => any) | undefined;
+  beforeSave:((row: any) => any) | undefined;
   loader: boolean =false;
   constructor(public cd: ChangeDetectorRef, public service:ExampleService,public skeletonService:OslSkeletonThemeService) {
     super();
@@ -287,7 +298,7 @@ export class Example extends baseComponent {
     ];
   }
   ngOnInit(){
-    this.model.imoNo = '2026-05-23T00:00:00'
+   
       this.cd.detectChanges()
       this.cd.markForCheck()
     setTimeout(()=>{
@@ -302,10 +313,14 @@ export class Example extends baseComponent {
 
   
     this.beforeDisplay = (row)=>{
-      row
+      row.imoNo = '2026-05-23T00:00:00'
       row.status = 58
       return row
 
+    }
+    this.beforeSave = (model)=>{
+      console.log(model)
+    
     }
      this.formElements = [
       {
@@ -339,7 +354,7 @@ export class Example extends baseComponent {
             // ],
           },
           {
-            columns: 3,
+            columns: 12,
             elementType: 'datepicker',
             label: 'IMO',
             key: 'imoNo',

@@ -73,17 +73,40 @@
               </td>
             </tr>
           }
-          @for (row of pagedData; track $index) {
+          @for (row of pagedData; track $index; let rowIdx = $index) {
             <tr class="osl-grid-row" [class.pointer]="isSelectable" (click)="onRowClick.emit(row)">
               @for (col of columns; track col.key; let last = $last) {
                 @if (col.isActions) {
                   <td class="osl-grid-td osl-grid-td--actions" [class.osl-grid-td--last]="last">
-                    <button class="osl-grid-icon-btn" (click)="editClick.emit(row)" title="Edit">
+                         @if (moreMenuActions.length > 0 && hasVisibleActions(row)) {
+                      <div class="osl-menu-wrapper">
+                        <button class="osl-grid-icon-btn" (click)="toggleMenu(rowIdx, $event)" title="More actions">
+                          <mat-icon>more_vert</mat-icon>
+                        </button>
+                        @if (openMenuIndex === rowIdx) {
+                          <div class="osl-custom-menu"
+                               [style.top.px]="menuPosition.top"
+                               [style.left.px]="menuPosition.left">
+                            <div class="osl-custom-menu-header">Actions</div>
+                            @for (action of moreMenuActions; track $index) {
+                              @if (!action.hideIf || !action.hideIf(row)) {
+                                <button class="osl-custom-menu-item" (click)="action.click(row); closeMenu(); $event.stopPropagation()">
+                                  <span class="osl-custom-menu-dot"></span>
+                                  {{ getActionLabel(action, row) }}
+                                </button>
+                              }
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                    <button class="osl-grid-icon-btn" (click)="$event.stopPropagation(); editClick.emit(row)" title="Edit">
                       <mat-icon>mode_edit_outline</mat-icon>
                     </button>
-                    <button class="osl-grid-icon-btn osl-grid-icon-btn--danger" (click)="deleteClick.emit(row)" title="Delete">
+                    <button class="osl-grid-icon-btn osl-grid-icon-btn--danger" (click)="$event.stopPropagation(); deleteClick.emit(row)" title="Delete">
                       <mat-icon>delete_outline</mat-icon>
                     </button>
+               
                   </td>
                 } @else {
                   <td class="osl-grid-td" [class.osl-grid-td--last]="last">{{ getCellValue(row, col) }}</td>

@@ -1,29 +1,32 @@
 <div class="d-flex flex-column">
     @if (label) {
-        <div  [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
+        <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
             <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">
-                {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
+                {{label}} <span class="txt-clr-red">{{required ? '*' : ''}}</span>
             </label>
-    
         </div>
-
     }
-    <div  [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
-    <input
-        [type]="dateType"
-        [ngModel]="model"
-        (ngModelChange)="onModelChange($event)"
-        (change)="changeEv.emit(model)"
-        [required]="required"
-        [disabled]="disabled"
-        [placeholder]="placeholder"
-        [attr.min]="minDate || null"
-        [attr.max]="maxDate || null"
-        #myField="ngModel"
-        [class.error]="myField.touched && myField.invalid"
-    >
+    <div class="input-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
+        <input
+            class="date-input"
+            [matDatepicker]="picker"
+            [ngModel]="model"
+     
+            (dateChange)="onDateChange($event.value)"
+            [required]="required"
+            [disabled]="disabled"
+            [min]="minDateObj"
+            [max]="maxDateObj"
+            [placeholder]="placeholder || 'DD/MMM/YYYY'"
+            [class.error]="myField.touched && myField.invalid"
+            #myField="ngModel"
+        >
+        <mat-datepicker-toggle class="picker-toggle" [for]="picker" [disabled]="disabled">
+            <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+        </mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
     </div>
-    @if(myField.touched && myField.invalid && required) {
+    @if (myField.touched && myField.invalid && required) {
         <mat-hint class="hint">{{label}} is Required!</mat-hint>
     }
 </div>

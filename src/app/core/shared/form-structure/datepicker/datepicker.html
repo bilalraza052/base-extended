@@ -8,18 +8,23 @@
     }
     <div class="input-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
         <input
-            [type]="dateType"
+            class="date-input"
+            [matDatepicker]="picker"
             [ngModel]="model"
-            (ngModelChange)="onModelChange($event)"
-            (change)="changeEv.emit(model)"
+     
+            (dateChange)="onDateChange($event.value)"
             [required]="required"
             [disabled]="disabled"
-            [placeholder]="placeholder"
-            [attr.min]="minDate || null"
-            [attr.max]="maxDate || null"
-            #myField="ngModel"
+            [min]="minDateObj"
+            [max]="maxDateObj"
+            [placeholder]="placeholder || 'DD/MMM/YYYY'"
             [class.error]="myField.touched && myField.invalid"
+            #myField="ngModel"
         >
+        <mat-datepicker-toggle class="picker-toggle" [for]="picker" [disabled]="disabled">
+            <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+        </mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
     </div>
     @if (myField.touched && myField.invalid && required) {
         <mat-hint class="hint">{{label}} is Required!</mat-hint>

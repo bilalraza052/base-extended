@@ -89,6 +89,10 @@ export abstract class Httpbase {
   }
 
   private handleError<T>(error: any): HttpResponse<T> {
+    if (error.status === 401) {
+      
+      window.location.href = '/login';
+    }
     return {
       isSuccessful: false,
       error: this.mapError(error),

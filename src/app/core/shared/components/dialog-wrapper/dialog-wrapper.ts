@@ -15,6 +15,7 @@ export class DialogWrapper {
   dialogData:Dialog= new Dialog()
   constructor(public dialogRef:MatDialogRef<DialogWrapper>,@Inject(MAT_DIALOG_DATA) public data: Dialog){
     this.dialogData.header = data.header;
+    this.dialogData.partialHeader = data.partialHeader;
     this.dialogData.formBody = data.formBody;
     this.dialogData.formFooter = data.formFooter;
     this.dialogData.data = data.data
@@ -25,6 +26,7 @@ export class DialogWrapper {
 
 export class Dialog{
   header?:string|TemplateRef<any>= "No Title Found";
+  partialHeader?:TemplateRef<any> | undefined;
   formBody?:TemplateRef<any> | undefined;
   formFooter?:TemplateRef<any> | undefined;
   data?:any;

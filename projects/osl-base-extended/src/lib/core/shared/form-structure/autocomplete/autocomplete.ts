@@ -74,7 +74,13 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
   inputControl = new FormControl('');
 
   inputValue: string = '';
-  showDropdown: boolean = false;
+  private _showDropdown: boolean = false;
+  get showDropdown(): boolean { return this._showDropdown; }
+  set showDropdown(val: boolean) {
+    this._showDropdown = val;
+    if (val) this.updateDropdownPosition();
+  }
+  dropdownStyle: { [key: string]: string } = {};
   filteredItems: any[] = [];
   touched: boolean = false;
 
@@ -83,6 +89,19 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
     public cdr: ChangeDetectorRef,
   ) {
     super();
+  }
+
+  private updateDropdownPosition() {
+    const wrapper = this.elRef.nativeElement.querySelector('.autocomplete-wrapper');
+    if (!wrapper) return;
+    const rect = wrapper.getBoundingClientRect();
+    this.dropdownStyle = {
+      'position': 'fixed',
+      'top': `${rect.bottom + 5}px`,
+      'left': `${rect.left}px`,
+      'width': `${rect.width}px`,
+    };
+    this.cdr.markForCheck();
   }
 
   openLister() {
@@ -120,10 +139,11 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
       this.inputControl.valueChanges
         .pipe(debounceTime(500), distinctUntilChanged())
         .subscribe(async (value) => {
+          if(!value) return;
           const res:HttpResponse = await this.service[this.methodName](value);
           if(!res.isSuccessful) return
-          this.datasource = res.result;
-          this.filteredItems = res.result;
+          this.datasource = res?.result && Array.isArray(res?.result) ? res?.result : res?.result?.data;
+          this.filteredItems = this.datasource
           this.cdr.markForCheck();
         });
 

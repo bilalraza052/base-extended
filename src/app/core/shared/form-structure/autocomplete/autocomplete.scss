@@ -128,11 +128,7 @@
 }
 
 .dropdown {
-    position: absolute;
-    top: calc(100% + 5px);
-    left: 0;
-    right: 0;
-    z-index: 1000;
+    z-index: 9999;
     background: white;
     border-top: none;
     border-radius: 0 0 var(--osl-border-radius) var(--osl-border-radius);
@@ -383,11 +379,7 @@
 // ── Dropdown (multi mode) ─────────────────────────────────────────────────────
 
 .ac-dropdown {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: -1px;
-    right: -1px;
-    z-index: 1000;
+    z-index: 9999;
     background: #fff;
     border-radius: 0 0 var(--osl-border-radius) var(--osl-border-radius);
     border: 1px solid var(--osl-focus-border-color);

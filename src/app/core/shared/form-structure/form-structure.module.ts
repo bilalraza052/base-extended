@@ -2,7 +2,7 @@ import { NgModule } from "@angular/core";
 import { AUTOCOMPLETE_LISTER_COMPONENT } from "./autocomplete-lister/autocomplete-lister-types";
 import { DynamicForm } from "./dynamic-form/dynamic-form";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { NgTemplateOutlet } from "@angular/common";
+import { NgStyle, NgTemplateOutlet } from "@angular/common";
 import { MatFormFieldModule, MatHint } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { Oslinput } from "./input/input";
@@ -25,6 +25,9 @@ import { OslFormGrid } from "./form-grid/form-grid";
 import { OslAutocompleteLister } from "./autocomplete-lister/autocomplete-lister";
 import { OslSkeletonModule } from "../directive/skeleton/skeleton.module";
 import { OslChipsInput } from "./chips-input/chips-input";
+import { MatDatepicker, MatDatepickerModule } from "@angular/material/datepicker";
+import { MatNativeDateModule } from "@angular/material/core";
+import { MatMenuModule } from "@angular/material/menu";
 
 @NgModule({
   declarations: [
@@ -48,6 +51,7 @@ import { OslChipsInput } from "./chips-input/chips-input";
   ],
   imports: [
     NgTemplateOutlet,
+    NgStyle,
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -56,7 +60,10 @@ import { OslChipsInput } from "./chips-input/chips-input";
     MatIconModule,
     MatDialogModule,
     MatButtonModule,
-    OslSkeletonModule
+    OslSkeletonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatMenuModule
   ],
   exports: [DynamicForm, OslSetup, OslGrid, OslFormGrid,Oslinput,
     Osltextarea,

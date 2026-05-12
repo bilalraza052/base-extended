@@ -25,7 +25,7 @@ export class OslAutocompleteLister {
      this.autocompleteData = this.data?.data 
          this.loader = true
     await this.getConfig()
-    await this.search()
+    // await this.search()
     // this.loader = false
       this.cd.markForCheck()
 

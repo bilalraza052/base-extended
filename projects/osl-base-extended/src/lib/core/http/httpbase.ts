@@ -15,7 +15,7 @@ export interface myParams {
 }
 export abstract class Httpbase {
   private controllerName: string = '';
-  constructor(private controller: string) {
+  constructor(private controller: string,public baseUrl:string= '/api/') {
     this.controllerName = controller;
   }
 
@@ -89,6 +89,10 @@ export abstract class Httpbase {
   }
 
   private handleError<T>(error: any): HttpResponse<T> {
+    if (error.status === 401) {
+      // localStorage.clear();
+      window.location.href = '/login';
+    }
     return {
       isSuccessful: false,
       error: this.mapError(error),
@@ -127,7 +131,7 @@ export abstract class Httpbase {
 
   protected http = inject(HttpClient);
 
-  private baseUrl = '/api/';
+  // private baseUrl = '/api/';
 
   // ─── HTTP verb wrappers ───────────────────────────────────────────────────────
   protected async post<T>(methodName: string, body: any,params?:myParams[]): Promise<HttpResponse<T>> {

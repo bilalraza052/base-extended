@@ -3,35 +3,7 @@
     margin-bottom: 5px;
 }
 
-input[type='date'],
-input[type='datetime-local'],
-input[type='time'],
-input[type='month'],
-input[type='week'] {
-    height: var(--osl-control-height);
-    width: 100%;
-    border-radius: var(--osl-border-radius);
-    outline: none;
-    border: 1px solid var(--osl-border-color);
-    padding: 0 8px;
-    font-size: var(--osl-text-font-size);
-    font-family: inherit;
-    transition: border-color 0.5s;
-
-    &:focus {
-        border-color: var(--osl-focus-border-color);
-    }
-
-    &:disabled {
-        background: #f5f5f5;
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
-
-    &.error {
-        border-color: var(--osl-error-color);
-    }
-}
+.txt-clr-red { color: var(--osl-error-color); }
 
 .hint {
     color: var(--osl-error-color);
@@ -39,6 +11,100 @@ input[type='week'] {
     font-size: var(--osl-hint-font-size);
 }
 
-.txt-clr-red {
-    color: var(--osl-error-color);
+// ── Wrapper ───────────────────────────────────────────────────────────────────
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+// ── Mat Datepicker input (same look as native date input) ─────────────────────
+.date-input {
+    height: var(--osl-control-height);
+    width: 100%;
+    border-radius: var(--osl-border-radius);
+    outline: none;
+    border: 1px solid var(--osl-border-color);
+    padding: 0 36px 0 10px;
+    font-size: var(--osl-text-font-size);
+    font-family: inherit;
+    color: #333;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.01em;
+    box-sizing: border-box;
+
+    &::placeholder {
+        color: #bbb;
+    }
+
+    &:hover:not(:disabled) {
+        border-color: var(--osl-focus-border-color);
+    }
+
+    &:focus {
+        border-color: var(--osl-focus-border-color);
+        box-shadow: 0 0 0 3px var(--osl-focus-shadow, rgba(99, 102, 241, 0.14));
+    }
+
+    &:disabled {
+        background-color: #f5f5f5;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    &.error {
+        border-color: var(--osl-error-color);
+
+        &:focus {
+            box-shadow: 0 0 0 3px var(--osl-error-shadow, rgba(220, 38, 38, 0.14));
+        }
+    }
+}
+
+// ── Datepicker toggle button ──────────────────────────────────────────────────
+.picker-toggle {
+    position: absolute;
+    right: 4px;
+    display: flex;
+    align-items: center;
+
+    ::ng-deep {
+        .mat-mdc-icon-button {
+            width: 28px;
+            height: 28px;
+            padding: 4px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            // remove Material ripple background on hover
+            &:hover .mat-mdc-button-persistent-ripple::before {
+                opacity: 0;
+            }
+
+            .mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+                color: #333;
+                opacity: 0.45;
+                transition: opacity 0.15s, background-color 0.15s;
+                border-radius: 4px;
+                padding: 3px;
+                box-sizing: content-box;
+            }
+
+            &:hover:not([disabled]) .mat-icon {
+                opacity: 0.9;
+                background-color: rgba(0, 0, 0, 0.07);
+            }
+
+            &[disabled] {
+                pointer-events: none;
+                opacity: 0.4;
+            }
+        }
+    }
 }

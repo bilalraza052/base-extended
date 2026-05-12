@@ -1,1 +1,1 @@
-<osl-setup #setup title="Vessels" [autoMode]="false" [totalRecords]="40" (pageSizeChange)="onPageChange($event)" (pageChange)="onPageChange($event)" [datasource]="listData" [loading]="loader" [columns]="columns" ></osl-setup>
+<osl-setup #setup title="Vessels" [moreMenuActions]="moreMenu" [formElements]="formElements" [autoMode]="false" [totalRecords]="40" (pageSizeChange)="onPageChange($event)" (pageChange)="onPageChange($event)" [datasource]="listData" [onSave]="beforeSave" [beforeDisplay]="beforeDisplay" [loading]="loader" [columns]="columns" ></osl-setup>

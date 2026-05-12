@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
 export interface OslGridColumn {
   key: string;
@@ -7,6 +7,13 @@ export interface OslGridColumn {
   displayFn?: (value: any, row: any) => string;
   /** When true, renders edit + delete icon buttons instead of cell text. */
   isActions?: boolean;
+}
+
+export interface OslMenuAction {
+  label: string;
+  labelIf?: (row: any) => string;
+  hideIf?: (row: any) => boolean;
+  click: (row: any) => void;
 }
 
 export interface OslSortEvent {
@@ -47,6 +54,7 @@ export class OslGrid implements OnChanges {
   /** When true, shows skeleton loading rows instead of data. */
   @Input('loading') loading: boolean = false;
   @Input('isSelectable') isSelectable: boolean = false;
+  @Input('moreMenuActions') moreMenuActions: OslMenuAction[] = [];
 
   @Output() pageChange = new EventEmitter<OslPageEvent>();
   @Output() pageSizeChange = new EventEmitter<OslPageEvent>();
@@ -59,6 +67,33 @@ export class OslGrid implements OnChanges {
   sortKey: string = '';
   sortAsc: boolean = true;
   pageSizeOptions = [10, 25, 50, 100];
+  openMenuIndex: number | null = null;
+  menuPosition = { top: 0, left: 0 };
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.openMenuIndex = null;
+  }
+
+  toggleMenu(index: number, event: Event): void {
+    event.stopPropagation();
+    if (this.openMenuIndex === index) {
+      this.openMenuIndex = null;
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const menuWidth = 190;
+    const left = Math.min(
+      Math.max(rect.right - menuWidth, 8),
+      window.innerWidth - menuWidth - 8
+    );
+    this.menuPosition = { top: rect.bottom + 6, left };
+    this.openMenuIndex = index;
+  }
+
+  closeMenu(): void {
+    this.openMenuIndex = null;
+  }
 
   get skeletonRows(): number[] {
     return Array.from({ length: Math.min(this.pageSize, 10) });
@@ -141,6 +176,14 @@ export class OslGrid implements OnChanges {
     this.pageSize = Number(size);
     this.currentPage = 1;
     this.pageSizeChange.emit({ page: this.currentPage, pageSize: this.pageSize });
+  }
+
+  hasVisibleActions(row: any): boolean {
+    return this.moreMenuActions.some(a => !a.hideIf || !a.hideIf(row));
+  }
+
+    getActionLabel(action: OslMenuAction, row: any): string {
+    return action.labelIf ? action.labelIf(row) : action.label;
   }
 
   getCellValue(row: any, col: OslGridColumn): string {

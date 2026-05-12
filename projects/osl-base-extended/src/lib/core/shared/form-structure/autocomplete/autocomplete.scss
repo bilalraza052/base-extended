@@ -123,11 +123,7 @@
 }
 
 .dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 1000;
+    z-index: 9999;
     background: white;
     border: 1px solid var(--osl-border-color);
     border-top: none;

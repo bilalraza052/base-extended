@@ -2,7 +2,7 @@ import { NgModule } from "@angular/core";
 import { AUTOCOMPLETE_LISTER_COMPONENT } from "./autocomplete-lister/autocomplete-lister-types";
 import { DynamicForm } from "./dynamic-form/dynamic-form";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { NgTemplateOutlet } from "@angular/common";
+import { NgStyle, NgTemplateOutlet } from "@angular/common";
 import { MatFormFieldModule, MatHint } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { Oslinput } from "./input/input";
@@ -24,6 +24,8 @@ import { OslGrid } from "./grid/grid";
 import { OslFormGrid } from "./form-grid/form-grid";
 import { OslAutocompleteLister } from "./autocomplete-lister/autocomplete-lister";
 import { OslSkeletonModule } from "../directives/skeleton/skeleton.module";
+import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatMenuModule } from "@angular/material/menu";
 
 @NgModule({
   declarations: [
@@ -46,6 +48,7 @@ import { OslSkeletonModule } from "../directives/skeleton/skeleton.module";
   ],
   imports: [
     NgTemplateOutlet,
+    NgStyle,
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -54,7 +57,9 @@ import { OslSkeletonModule } from "../directives/skeleton/skeleton.module";
     MatIconModule,
     MatDialogModule,
     MatButtonModule,
-    OslSkeletonModule
+    OslSkeletonModule,
+    MatDatepickerModule,
+    MatMenuModule
   ],
   exports: [DynamicForm, OslSetup, OslGrid, OslFormGrid,Oslinput,
     Osltextarea,

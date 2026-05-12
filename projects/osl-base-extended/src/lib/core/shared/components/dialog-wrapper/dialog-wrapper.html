@@ -21,9 +21,14 @@
             <span class="dialog-heading"> {{ dialogData.header.startsWith('Add') ? dialogData.header.replace('Add','') : dialogData.header.startsWith('Edit') ? dialogData.header.replace('Edit','') : '' }}</span>
           </div>
         </div>
+        @if(dialogData.partialHeader) {
+       
+          <ng-container *ngTemplateOutlet="dialogData.partialHeader; context: { $implicit: dialogData }"></ng-container>
+        }
         <button mat-icon-button class="dialog-close-btn" mat-dialog-close>
           <mat-icon>close</mat-icon>
         </button>
+        
       </div>
     } @else {
       <ng-container *ngTemplateOutlet="dialogData.header; context: { $implicit: dialogData }"></ng-container>

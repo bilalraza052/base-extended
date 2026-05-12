@@ -18,25 +18,25 @@
     align-items: center;
 }
 
-// ── Native input ──────────────────────────────────────────────────────────────
-input[type='date'],
-input[type='datetime-local'],
-input[type='time'],
-input[type='month'],
-input[type='week'] {
+// ── Mat Datepicker input (same look as native date input) ─────────────────────
+.date-input {
     height: var(--osl-control-height);
     width: 100%;
     border-radius: var(--osl-border-radius);
     outline: none;
     border: 1px solid var(--osl-border-color);
-    padding: 0 10px;
+    padding: 0 36px 0 10px;
     font-size: var(--osl-text-font-size);
     font-family: inherit;
     color: #333;
     background-color: #fff;
     transition: border-color 0.2s, box-shadow 0.2s;
-    color-scheme: light;
     letter-spacing: 0.01em;
+    box-sizing: border-box;
+
+    &::placeholder {
+        color: #bbb;
+    }
 
     &:hover:not(:disabled) {
         border-color: var(--osl-focus-border-color);
@@ -60,56 +60,51 @@ input[type='week'] {
             box-shadow: 0 0 0 3px var(--osl-error-shadow, rgba(220, 38, 38, 0.14));
         }
     }
+}
 
-    // ── Calendar / clock icon ─────────────────────────────────────────────────
-    &::-webkit-calendar-picker-indicator {
-        width: 16px;
-        height: 16px;
-        padding: 3px;
-        margin-right: 2px;
-        border-radius: 4px;
-        cursor: pointer;
-        opacity: 0.45;
-        transition: opacity 0.15s, background-color 0.15s;
+// ── Datepicker toggle button ──────────────────────────────────────────────────
+.picker-toggle {
+    position: absolute;
+    right: 4px;
+    display: flex;
+    align-items: center;
 
-        &:hover {
-            opacity: 0.9;
-            background-color: rgba(0, 0, 0, 0.07);
-        }
-    }
+    ::ng-deep {
+        .mat-mdc-icon-button {
+            width: 28px;
+            height: 28px;
+            padding: 4px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-    // ── Inner edit area ───────────────────────────────────────────────────────
-    &::-webkit-datetime-edit {
-        padding: 0;
-        line-height: 1;
-    }
+            // remove Material ripple background on hover
+            &:hover .mat-mdc-button-persistent-ripple::before {
+                opacity: 0;
+            }
 
-    &::-webkit-datetime-edit-fields-wrapper {
-        padding: 0;
-    }
+            .mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+                color: #333;
+                opacity: 0.45;
+                transition: opacity 0.15s, background-color 0.15s;
+                border-radius: 4px;
+                padding: 3px;
+                box-sizing: content-box;
+            }
 
-    // Separators ( / or : or space )
-    &::-webkit-datetime-edit-text {
-        color: #bbb;
-        padding: 0 1px;
-    }
+            &:hover:not([disabled]) .mat-icon {
+                opacity: 0.9;
+                background-color: rgba(0, 0, 0, 0.07);
+            }
 
-    // Individual fields – highlight selected segment with theme colour
-    &::-webkit-datetime-edit-year-field,
-    &::-webkit-datetime-edit-month-field,
-    &::-webkit-datetime-edit-day-field,
-    &::-webkit-datetime-edit-hour-field,
-    &::-webkit-datetime-edit-minute-field,
-    &::-webkit-datetime-edit-second-field,
-    &::-webkit-datetime-edit-week-field,
-    &::-webkit-datetime-edit-ampm-field {
-        border-radius: 3px;
-        padding: 1px 2px;
-
-        &:focus {
-            background-color: var(--osl-focus-border-color, #4361ee);
-            color: #fff;
-            outline: none;
+            &[disabled] {
+                pointer-events: none;
+                opacity: 0.4;
+            }
         }
     }
 }
