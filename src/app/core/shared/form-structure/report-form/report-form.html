@@ -1,0 +1,125 @@
+<!-- ── Form view (hidden when results are shown) ────────────────────────── -->
+@if (!showResultView) {
+  <div class="orf-card">
+
+    <!-- Header -->
+    <div class="orf-header">
+      <div class="orf-header__left">
+        <div class="orf-header__icon-wrap">
+          <mat-icon class="orf-header__icon">assessment</mat-icon>
+        </div>
+        <div class="orf-header__text">
+          <h4 class="orf-header__title">{{ title }}</h4>
+          <p class="orf-header__sub">Configure parameters and generate report</p>
+        </div>
+      </div>
+
+      <div class="orf-header__right">
+        @for (type of generateOptions; track type) {
+          <button
+            class="orf-type-btn"
+            [class.active]="selectedType === type"
+            [class.orf-type-btn--pdf]="type === 'pdf'"
+            [class.orf-type-btn--excel]="type === 'excel'"
+            [class.orf-type-btn--grid]="type === 'grid'"
+            (click)="selectType(type)"
+            type="button"
+          >
+            <mat-icon>{{ typeIcon(type) }}</mat-icon>
+            <span>{{ typeLabel(type) }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="orf-divider"></div>
+
+    <!-- Form Body -->
+    <div class="orf-body">
+      <osl-dynamic-form
+        [elements]="formElements"
+        [model]="model"
+        (modelChange)="onModelChange($event)"
+        [skeletonLoading]="skeletonLoading"
+        [skeletonTheme]="skeletonTheme"
+      ></osl-dynamic-form>
+    </div>
+
+    <!-- Footer -->
+    <div class="orf-footer">
+      <button
+        class="orf-generate-btn"
+        (click)="generate()"
+        [disabled]="generating"
+        type="button"
+      >
+        @if (generating) {
+          <span class="orf-generate-btn__spinner"></span>
+          <span>Generating...</span>
+        } @else {
+          <mat-icon>{{ typeIcon(selectedType) }}</mat-icon>
+          <span>Generate {{ typeLabel(selectedType) }}</span>
+          <mat-icon class="orf-generate-btn__arrow">arrow_forward</mat-icon>
+        }
+      </button>
+    </div>
+
+  </div>
+}
+
+<!-- ── Full-screen results view ─────────────────────────────────────────── -->
+@if (showResultView) {
+  <!-- <div class="orf-results-view"> -->
+
+    <!-- Results header bar -->
+    <div class="orf-results-header">
+
+      <div class="orf-results-header__left">
+        <button class="orf-back-btn" (click)="backToForm()" type="button">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Back</span>
+        </button>
+        <div class="orf-results-header__sep"></div>
+        <mat-icon class="orf-results-header__report-icon">assessment</mat-icon>
+        <span class="orf-results-header__title">{{ title }}</span>
+        <span class="orf-results-badge">
+          <mat-icon>table_rows</mat-icon>
+          {{ resultDatasource.length | number }} records
+        </span>
+      </div>
+
+      <div class="orf-results-header__right">
+        @if (generateOptions.includes('excel')) {
+          <button class="orf-reexport-btn orf-reexport-btn--excel" (click)="reExportExcel()" type="button">
+            <mat-icon>table_chart</mat-icon>
+            <span>Excel</span>
+          </button>
+        }
+        <!-- @if (generateOptions.includes('pdf')) {
+          <button class="orf-reexport-btn orf-reexport-btn--pdf" (click)="reExportPdf()" type="button">
+            <mat-icon>picture_as_pdf</mat-icon>
+            <span>PDF</span>
+          </button>
+        } -->
+      </div>
+
+    </div>
+
+    <!-- Report grid -->
+    <div class="orf-results-body">
+      <osl-report-grid
+        [columns]="reportColumns"
+        [datasource]="resultDatasource"
+        [loading]="generating"
+        [title]="title"
+        tableHeight="calc(100vh - 365px)"
+        [pageSize]="pageSize"
+        [exportable]="true"
+        [showAggregates]="true"
+        [striped]="true"
+      ></osl-report-grid>
+    </div>
+
+  <!-- </div> -->
+}
