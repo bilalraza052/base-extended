@@ -101,16 +101,27 @@
                         }
                       </div>
                     }
+                    @if(canEdit){
                     <button class="osl-grid-icon-btn" (click)="$event.stopPropagation(); editClick.emit(row)" title="Edit">
                       <mat-icon>mode_edit_outline</mat-icon>
                     </button>
+                    }
+                    @if(canDelete){
                     <button class="osl-grid-icon-btn osl-grid-icon-btn--danger" (click)="$event.stopPropagation(); deleteClick.emit(row)" title="Delete">
                       <mat-icon>delete_outline</mat-icon>
                     </button>
+                    }
                    
                   </td>
                 } @else {
-                  <td class="osl-grid-td" [class.osl-grid-td--last]="last">{{ getCellValue(row, col) }}</td>
+                  <td class="osl-grid-td" [class.osl-grid-td--last]="last">
+                    @switch (col.displayType) {
+                      @case ('date') { {{ row[col.key] | date }} }
+                      @case ('datetime') { {{ row[col.key] | date:'medium' }} }
+                      @case ('time') { {{ row[col.key] | date:'shortTime' }} }
+                      @default { {{ getCellValue(row, col) }} }
+                    }
+                  </td>
                 }
               }
             </tr>

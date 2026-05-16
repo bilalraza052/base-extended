@@ -1,5 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
+export type OslDisplayType = 'date' | 'datetime' | 'time';
+
 export interface OslGridColumn {
   key: string;
   label: string;
@@ -7,6 +9,7 @@ export interface OslGridColumn {
   displayFn?: (value: any, row: any) => string;
   /** When true, renders edit + delete icon buttons instead of cell text. */
   isActions?: boolean;
+  displayType?: OslDisplayType;
 }
 
 export interface OslMenuAction {
@@ -55,6 +58,8 @@ export class OslGrid implements OnChanges {
   @Input('loading') loading: boolean = false;
   @Input('isSelectable') isSelectable: boolean = false;
   @Input('moreMenuActions') moreMenuActions: OslMenuAction[] = [];
+  @Input('canEdit') canEdit: boolean = true;
+  @Input('canDelete') canDelete: boolean = true;
 
   @Output() pageChange = new EventEmitter<OslPageEvent>();
   @Output() pageSizeChange = new EventEmitter<OslPageEvent>();
