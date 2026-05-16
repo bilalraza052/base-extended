@@ -96,15 +96,49 @@ export class baseComponent{
             }
 
             const isRequired = el.required || el.requiredIf?.(model);
-            if (isRequired) {
-                const value = model[el.key];
-                const isEmpty = value === null || value === undefined || value === ''
-                    || (Array.isArray(value) && value.length === 0);
-                if (isEmpty) {
-                    errors.push(`${el.label} is required`);
+            const value = model[el.key];
+            const isEmpty = value === null || value === undefined || value === ''
+                || (Array.isArray(value) && value.length === 0);
+
+            if (isRequired && isEmpty) {
+                errors.push(`${el.label} is required`);
+                continue;
+            }
+
+            if (el.inputType === 'email' && !isEmpty) {
+                const emailRegex = /^(?!.*\.\.)(?!.*\.$)[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/
+                if (!emailRegex.test(value)) {
+                    errors.push(`${el.label} must be a valid email address`);
+                }
+            }
+
+            if (el.elementType === 'datepicker' && !isEmpty) {
+                const dateOnly = typeof value === 'string' && value.includes('T') ? value.split('T')[0] : value;
+                const selectedDate = new Date(dateOnly + 'T00:00:00');
+                if (!isNaN(selectedDate.getTime())) {
+                    const effectiveMin = el.minDateIf?.(model) ?? el.minDate;
+                    const effectiveMax = el.maxDateIf?.(model) ?? el.maxDate;
+                    if (effectiveMin) {
+                        const minDate = new Date(effectiveMin + 'T00:00:00');
+                        if (selectedDate < minDate) {
+                            errors.push(`${el.label} cannot be before ${this._formatDate(effectiveMin)}`);
+                        }
+                    }
+                    if (effectiveMax) {
+                        const maxDate = new Date(effectiveMax + 'T00:00:00');
+                        if (selectedDate > maxDate) {
+                            errors.push(`${el.label} cannot be after ${this._formatDate(effectiveMax)}`);
+                        }
+                    }
                 }
             }
         }
+    }
+
+    private _formatDate(dateStr: string): string {
+        const d = new Date(dateStr + 'T00:00:00');
+        if (isNaN(d.getTime())) return dateStr;
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
     }
 
 }
