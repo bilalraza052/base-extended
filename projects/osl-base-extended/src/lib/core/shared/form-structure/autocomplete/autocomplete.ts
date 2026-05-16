@@ -33,8 +33,11 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
       this._model = val;
       if(this.object){
         this.datasource = [this.object]
+        
         this.filteredItems = [...this.datasource]
         this.syncInputFromModel()
+        this.datasourceChange.emit(this.datasource)
+
 
       }
     }
@@ -44,7 +47,8 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
   get model(){
     return this._model
   }
-  @Input('datasource') datasource: any[] = [];
+  @Input('datasource') datasource:any[]=[];
+  @Output() datasourceChange = new EventEmitter<any>();
   @Input('displayField') displayField: string = '';
   @Input('valueField') valueField: string = '';
   @Input('placeholder') placeholder: string = 'Type to search...';
@@ -58,6 +62,8 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
         this._object = val;
         this.datasource = [val]
         this.filteredItems = [...this.datasource]
+        this.datasourceChange.emit(this.datasource)
+
       }
       if(this.model){
         this.syncInputFromModel()
@@ -122,6 +128,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
     dialogRef.afterClosed().subscribe((selectedRow: any) => {
       if (selectedRow && selectedRow[this.valueField]) {
         this.datasource = [selectedRow];
+        this.datasourceChange.emit(this.datasource)
         this.filteredItems = [...this.datasource];
         this.selectItem(selectedRow);
       }
@@ -143,16 +150,20 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
           const res:HttpResponse = await this.service[this.methodName](value);
           if(!res.isSuccessful) return
           this.datasource = res?.result && Array.isArray(res?.result) ? res?.result : res?.result?.data;
+          this.datasourceChange.emit(this.datasource)
+
           this.filteredItems = this.datasource
           this.cdr.markForCheck();
         });
 
       if (this.object) {
         this.datasource = [this.object];
+        this.datasourceChange.emit(this.datasource)
+        this.filteredItems = [...this.datasource];
+
       }
     }
     this.cdr.markForCheck();
-    this.filteredItems = [...this.datasource];
     this.syncInputFromModel();
   }
 
