@@ -12,10 +12,13 @@
             <mat-icon class="input-icon prefix-icon">{{prefixIcon}}</mat-icon>
         }
         <input
-    
+
             [type]="inputType"
             [ngModel]="model"
             (ngModelChange)="onModelChange($event)"
+            (keydown)="onKeyDown($event)"
+            (focus)="onFocusIn($event)"
+            (blur)="onFocusOut()"
             (change)="onChange()"
             [required]="required"
             [disabled]="disabled"
