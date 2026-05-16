@@ -67,6 +67,25 @@ export class DynamicForm implements OnInit, OnChanges {
     this.model[key] = event;
     this.modelChange.emit(this.model);
   }
+
+  onSelectChange(elem: elements, value: any) {
+    if (!elem.change) return;
+    let selectedObj: any = undefined;
+    if (elem.datasource) {
+      if (Array.isArray(value)) {
+        selectedObj = value.map(v =>
+          elem.datasource!.find(item => (elem.valueField ? item[elem.valueField] : item) === v) ?? null
+        );
+      } else if (value !== null && value !== undefined) {
+        selectedObj = elem.datasource.find(item =>
+          (elem.valueField ? item[elem.valueField] : item) === (isNaN(Number(value))?value:Number(value))
+        ) ?? null;
+      } else {
+        selectedObj = null;
+      }
+    }
+    elem.change(this.model, undefined, selectedObj);
+  }
 }
 
 export interface elements {
@@ -76,11 +95,13 @@ export interface elements {
   key: string;
   /** Child elements rendered inside a fieldset. Only used when elementType is 'fieldset'. */
   rows?: elements[];
-  change?: (model: any) => void;
+  change?: (model: any, index?: any, selectedObj?: any) => void;
   disabled?: boolean;
   hide?: boolean;
-  disabledIf?: () => boolean;
+  disabledIf?: (row:any, index?:any) => boolean;
   hideIf?: (model: any) => boolean;
+  minDateIf?: (model: any) => string;
+  maxDateIf?: (model: any) => string;
   datasource?: any[];
   displayField?: string;
   valueField?: string;
@@ -104,6 +125,9 @@ export interface elements {
   maxLength?: number;
   prefixIcon?: string;
   suffixIcon?: string;
+  onlyChars?: boolean;
+  /** Enforce N decimal places on osl-input. Shows 0.00 when blank; auto-pads on blur. */
+  decimalPortion?: number;
 
   // ── osl-textarea ──────────────────────────────────
   textareaRows?: number;
@@ -148,4 +172,5 @@ export interface elements {
   searchType?:'Api' | 'Local';
   objectName?:string;
   isListerAutocomplete?:boolean
+  isCapitalize?:boolean
 }

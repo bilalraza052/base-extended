@@ -18,7 +18,7 @@
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
                         [label]="elem.label"
-                        [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
+                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [type]="elem.inputType || 'text'"
                         [placeholder]="elem.placeholder || ''"
@@ -29,8 +29,11 @@
                         [maxLength]="elem.maxLength ?? null"
                         [prefixIcon]="elem.prefixIcon || ''"
                         [suffixIcon]="elem.suffixIcon || ''"
+                        [onlyChars]="!!elem.onlyChars"
+                        [decimalPortion]="elem.decimalPortion ?? null"
                         (changeEv)="elem.change ? elem.change(model) : null"
                         [(model)]="model[elem.key]"
+                        [isCapitalize]="elem.isCapitalize"
                     ></osl-input>
                 </div>
             }
@@ -42,7 +45,7 @@
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
 
-                        [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
+                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [rows]="elem.textareaRows || 3"
                         [placeholder]="elem.placeholder || ''"
@@ -63,7 +66,7 @@
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
 
-                        [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
+                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [datasource]="elem.datasource || []"
                         [displayField]="elem.displayField || ''"
@@ -73,7 +76,7 @@
                         [clearable]="!!elem.clearable"
                         [multiple]="!!elem.selectMultiple"
                         [showSelectAll]="!!elem.showSelectAll"
-                        (changeEv)="elem.change ? elem.change(model) : null"
+                        (changeEv)="elem.change ? onSelectChange(elem, $event) : null"
                         [(model)]="model[elem.key]"
                     ></osl-select>
                 </div>
@@ -85,7 +88,7 @@
                         [skeletonLoading]="skeletonLoading"
                         [skeletonTheme]="skeletonTheme"
                         [label]="elem.label"
-                        [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
+                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [placeholder]="elem.placeholder || 'Type and press Enter...'"
                         (changeEv)="elem.change ? elem.change(model) : null"
@@ -101,7 +104,7 @@
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
 
-                        [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
+                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [datasource]="elem.datasource || []"
                         [displayField]="elem.displayField || ''"
@@ -120,7 +123,7 @@
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
 
-                        [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
+                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [labelPosition]="elem.labelPosition || 'after'"
                         [trueLabel]="elem.trueLabel || ''"
                         [falseLabel]="elem.falseLabel || ''"
@@ -137,7 +140,7 @@
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
 
-                        [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
+                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [datasource]="elem.datasource || []"
                         [displayField]="elem.displayField || ''"
@@ -145,7 +148,7 @@
                         [placeholder]="elem.autocompletePlaceholder || 'Type to search...'"
                         [loading]="elem.loadingIf ? elem.loadingIf(model) : false"
                         [multiple]="!!elem.autocompleteMultiple"
-                        (changeEv)="elem.change ? elem.change(model) : null"
+                        (changeEv)="elem.change ? onSelectChange(elem, $event) : null"
                         [(model)]="model[elem.key]"
                         [methodName]="elem.apiMethod"
                         [service]="elem.apiService"
@@ -166,7 +169,7 @@
                     [skeletonTheme]="skeletonTheme"
 
                         [label]="elem.label"
-                        [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
+                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [accept]="elem.accept || ''"
                         [multiple]="!!elem.multiple"
@@ -184,12 +187,12 @@
                     [skeletonTheme]="skeletonTheme"
 
                         [label]="elem.label"
-                        [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
+                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [dateType]="elem.dateType || 'date'"
                         [placeholder]="elem.placeholder || ''"
-                        [minDate]="elem.minDate || ''"
-                        [maxDate]="elem.maxDate || ''"
+                        [minDate]="elem.minDateIf ? elem.minDateIf(model) : elem.minDate || ''"
+                        [maxDate]="elem.maxDateIf ? elem.maxDateIf(model) : elem.maxDate || ''"
                         (changeEv)="elem.change ? elem.change(model) : null"
                         [(model)]="model[elem.key]"
                     ></osl-datepicker>
@@ -203,7 +206,7 @@
                     [skeletonTheme]="skeletonTheme"
 
                         [label]="elem.label"
-                        [disabled]="elem.disabledIf ? elem.disabledIf() : !!elem.disabled"
+                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [indeterminate]="!!elem.indeterminate"
                         (changeEv)="elem.change ? elem.change(model) : null"
