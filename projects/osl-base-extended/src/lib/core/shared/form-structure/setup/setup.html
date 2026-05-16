@@ -5,8 +5,8 @@
     <h5 class="mb-0">{{ title }}</h5>
     <div class="d-flex align-items-center gap-2">
      <osl-searchbar #searchbar class="mx-2" (onSearch)="onSearchSetup($event)"></osl-searchbar>
-      @if(!isLister){
-        <osl-button 
+      @if(!isLister && canAdd){
+        <osl-button
           variant="secondary"
           size="sm"
           [label]="'Add ' + title"
@@ -30,6 +30,8 @@
       [totalRecords]="totalRecords"
       [loading]="loading"
       [moreMenuActions]="moreMenuActions"
+      [canEdit]="canEdit"
+      [canDelete]="canDelete"
       (editClick)="openEditDialog($event)"
       (deleteClick)="onDeleteClick($event)"
       (pageChange)="onPageChange(pageChange,$event)"

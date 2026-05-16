@@ -52,6 +52,9 @@ export class OslSetup {
   @Input('onAddEditFn') onAddEditFn:((row?: any) => void | undefined) | undefined;
   // @Input('onSave') onSave:((row?: any) => void | undefined) | undefined;
   @Input('isLister') isLister:boolean = false
+  @Input('canAdd') canAdd: boolean = true;
+  @Input('canEdit') canEdit: boolean = true;
+  @Input('canDelete') canDelete: boolean = true;
   @Input('moreMenuActions') moreMenuActions: OslMenuAction[] = []
   @Input('customFormFooter') customFormFooter: TemplateRef<any> | undefined
   @Input('customHeaderTemp') customHeaderTemp: TemplateRef<any> | undefined
@@ -68,7 +71,7 @@ export class OslSetup {
   @Output() sortChange = new EventEmitter<OslSortEvent>();
   @Output() onRowClick = new EventEmitter<any>();
 @ViewChild('gridRef') gridRef:OslGrid | undefined
- @Input('onSave') onSave:((row?: any) => void | undefined) | undefined;
+ @Input('onSave') onSave:((row?: any) => boolean | undefined) | undefined;
 
   // ── Dialog state ──────────────────────────────────────────────
   dialogModel: any = {};
@@ -84,9 +87,8 @@ export class OslSetup {
   /** Prepends the actions column when formElements are provided. */
   get columnsWithActions(): OslGridColumn[] {
     if (!this.hasForm) return this.columns;
-    if(this.isLister){
-      return [...this.columns]
-    }
+    if (this.isLister) return [...this.columns];
+    if (!this.canEdit && !this.canDelete) return this.columns;
     return [{ key: '__actions', label: '', isActions: true }, ...this.columns];
   }
   onSearchSetup(event:any){
@@ -168,13 +170,17 @@ export class OslSetup {
   }
 
   async saveDialog() {
+    let isSuccess:any = false
     if(this.onSave){
       this.saveLoading = true
-      await this.onSave({ model: { ...this.dialogModel }, mode: this.dialogMode })
+      isSuccess = await this.onSave({ model: { ...this.dialogModel }, mode: this.dialogMode })
       this.saveLoading = false
     }
-    this._dialogRef?.close();
-    this._dialogRef = null;
+    if(isSuccess){
+      this._dialogRef?.close();
+      this._dialogRef = null;
+      
+    }
   }
 
   private _openDialog(): void {
