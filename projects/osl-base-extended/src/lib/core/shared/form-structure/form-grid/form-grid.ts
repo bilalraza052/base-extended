@@ -11,6 +11,13 @@ export interface OslFormGridColumn {
   width?: string;
 }
 
+export interface OslFormGridFooterColumn {
+  colspan?: number;
+  display?: string;
+  displayFn?: (datasource: any[]) => any;
+  class?: string;
+}
+
 export interface OslFormGridRowEvent {
   row: any;
   index: number;
@@ -33,6 +40,7 @@ export class OslFormGrid {
   @Input('canDelete') canDelete: boolean = true;
   @Input('loading') loading: boolean = false;
   @Input('tableHeight') tableHeight: string = '350px';
+  @Input('footerColumns') footerColumns: OslFormGridFooterColumn[] = [];
 
   @Output() rowAdd = new EventEmitter<any>();
   @Output() rowDelete = new EventEmitter<OslFormGridRowEvent>();
@@ -117,7 +125,7 @@ export class OslFormGrid {
   onCellChange(row: any, col: OslFormGridColumn, value: any): void {
     row[col.key] = value;
     this.datasourceChange.emit(this.datasource);
-    if (col.formElem?.change) col.formElem.change(row);
+    // if (col.formElem?.change) col.formElem.change(row);
   }
 
   goToPage(page: number): void {
@@ -131,8 +139,8 @@ export class OslFormGrid {
     this.currentPage = 1;
   }
 
-  isDisabled(elem: elements): boolean {
-    return elem.disabledIf ? elem.disabledIf() : !!elem.disabled;
+  isDisabled(elem: elements,row:any,index:number): boolean {
+    return elem.disabledIf ? elem.disabledIf(row,index) : !!elem.disabled;
   }
 
   isLoading(row: any, elem: elements): boolean {
@@ -141,5 +149,25 @@ export class OslFormGrid {
 
   colRequired(col: OslFormGridColumn): boolean {
     return !!col.formElem?.required || !!col.formElem?.requiredIf;
+  }
+
+  onSelectChange(col: OslFormGridColumn, row: any, i: number, value: any): void {
+    if (!col.formElem?.change) return;
+    const elem = col.formElem;
+    let selectedObj: any = undefined;
+    if (elem.datasource) {
+      if (Array.isArray(value)) {
+        selectedObj = value.map(v =>
+          elem.datasource!.find(item => (elem.valueField ? item[elem.valueField] : item) === v) ?? null
+        );
+      } else if (value !== null && value !== undefined) {
+        selectedObj = elem.datasource.find(item =>
+          (elem.valueField ? item[elem.valueField] : item) === value
+        ) ?? null;
+      } else {
+        selectedObj = null;
+      }
+    }
+    elem.change!(row, i, selectedObj);
   }
 }

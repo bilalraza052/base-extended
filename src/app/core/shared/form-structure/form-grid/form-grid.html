@@ -67,9 +67,6 @@
                     <button class="osl-grid-icon-btn osl-grid-icon-btn--danger" (click)="deleteRow(i)" title="Delete">
                       <mat-icon>delete_outline</mat-icon>
                     </button>
-                    <!-- <button class="osl-fg-delete-btn" (click)="deleteRow(i)" title="Delete row">
-                      <mat-icon>delete_outline</mat-icon>
-                    </button> -->
                   }
                 </td>
               }
@@ -84,7 +81,7 @@
                           <osl-input
                             [label]="''"
                             [required]="false"
-                            [disabled]="isDisabled(col.formElem)"
+                            [disabled]="isDisabled(col.formElem,row,i)"
                             [type]="col.formElem.inputType || 'text'"
                             [placeholder]="col.formElem.placeholder || col.displayName"
                             [mask]="col.formElem.mask || ''"
@@ -94,9 +91,10 @@
                             [maxLength]="col.formElem.maxLength ?? null"
                             [prefixIcon]="col.formElem.prefixIcon || ''"
                             [suffixIcon]="col.formElem.suffixIcon || ''"
+                            [decimalPortion]="col.formElem.decimalPortion ?? null"
                             [model]="row[col.key]"
                             (modelChange)="onCellChange(row, col, $event)"
-                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                            (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
                           </osl-input>
                         }
 
@@ -104,7 +102,7 @@
                           <osl-textarea
                             [label]="''"
                             [required]="false"
-                            [disabled]="isDisabled(col.formElem)"
+                            [disabled]="isDisabled(col.formElem,row,i)"
                             [rows]="col.formElem.textareaRows || 3"
                             [placeholder]="col.formElem.placeholder || col.displayName"
                             [maxLength]="col.formElem.maxLength ?? null"
@@ -113,7 +111,7 @@
                             [resize]="col.formElem.resize || 'none'"
                             [model]="row[col.key]"
                             (modelChange)="onCellChange(row, col, $event)"
-                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                            (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
                           </osl-textarea>
                         }
 
@@ -121,7 +119,7 @@
                           <osl-select
                             [label]="''"
                             [required]="false"
-                            [disabled]="isDisabled(col.formElem)"
+                            [disabled]="isDisabled(col.formElem,row,i)"
                             [datasource]="col.formElem.datasource || []"
                             [displayField]="col.formElem.displayField || ''"
                             [valueField]="col.formElem.valueField || ''"
@@ -130,7 +128,7 @@
                             [clearable]="!!col.formElem.clearable"
                             [model]="row[col.key]"
                             (modelChange)="onCellChange(row, col, $event)"
-                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                            (changeEv)="col.formElem.change ? onSelectChange(col, row, i, $event) : null">
                           </osl-select>
                         }
 
@@ -138,15 +136,21 @@
                           <osl-autocomplete
                             [label]="''"
                             [required]="false"
-                            [disabled]="isDisabled(col.formElem)"
+                            [disabled]="isDisabled(col.formElem,row,i)"
                             [datasource]="col.formElem.datasource || []"
                             [displayField]="col.formElem.displayField || ''"
                             [valueField]="col.formElem.valueField || ''"
                             [placeholder]="col.formElem.autocompletePlaceholder || col.displayName"
                             [loading]="isLoading(row, col.formElem)"
+                            [searchType]="col.formElem.searchType ? col.formElem.searchType : 'Local'"
+                            [methodName]="col.formElem.apiMethod || ''"
+                            [configMethodName]="col.formElem.apiConfigMethod || ''"
+                            [service]="col.formElem.apiService"
+                            [object]="col.formElem.objectName ? row[col.formElem.objectName] : null"
+                            [isLister]="!!col.formElem.isListerAutocomplete"
                             [model]="row[col.key]"
                             (modelChange)="onCellChange(row, col, $event)"
-                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                            (changeEv)="col.formElem.change ? onSelectChange(col, row, i, $event) : null">
                           </osl-autocomplete>
                         }
 
@@ -154,14 +158,14 @@
                           <osl-radio
                             [label]="''"
                             [required]="false"
-                            [disabled]="isDisabled(col.formElem)"
+                            [disabled]="isDisabled(col.formElem,row,i)"
                             [datasource]="col.formElem.datasource || []"
                             [displayField]="col.formElem.displayField || ''"
                             [valueField]="col.formElem.valueField || ''"
                             [inline]="!!col.formElem.inline"
                             [model]="row[col.key]"
                             (modelChange)="onCellChange(row, col, $event)"
-                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                            (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
                           </osl-radio>
                         }
 
@@ -169,24 +173,24 @@
                           <osl-checkbox
                             [label]="''"
                             [required]="false"
-                            [disabled]="isDisabled(col.formElem)"
+                            [disabled]="isDisabled(col.formElem,row,i)"
                             [indeterminate]="!!col.formElem.indeterminate"
                             [model]="row[col.key]"
                             (modelChange)="onCellChange(row, col, $event)"
-                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                            (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
                           </osl-checkbox>
                         }
 
                         @case ('slide-toggle') {
                           <osl-slide-toggle
                             [label]="''"
-                            [disabled]="isDisabled(col.formElem)"
+                            [disabled]="isDisabled(col.formElem,row,i)"
                             [labelPosition]="col.formElem.labelPosition || 'after'"
                             [trueLabel]="col.formElem.trueLabel || ''"
                             [falseLabel]="col.formElem.falseLabel || ''"
                             [model]="row[col.key]"
                             (modelChange)="onCellChange(row, col, $event)"
-                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                            (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
                           </osl-slide-toggle>
                         }
 
@@ -194,14 +198,14 @@
                           <osl-datepicker
                             [label]="''"
                             [required]="false"
-                            [disabled]="isDisabled(col.formElem)"
+                            [disabled]="isDisabled(col.formElem,row,i)"
                             [dateType]="col.formElem.dateType || 'date'"
                             [placeholder]="col.formElem.placeholder || col.displayName"
                             [minDate]="col.formElem.minDate || ''"
                             [maxDate]="col.formElem.maxDate || ''"
                             [model]="row[col.key]"
                             (modelChange)="onCellChange(row, col, $event)"
-                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                            (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
                           </osl-datepicker>
                         }
 
@@ -209,13 +213,13 @@
                           <osl-file-upload
                             [label]="''"
                             [required]="false"
-                            [disabled]="isDisabled(col.formElem)"
+                            [disabled]="isDisabled(col.formElem,row,i)"
                             [accept]="col.formElem.accept || ''"
                             [multiple]="!!col.formElem.multiple"
                             [maxSize]="col.formElem.maxFileSize || 0"
                             [model]="row[col.key]"
                             (modelChange)="onCellChange(row, col, $event)"
-                            (changeEv)="col.formElem.change ? col.formElem.change(row) : null">
+                            (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
                           </osl-file-upload>
                         }
 
@@ -232,6 +236,21 @@
         }
 
       </tbody>
+
+      @if (footerColumns && footerColumns.length > 0 && datasource && datasource.length > 0) {
+        <tfoot class="osl-fg-tfoot">
+          <tr class="osl-fg-footer-row">
+            @for (fcol of footerColumns; track $index) {
+              <td
+                [class]="'osl-fg-footer-td ' + (fcol.class || '')"
+                [attr.colspan]="fcol.colspan || 1">
+                {{ fcol.displayFn ? fcol.displayFn(datasource) : (fcol.display || '') }}
+              </td>
+            }
+          </tr>
+        </tfoot>
+      }
+
     </table>
   </div>
 

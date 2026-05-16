@@ -222,6 +222,30 @@
   }
 }
 
+// ── Footer ────────────────────────────────────────────────────
+.osl-fg-tfoot {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.osl-fg-footer-td {
+  background: #f3f4f6;
+  color: #4b5563;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 10px 12px;
+  text-align: left;
+  border-top: 2px solid var(--osl-border-color, #e5e7eb);
+  border-right: 1px solid var(--osl-border-color, #e5e7eb);
+  white-space: nowrap;
+  vertical-align: middle;
+
+  &:last-child { border-right: none; }
+}
+
 // ── Pagination ────────────────────────────────────────────────
 .osl-fg-pagination {
   display: flex;
