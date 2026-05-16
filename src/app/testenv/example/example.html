@@ -1,1 +1,22 @@
-<osl-setup #setup title="Vessels" [moreMenuActions]="moreMenu" [formElements]="formElements" [autoMode]="false" [totalRecords]="40" (pageSizeChange)="onPageChange($event)" (pageChange)="onPageChange($event)" [datasource]="listData" [onSave]="beforeSave" [beforeDisplay]="beforeDisplay" [loading]="loader" [columns]="columns" ></osl-setup>
+<div class="row">
+  <div class="col-3">
+   hello
+
+  </div>
+  <!-- ── Account Ledger Report ──────────────────────────────────────────────── -->
+  <div class="col-md-9">
+    <osl-report-form
+    class="w-100"
+      title="Account Ledger Report"
+      [formElements]="ledgerFormElements"
+      [(model)]="ledgerModel"
+      [generateOptions]="['grid', 'pdf']"
+      [reportColumns]="ledgerColumns"
+      [onGenerate]="onLedgerGenerate"
+      tableHeight="calc(100vh - 420px)"
+      [pageSize]="50"
+    ></osl-report-form>
+
+  </div>
+
+</div>

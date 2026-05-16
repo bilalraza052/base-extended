@@ -5,6 +5,8 @@ import { OslGridColumn, OslMenuAction } from '../../core/shared/form-structure/g
 import { elements } from '../../core/shared/form-structure/dynamic-form/dynamic-form';
 import { OslSetupSaveEvent } from '../../core/shared/form-structure/setup/setup';
 import { OslFormGridColumn } from '../../core/shared/form-structure/form-grid/form-grid';
+import { OslReportColumn } from '../../core/shared/form-structure/report-grid/report-grid';
+import { ReportGenerateType } from '../../core/shared/form-structure/report-form/report-form';
 import { ExampleService } from '../service/example';
 import { OslSkeletonModule } from '../../core/shared/directive/skeleton/skeleton.module';
 import { SkeletonTheme } from '../../core/shared/directive/skeleton/skeleton.directive';
@@ -198,7 +200,8 @@ export class Example extends baseComponent {
         label: 'Qty',
         columns: 12,
         inputType: 'number',
-        min: 1,
+        decimalPortion:4,
+        // min: 1,
         required: true,
       },
     },
@@ -271,6 +274,531 @@ export class Example extends baseComponent {
     this.cd.markForCheck()
   }
 
+  // ── Report Grid Demo ──────────────────────────────────────────────────────
+
+  reportSelectedRows: any[] = [];
+  reportLoading = false;
+
+  reportColumns: OslReportColumn[] = [
+    {
+      key: 'orderId',
+      label: 'Order ID',
+      width: 100,
+      pinned: true,
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayFn: (v) => `#${String(v).padStart(5, '0')}`,
+    },
+    {
+      key: 'customer',
+      label: 'Customer',
+      width: 180,
+      pinned: true,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+    },
+    {
+      key: 'region',
+      label: 'Region',
+      width: 130,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      width: 140,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+      enums: [
+        { value: 'electronics', label: 'Electronics' },
+        { value: 'clothing', label: 'Clothing' },
+        { value: 'furniture', label: 'Furniture' },
+        { value: 'food', label: 'Food & Beverage' },
+        { value: 'sports', label: 'Sports' },
+      ],
+    },
+    {
+      key: 'product',
+      label: 'Product',
+      width: 200,
+      sortable: true,
+      filterable: true,
+      groupable: false,
+    },
+    {
+      key: 'quantity',
+      label: 'Qty',
+      width: 80,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'number',
+     
+    },
+    {
+      key: 'unitPrice',
+      label: 'Unit Price',
+      width: 120,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'currency',
+      aggregate: 'avg',
+    },
+    {
+      key: 'totalAmount',
+      label: 'Total Amount',
+      width: 140,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'currency',
+      aggregate: 'sum',
+    },
+    {
+      key: 'discount',
+      label: 'Discount',
+      width: 100,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'percentage',
+      aggregate: 'avg',
+    },
+    {
+      key: 'profit',
+      label: 'Profit',
+      width: 120,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'currency',
+      aggregate: 'sum',
+      cellClass: (value: number) =>
+        value >= 0 ? 'rg-profit-pos' : 'rg-profit-neg',
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      width: 120,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+      enums: [
+        { value: 'delivered', label: 'Delivered' },
+        { value: 'shipped', label: 'Shipped' },
+        { value: 'processing', label: 'Processing' },
+        { value: 'pending', label: 'Pending' },
+        { value: 'cancelled', label: 'Cancelled' },
+      ],
+      cellClass: (_: any, row: any) => {
+        const map: Record<string, string> = {
+          delivered: 'rg-status-delivered',
+          shipped: 'rg-status-shipped',
+          processing: 'rg-status-processing',
+          pending: 'rg-status-pending',
+          cancelled: 'rg-status-cancelled',
+        };
+        return map[row.status] ?? '';
+      },
+    },
+    {
+      key: 'paymentMethod',
+      label: 'Payment',
+      width: 130,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+      enums: [
+        { value: 'card', label: 'Credit Card' },
+        { value: 'bank', label: 'Bank Transfer' },
+        { value: 'cash', label: 'Cash' },
+        { value: 'wallet', label: 'E-Wallet' },
+      ],
+    },
+    {
+      key: 'orderDate',
+      label: 'Order Date',
+      width: 120,
+      sortable: true,
+      filterable: true,
+      groupable: false,
+      displayType: 'date',
+    },
+    {
+      key: 'deliveryDate',
+      label: 'Delivery Date',
+      width: 130,
+      sortable: true,
+      filterable: true,
+      groupable: false,
+      displayType: 'date',
+    },
+    {
+      key: 'rating',
+      label: 'Rating',
+      width: 100,
+      align: 'center',
+      sortable: true,
+      filterable: true,
+      groupable: false,
+      displayFn: (v: number) => v ? '★'.repeat(v) + '☆'.repeat(5 - v) : '--',
+      aggregate: 'avg',
+    },
+    {
+      key: 'salesRep',
+      label: 'Sales Rep',
+      width: 150,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+    },
+  ];
+
+  reportData: any[] = this.generateReportData(1000);
+
+  private generateReportData(count: number): any[] {
+    const customers = [
+      'Alpha Corp', 'Beta Industries', 'Gamma LLC', 'Delta Enterprises',
+      'Epsilon Holdings', 'Zeta Solutions', 'Eta Dynamics', 'Theta Global',
+      'Iota Systems', 'Kappa Group', 'Lambda Tech', 'Mu Logistics',
+    ];
+    const regions = ['North', 'South', 'East', 'West', 'Central'];
+    const categories = ['electronics', 'clothing', 'furniture', 'food', 'sports'];
+    const products: Record<string, string[]> = {
+      electronics: ['Laptop Pro X1', 'Wireless Earbuds', '4K Monitor', 'Smart Watch', 'Tablet Air'],
+      clothing: ['Winter Jacket', 'Denim Jeans', 'Running Shoes', 'Polo Shirt', 'Casual Dress'],
+      furniture: ['Office Chair', 'Standing Desk', 'Bookshelf', 'Sofa Set', 'Dining Table'],
+      food: ['Premium Coffee', 'Protein Bars', 'Organic Juice', 'Snack Box', 'Tea Collection'],
+      sports: ['Gym Bag', 'Yoga Mat', 'Resistance Bands', 'Water Bottle', 'Jump Rope'],
+    };
+    const statuses = ['delivered', 'shipped', 'processing', 'pending', 'cancelled'];
+    const payments = ['card', 'bank', 'cash', 'wallet'];
+    const salesReps = ['Ali Hassan', 'Sara Khan', 'Umar Sheikh', 'Maryam Noor', 'Bilal Raza', 'Fatima Syed'];
+    const statusWeights = [40, 25, 20, 10, 5];
+
+    const weightedStatus = () => {
+      const r = Math.random() * 100;
+      let acc = 0;
+      for (let i = 0; i < statuses.length; i++) {
+        acc += statusWeights[i];
+        if (r < acc) return statuses[i];
+      }
+      return statuses[0];
+    };
+
+    const rnd = (min: number, max: number) => Math.random() * (max - min) + min;
+    const rndInt = (min: number, max: number) => Math.floor(rnd(min, max + 1));
+    const pick = <T>(arr: T[]) => arr[rndInt(0, arr.length - 1)];
+
+    const baseDate = new Date('2024-01-01');
+    const addDays = (d: Date, days: number) => {
+      const nd = new Date(d);
+      nd.setDate(nd.getDate() + days);
+      return nd;
+    };
+
+    return Array.from({ length: count }, (_, i) => {
+      const category = pick(categories);
+      const product = pick(products[category]);
+      const qty = rndInt(1, 50);
+      const unitPrice = parseFloat(rnd(10, 2000).toFixed(2));
+      const totalAmount = parseFloat((qty * unitPrice).toFixed(2));
+      const discount = parseFloat(rnd(0, 25).toFixed(2));
+      const profit = parseFloat((totalAmount * (1 - discount / 100) - totalAmount * 0.6).toFixed(2));
+      const orderDate = addDays(baseDate, rndInt(0, 365));
+      const deliveryDate = addDays(orderDate, rndInt(1, 14));
+      return {
+        orderId: 10000 + i + 1,
+        customer: pick(customers),
+        region: pick(regions),
+        category,
+        product,
+        quantity: qty,
+        unitPrice,
+        totalAmount,
+        discount,
+        profit,
+        status: weightedStatus(),
+        paymentMethod: pick(payments),
+        orderDate: orderDate.toISOString(),
+        deliveryDate: deliveryDate.toISOString(),
+        rating: rndInt(1, 5),
+        salesRep: pick(salesReps),
+      };
+    });
+  }
+
+  get selectedTotalAmount(): number {
+    return this.reportSelectedRows.reduce((sum, r) => sum + (r.totalAmount ?? 0), 0);
+  }
+
+  onReportRowClick(row: any): void {
+    console.log('Report row clicked:', row);
+  }
+
+  onReportSelection(rows: any[]): void {
+    this.reportSelectedRows = rows;
+    console.log(`${rows.length} rows selected`);
+  }
+
+  // ── Account Ledger Report ─────────────────────────────────────────────────────
+
+  ledgerModel: any = {
+    dateFrom: '2025-01-01',
+    dateTo: '2025-12-31',
+  };
+
+  ledgerFormElements: elements[] = [
+    {
+      columns: 4,
+      elementType: 'select',
+      label: 'Account',
+      key: 'accountId',
+      required: true,
+      displayField: 'label',
+      valueField: 'value',
+      selectPlaceholder: 'Select account...',
+      datasource: [
+        { label: 'Cash in Hand', value: 1 },
+        { label: 'Bank - HBL Main Account', value: 2 },
+        { label: 'Bank - MCB Current Account', value: 3 },
+        { label: 'Accounts Receivable', value: 4 },
+        { label: 'Accounts Payable', value: 5 },
+        { label: 'Sales Revenue', value: 6 },
+        { label: 'Purchase Account', value: 7 },
+        { label: 'General Expenses', value: 8 },
+      ],
+    },
+    {
+      columns: 3,
+      elementType: 'datepicker',
+      label: 'Date From',
+      key: 'dateFrom',
+      required: true,
+    },
+    {
+      columns: 3,
+      elementType: 'datepicker',
+      label: 'Date To',
+      key: 'dateTo',
+      required: true,
+    },
+    {
+      columns: 2,
+      elementType: 'slide-toggle',
+      label: 'Include Narration',
+      key: 'includeNarration',
+      labelPosition: 'after',
+    },
+  ];
+
+  ledgerColumns: OslReportColumn[] = [
+    {
+      key: 'date',
+      label: 'Date',
+      width: 110,
+      displayType: 'date',
+      sortable: true,
+      filterable: true,
+      groupable: false,
+      pinned: false,
+    },
+    {
+      key: 'voucherNo',
+      label: 'Voucher No',
+      width: 140,
+      sortable: true,
+      filterable: true,
+      groupable: false,
+      pinned: true,
+      displayFn: (v) => String(v),
+    },
+    {
+      key: 'voucherType',
+      label: 'Type',
+      width: 100,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+      enums: [
+        { value: 'PV', label: 'Payment Voucher' },
+        { value: 'RV', label: 'Receipt Voucher' },
+        { value: 'JV', label: 'Journal Voucher' },
+        { value: 'BT', label: 'Bank Transfer' },
+        { value: 'SJ', label: 'Sales Journal' },
+        { value: 'PJ', label: 'Purchase Journal' },
+      ],
+    },
+    {
+      key: 'description',
+      label: 'Description / Narration',
+      width: 280,
+      sortable: false,
+      filterable: false,
+      groupable: false,
+    },
+    {
+      key: 'reference',
+      label: 'Reference',
+      width: 140,
+      sortable: true,
+      filterable: true,
+      groupable: false,
+    },
+    {
+      key: 'party',
+      label: 'Party / Payee',
+      width: 180,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+    },
+    {
+      key: 'debit',
+      label: 'Debit',
+      width: 140,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'currency',
+      headerGroup:'Opening',
+      aggregate: 'sum',
+    },
+    {
+      key: 'credit',
+      label: 'Credit',
+      width: 140,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'currency',
+      headerGroup:'Opening',
+
+      aggregate: 'sum',
+    },
+    {
+      key: 'balance',
+      label: 'Running Balance',
+      width: 155,
+      align: 'right',
+      sortable: false,
+      filterable: true,
+      groupable: false,
+      displayType: 'currency',
+      headerGroup:'Opening',
+
+      cellClass: (_: any, row: any) => row.balance >= 0 ? 'rg-profit-pos' : 'rg-profit-neg',
+    },
+  ];
+
+  onLedgerGenerate = async (_model: any, _type: ReportGenerateType): Promise<any[]> => {
+    await new Promise(r => setTimeout(r, 900));
+    return this._generateLedgerData();
+  };
+
+  private _generateLedgerData(): any[] {
+    const parties = [
+      'Alpha Trading Co.', 'Beta Suppliers Ltd.', 'Gamma Enterprises',
+      'Delta Distribution', 'Epsilon Corp', 'Karachi Traders',
+      'Lahore Merchants', 'Islamabad Services', 'Multan Holdings', 'Faisalabad Mills',
+    ];
+    const vouchers: Array<{ type: string; prefix: string; descs: string[] }> = [
+      {
+        type: 'RV', prefix: 'RV',
+        descs: [
+          'Cash received against invoice', 'Advance received from customer',
+          'Receipt against outstanding balance', 'Earnest money received',
+        ],
+      },
+      {
+        type: 'PV', prefix: 'PV',
+        descs: [
+          'Payment to supplier against PO', 'Utility bill payment',
+          'Salary disbursement', 'Office rent payment', 'Transport charges paid',
+        ],
+      },
+      {
+        type: 'JV', prefix: 'JV',
+        descs: [
+          'Depreciation adjustment', 'Accrued expense entry',
+          'Provision for doubtful debts', 'Opening balance entry', 'Contra entry',
+        ],
+      },
+      {
+        type: 'BT', prefix: 'BT',
+        descs: [
+          'Inter-bank transfer', 'Fund transfer to branch',
+          'Online transfer via IBFT', 'RTGS transfer',
+        ],
+      },
+      {
+        type: 'SJ', prefix: 'SJ',
+        descs: [
+          'Sales invoice posted', 'Revenue recognized', 'Credit sale entry',
+        ],
+      },
+      {
+        type: 'PJ', prefix: 'PJ',
+        descs: [
+          'Purchase bill posted', 'Import clearance charges',
+          'Stock purchase entry', 'Raw material received',
+        ],
+      },
+    ];
+
+    const pick = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+    const rnd = (min: number, max: number) => parseFloat((Math.random() * (max - min) + min).toFixed(2));
+
+    const rows: any[] = [];
+    let balance = 125000;
+    let voucherSeq = 1001;
+
+    for (let m = 0; m < 12; m++) {
+      const txPerMonth = Math.floor(Math.random() * 6) + 4;
+      for (let t = 0; t < txPerMonth; t++) {
+        const day = Math.floor(Math.random() * 28) + 1;
+        const date = new Date(2025, m, day).toISOString();
+        const vGroup = pick(vouchers);
+        const isDebit = ['PV', 'PJ', 'BT'].includes(vGroup.type) ? Math.random() > 0.2 : Math.random() < 0.25;
+        const amount = rnd(5000, 250000);
+        const debit = isDebit ? amount : 0;
+        const credit = isDebit ? 0 : amount;
+        balance += credit - debit;
+
+        rows.push({
+          date,
+          voucherNo: `${vGroup.prefix}-${voucherSeq++}`,
+          voucherType: vGroup.type,
+          description: pick(vGroup.descs),
+          reference: `REF-${Math.floor(Math.random() * 90000) + 10000}`,
+          party: pick(parties),
+          debit,
+          credit,
+          balance: parseFloat(balance.toFixed(2)),
+        });
+      }
+    }
+
+    console.log('download')
+
+    return rows.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+
   ngAfterViewInit() {
     // this.getAllVessel()
 
@@ -312,10 +840,14 @@ export class Example extends baseComponent {
     },2000)
 
   
-    this.beforeDisplay = (row)=>{
-      row.imoNo = '2026-05-23T00:00:00'
-      row.status = 58
-      return row
+    this.beforeDisplay = async (row)=>{
+      const result:any = await  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({isSuccessful:true,result:{portOfRegistry:4}})
+    }, 250);
+  })
+     
+      return result?.result
 
     }
     this.beforeSave = (model)=>{
@@ -383,6 +915,8 @@ export class Example extends baseComponent {
             elementType: 'textbox',
             label: 'Port Of Registry',
             key: 'portOfRegistry',
+            inputType:'number',
+            decimalPortion:4
           },
           {
             columns: 3,
