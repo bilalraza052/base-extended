@@ -1,0 +1,579 @@
+<div class="osl-rg" (click)="$event.stopPropagation()">
+
+  <!-- ══ TOOLBAR ══════════════════════════════════════════════════════════════ -->
+  <div class="osl-rg-toolbar">
+    <div class="osl-rg-toolbar__left">
+      @if (title) { <span class="osl-rg-title">{{ title }}</span> }
+      @if (!loading) {
+        @if (_filteredTotal !== datasource.length) {
+          <span class="osl-rg-filter-badge">
+            <span class="osl-rg-filter-badge__dot"></span>
+            {{ _filteredTotal | number }} of {{ datasource.length | number }} rows
+          </span>
+        } @else {
+          <span class="osl-rg-record-count">{{ datasource.length | number }} rows</span>
+        }
+      }
+    </div>
+    <div class="osl-rg-toolbar__right">
+
+      <!-- Global search -->
+      <div class="osl-rg-global-search">
+        <svg class="osl-rg-global-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input class="osl-rg-global-search__input" placeholder="Search all columns…"
+               [(ngModel)]="globalSearch" (ngModelChange)="currentPage=1; processData()" />
+        @if (globalSearch) {
+          <button class="osl-rg-global-search__clear" (click)="globalSearch=''; processData()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        }
+      </div>
+
+      <!-- Sort active badge -->
+      @if (sortStates.size > 0) {
+        <button class="osl-rg-toolbar-btn osl-rg-toolbar-btn--active" (click)="clearSort()" title="Clear sort">
+          <svg class="rg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 5H4M11 9H4M11 13H4M18 4v16M15 7l3-3 3 3M15 17l3 3 3-3"/>
+          </svg>
+          <span>{{ sortStates.size }} sort{{ sortStates.size > 1 ? 's' : '' }}</span>
+          <svg class="rg-icon rg-icon--xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      }
+
+      <!-- Filter active badge -->
+      @if (hasAnyFilter) {
+        <button class="osl-rg-toolbar-btn osl-rg-toolbar-btn--danger" (click)="clearAllFilters()" title="Clear all filters">
+          <svg class="rg-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M22 3H2l8 9.46V19l4 2V12.46z"/></svg>
+          <span>Filtered</span>
+          <svg class="rg-icon rg-icon--xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      }
+
+      <!-- Group toggle -->
+      <button class="osl-rg-toolbar-btn" [class.osl-rg-toolbar-btn--on]="showGroupPanel"
+              (click)="showGroupPanel=!showGroupPanel" title="Group panel">
+        <svg class="rg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/>
+        </svg>
+        <span>Group</span>
+      </button>
+
+      <!-- Expand / collapse when grouped -->
+      @if (activeGroups.length > 0) {
+        <button class="osl-rg-toolbar-btn" (click)="expandAll()" title="Expand all">
+          <svg class="rg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 20 5-5 5 5M7 4l5 5 5-5"/></svg>
+        </button>
+        <button class="osl-rg-toolbar-btn" (click)="collapseAll()" title="Collapse all">
+          <svg class="rg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5-5 5 5M7 9l5 5 5 5"/></svg>
+        </button>
+      }
+
+      <!-- Auto-size all -->
+      <button class="osl-rg-toolbar-btn" (click)="autoSizeAll()" title="Auto-size all columns">
+        <svg class="rg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 6H3M21 18H3"/><path d="M8 3 3 6l5 3M16 3l5 3-5 3M8 15l-5 3 5 3M16 15l5 3-5 3"/>
+        </svg>
+        <span>Auto-size</span>
+      </button>
+
+      <!-- Column config -->
+      <button class="osl-rg-toolbar-btn" [class.osl-rg-toolbar-btn--on]="showColumnConfig"
+              (click)="showColumnConfig=!showColumnConfig; $event.stopPropagation()" title="Column settings">
+        <svg class="rg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+          <circle cx="8"  cy="6"  r="2" fill="white" stroke="currentColor" stroke-width="2"/>
+          <circle cx="16" cy="12" r="2" fill="white" stroke="currentColor" stroke-width="2"/>
+          <circle cx="8"  cy="18" r="2" fill="white" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>Columns</span>
+      </button>
+
+      <!-- Export Excel -->
+      @if (exportable) {
+        <button class="osl-rg-toolbar-btn osl-rg-toolbar-btn--excel" (click)="exportCsv()" title="Export to Excel (CSV)">
+          <svg class="rg-icon rg-icon--excel" viewBox="0 0 24 24">
+            <rect width="24" height="24" rx="3" fill="#1D6F42"/>
+            <path d="M13.5 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7.5L13.5 3z" fill="#fff" opacity=".15"/>
+            <path d="M13.5 3v4.5H18L13.5 3z" fill="#fff" opacity=".3"/>
+            <path d="M8 9.5l2.3 3.5L8 16.5h1.6l1.4-2.3 1.4 2.3H14l-2.3-3.5 2.3-3.5h-1.6l-1.4 2.3-1.4-2.3H8z" fill="#fff"/>
+          </svg>
+          <span>Export</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ══ GROUP PANEL ═══════════════════════════════════════════════════════════ -->
+  @if (showGroupPanel) {
+    <div class="osl-rg-group-panel">
+      <span class="osl-rg-group-panel__label">Group by:</span>
+      @if (activeGroups.length === 0) {
+        <span class="osl-rg-group-panel__hint">Use the ⋮ column menu → "Group by this"</span>
+      }
+      <div class="osl-rg-group-chips" cdkDropList cdkDropListOrientation="horizontal"
+           [cdkDropListData]="activeGroups" (cdkDropListDropped)="onGroupPanelDrop($event)">
+        @for (key of activeGroups; track key) {
+          <div class="osl-rg-group-chip" cdkDrag>
+            <svg cdkDragHandle class="rg-drag-handle" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/>
+              <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+              <circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
+            </svg>
+            <span>{{ getGroupColLabel(key) }}</span>
+            <button class="osl-rg-group-chip__remove" (click)="removeGroup(key)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        }
+      </div>
+      @if (activeGroups.length > 0) {
+        <button class="osl-rg-group-panel__clear" (click)="clearGroups()">Clear groups</button>
+      }
+    </div>
+  }
+
+  <!-- ══ STICKY HEADER ════════════════════════════════════════════════════════ -->
+  <div class="osl-rg-header-wrap" #headerScrollRef>
+
+    <!-- Double header – group row (only rendered when headerGroup is used on any column) -->
+    @if (hasHeaderGroups) {
+      <div class="osl-rg-header-row osl-rg-header-row--groups" [style.minWidth.px]="totalWidth">
+        @if (rowSelection === 'multiple') {
+          <div class="osl-rg-th osl-rg-th--checkbox osl-rg-th--group-span"></div>
+        }
+        <div style="display:flex;flex:1;min-width:0;">
+          @for (group of computedHeaderGroups; track $index) {
+            <div class="osl-rg-th osl-rg-th--group-span"
+                 [class.osl-rg-th--group-span--labeled]="!!group.label"
+                 [class.osl-rg-th--pinned]="group.isPinned"
+                 [style.width.px]="group.width"
+                 [style.minWidth.px]="group.width"
+                 [style.left.px]="group.isPinned ? group.stickyLeft : null"
+                 [style.position]="group.isPinned ? 'sticky' : 'relative'"
+                 [style.zIndex]="group.isPinned ? 3 : 1">
+              @if (group.label) {
+                <span class="osl-rg-th-group-label">{{ group.label }}</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="osl-rg-header-row" [style.minWidth.px]="totalWidth">
+
+      <!-- Select-all checkbox -->
+      @if (rowSelection === 'multiple') {
+        <div class="osl-rg-th osl-rg-th--checkbox">
+          <input type="checkbox" class="osl-rg-checkbox"
+                 [checked]="allSelected" [indeterminate]="someSelected"
+                 (change)="toggleSelectAll($any($event.target).checked)" />
+        </div>
+      }
+
+      <!-- Column headers (drag-to-reorder) -->
+      <div class="osl-rg-header-cols" cdkDropList cdkDropListOrientation="horizontal"
+           [cdkDropListData]="_cols" (cdkDropListDropped)="onColumnReorder($event)"
+           style="display:flex;flex:1;min-width:0;">
+
+        @for (col of visibleCols; track col.key) {
+          <div class="osl-rg-th"
+               [class.osl-rg-th--pinned]="col._pinned"
+               [class.osl-rg-th--sorted]="getSortState(col.key)"
+               [class.osl-rg-th--filtered]="hasActiveFilter(col.key)"
+               [style.width.px]="col._width"
+               [style.minWidth.px]="col._width"
+               [style.left.px]="col._pinned ? col._stickyLeft : null"
+               [style.position]="col._pinned ? 'sticky' : 'relative'"
+               [style.zIndex]="col._pinned ? 3 : 1"
+               cdkDrag [cdkDragDisabled]="col._pinned"
+               (cdkDragStarted)="onColumnDragStarted()"
+               (cdkDragEnded)="onColumnDragEnded()"
+               (click)="onHeaderClick(col, $event)">
+
+            <div *cdkDragPlaceholder class="osl-rg-th-drag-placeholder"></div>
+
+            <!-- Pin badge -->
+            @if (col._pinned) {
+              <span class="osl-rg-th-pin-badge" title="Pinned">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="9" height="9"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+              </span>
+            }
+
+            <!-- Label row -->
+            <div class="osl-rg-th-content">
+              <span class="osl-rg-th-label" [title]="col.label">{{ col.label }}</span>
+              <div class="osl-rg-th-actions">
+
+                <!-- Sort indicator -->
+                @if (col.sortable) {
+                  <span class="osl-rg-sort-icon"
+                        [class.osl-rg-sort-icon--asc]="getSortState(col.key)?.asc === true"
+                        [class.osl-rg-sort-icon--desc]="getSortState(col.key)?.asc === false">
+                    @if (getSortState(col.key); as s) {
+                      @if (s.asc) {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-7 7 7-7 7 7"/></svg>
+                      } @else {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m7-7-7 7-7-7"/></svg>
+                      }
+                      @if (sortStates.size > 1) { <sup class="osl-rg-sort-badge">{{ s.index + 1 }}</sup> }
+                    } @else {
+                      <svg class="osl-rg-sort-idle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l4-4 4 4M16 15l-4 4-4-4"/></svg>
+                    }
+                  </span>
+                }
+
+                <!-- Excel filter button -->
+                @if (col.filterable) {
+                  <button class="osl-rg-filter-btn" [class.osl-rg-filter-btn--active]="hasActiveFilter(col.key)"
+                          (click)="openExcelFilter(col.key, $event)" title="Filter">
+                    @if (hasActiveFilter(col.key)) {
+                      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 3H2l8 9.46V19l4 2V12.46z"/></svg>
+                    } @else {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    }
+                  </button>
+                }
+
+                <!-- Column menu -->
+                <button class="osl-rg-col-menu-btn" (click)="openColumnMenu(col.key, $event)" title="Column options">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Per-column search -->
+            @if (col.searchable) {
+              <div class="osl-rg-col-search" (click)="$event.stopPropagation()">
+                <svg class="osl-rg-col-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="7"/><path d="m18 18-3.5-3.5"/>
+                </svg>
+                <input class="osl-rg-col-search__input" [placeholder]="col.label + '…'"
+                       [ngModel]="columnSearch[col.key]" (ngModelChange)="onColumnSearch(col.key, $event)" />
+                @if (columnSearch[col.key]) {
+                  <button class="osl-rg-col-search__clear" (click)="columnSearch[col.key]=''; processData()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  </button>
+                }
+              </div>
+            }
+
+            <!-- Resize handle -->
+            @if (col.resizable) {
+              <div class="osl-rg-resize-handle" (mousedown)="startResize(col, $event)" (dblclick)="autoSizeColumn(col, $event)" (click)="$event.stopPropagation()"></div>
+            }
+
+
+          </div><!-- /osl-rg-th -->
+        }
+
+      </div><!-- /header-cols -->
+    </div><!-- /header-row -->
+  </div><!-- /header-wrap -->
+
+  <!-- ══ SCROLLABLE BODY ══════════════════════════════════════════════════════ -->
+  <div class="osl-rg-body" [style.height]="tableHeight" #bodyScrollRef (scroll)="onBodyScroll($event)">
+    <div class="osl-rg-inner" [style.minWidth.px]="totalWidth">
+
+      <!-- Skeleton loading -->
+      @if (loading) {
+        @for (sk of skeletonRows; track $index) {
+          <div class="osl-rg-row osl-rg-row--skeleton" [style.height.px]="rowHeight">
+            @if (rowSelection === 'multiple') {
+              <div class="osl-rg-td osl-rg-td--checkbox"><div class="osl-rg-skel" style="width:14px;height:14px;border-radius:3px;"></div></div>
+            }
+            @for (col of visibleCols; track col.key) {
+              <div class="osl-rg-td" [style.width.px]="col._width" [style.minWidth.px]="col._width">
+                <div class="osl-rg-skel" [style.width]="$index % 3 === 0 ? '55%' : $index % 3 === 1 ? '80%' : '65%'"></div>
+              </div>
+            }
+          </div>
+        }
+
+      } @else if (isEmpty) {
+        <!-- Empty state -->
+        <div class="osl-rg-empty">
+          <div class="osl-rg-empty__icon">
+            <svg viewBox="0 0 48 48" fill="none" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6" y="6" width="36" height="36" rx="4"/>
+              <path d="M6 18h36M6 30h36M18 6v36"/>
+            </svg>
+          </div>
+          <p class="osl-rg-empty__title">No records found</p>
+          <p class="osl-rg-empty__sub">
+            @if (hasAnyFilter) { Try adjusting your filters or search terms }
+            @else { No data to display }
+          </p>
+          @if (hasAnyFilter) {
+            <button class="osl-rg-empty__action" (click)="clearAllFilters()">Clear all filters</button>
+          }
+        </div>
+
+      } @else {
+        <!-- Data rows -->
+        @for (row of flatRows; track trackByRow($index, row)) {
+
+          @if (row._type === 'group') {
+            <div class="osl-rg-group-row"
+                 [class.osl-rg-group-row--l0]="asGroupRow(row)._level === 0"
+                 [class.osl-rg-group-row--l1]="asGroupRow(row)._level === 1"
+                 [class.osl-rg-group-row--l2]="asGroupRow(row)._level >= 2"
+                 [style.height.px]="rowHeight"
+                 [style.paddingLeft.px]="asGroupRow(row)._level * 20 + 12"
+                 (click)="toggleGroup(asGroupRow(row)._path)">
+              @if (asGroupRow(row)._expanded) {
+                <svg class="osl-rg-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              } @else {
+                <svg class="osl-rg-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              }
+              <span class="osl-rg-group-row__key">{{ asGroupRow(row)._colLabel }}:</span>
+              <span class="osl-rg-group-row__value">{{ asGroupRow(row)._label }}</span>
+              <span class="osl-rg-group-row__count">{{ asGroupRow(row)._count | number }} rows</span>
+            </div>
+
+          } @else {
+            <div class="osl-rg-row"
+                 [class.osl-rg-row--striped]="striped && asDataRow(row)._rowIndex % 2 === 1"
+                 [class.osl-rg-row--selected]="selectedRows.has(asDataRow(row)._data)"
+                 [style.height.px]="rowHeight"
+                 (click)="onRowClick(asDataRow(row)._data, $event)">
+
+              @if (rowSelection === 'multiple') {
+                <div class="osl-rg-td osl-rg-td--checkbox">
+                  <input type="checkbox" class="osl-rg-checkbox"
+                         [checked]="selectedRows.has(asDataRow(row)._data)"
+                         (change)="toggleRowSelect(asDataRow(row)._data, $event)" />
+                </div>
+              }
+
+              @for (col of visibleCols; track col.key) {
+                <div class="osl-rg-td"
+                     [class.osl-rg-td--pinned]="col._pinned"
+                     [ngClass]="getCellClass(asDataRow(row)._data, col)"
+                     [style.width.px]="col._width"
+                     [style.minWidth.px]="col._width"
+                     [style.left.px]="col._pinned ? col._stickyLeft : null"
+                     [style.position]="col._pinned ? 'sticky' : 'relative'"
+                     [style.zIndex]="col._pinned ? 2 : 0"
+                     [style.textAlign]="col.align ?? 'left'"
+                     (dblclick)="copyCell(getCellDisplay(asDataRow(row)._data, col), $event)"
+                     [title]="getCellDisplay(asDataRow(row)._data, col)">
+                  <span class="osl-rg-cell-text">{{ getCellDisplay(asDataRow(row)._data, col) }}</span>
+                </div>
+              }
+
+            </div>
+          }
+
+        }
+      }
+
+    </div><!-- /osl-rg-inner -->
+  </div><!-- /osl-rg-body -->
+
+  <!-- ══ AGGREGATE FOOTER ═════════════════════════════════════════════════════ -->
+  @if (showAggregates && hasAnyAggregate() && !loading) {
+    <div class="osl-rg-aggregate-row" [style.minWidth.px]="totalWidth">
+      @if (rowSelection === 'multiple') { <div class="osl-rg-agg-cell osl-rg-agg-cell--checkbox"></div> }
+      @for (col of visibleCols; track col.key) {
+        <div class="osl-rg-agg-cell" [style.width.px]="col._width" [style.minWidth.px]="col._width" [style.textAlign]="col.align ?? 'left'">
+          @if (col.aggregate) {
+            <span class="osl-rg-agg-label">{{ col.aggregate | uppercase }}</span>
+            <span class="osl-rg-agg-value">{{ getAggregate(col) }}</span>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ══ PAGINATION ════════════════════════════════════════════════════════════ -->
+  @if (isPaginated) {
+    <div class="osl-rg-pagination">
+      <span class="osl-rg-pagination__info">
+        @if (loading) { Loading… }
+        @else if (_total > 0) { Showing <strong>{{ startRecord | number }}–{{ endRecord | number }}</strong> of <strong>{{ _total | number }}</strong> records }
+        @else { No records }
+      </span>
+      <div class="osl-rg-pagination__controls">
+        <button class="osl-rg-page-btn osl-rg-page-btn--nav" (click)="goToPage(1)" [disabled]="currentPage===1||loading">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="m11 17-5-5 5-5M18 17l-5-5 5-5"/></svg>
+        </button>
+        <button class="osl-rg-page-btn osl-rg-page-btn--nav" (click)="goToPage(currentPage-1)" [disabled]="currentPage===1||loading">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="m15 18-6-6 6-6"/></svg>
+          Prev
+        </button>
+        @for (page of pageNumbers; track $index) {
+          @if (page === -1) { <span class="osl-rg-page-ellipsis">…</span> }
+          @else {
+            <button class="osl-rg-page-btn osl-rg-page-btn--num" [class.osl-rg-page-btn--active]="page===currentPage"
+                    [disabled]="loading" (click)="goToPage(page)">{{ page }}</button>
+          }
+        }
+        <button class="osl-rg-page-btn osl-rg-page-btn--nav" (click)="goToPage(currentPage+1)" [disabled]="currentPage===totalPages||loading">
+          Next
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button class="osl-rg-page-btn osl-rg-page-btn--nav" (click)="goToPage(totalPages)" [disabled]="currentPage===totalPages||loading">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="m13 17 5-5-5-5M6 17l5-5-5-5"/></svg>
+        </button>
+      </div>
+      <div class="osl-rg-pagination__size">
+        <span class="osl-rg-pagination__size-label">Rows per page</span>
+        <select class="osl-rg-page-size" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)" [disabled]="loading">
+          @for (opt of pageSizeOptions; track opt) { <option [value]="opt">{{ opt }}</option> }
+        </select>
+      </div>
+    </div>
+  }
+
+</div><!-- /osl-rg -->
+
+
+<!-- ══ EXCEL FILTER DROPDOWN (fixed, outside overflow containers) ════════════ -->
+@if (openFilterKey && excelFilterState[openFilterKey]) {
+  <div class="osl-rg-excel-filter"
+       [style.top.px]="filterDropdownPos.top"
+       [style.left.px]="filterDropdownPos.left"
+       (click)="$event.stopPropagation()">
+    <div class="osl-rg-excel-filter__header">
+      <div class="osl-rg-excel-filter__title">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12" style="flex-shrink:0;"><path d="M22 3H2l8 9.46V19l4 2V12.46z"/></svg>
+        Filter: {{ getColumnByKey(openFilterKey)?.label }}
+      </div>
+      @if (hasActiveFilter(openFilterKey)) {
+        <button class="osl-rg-excel-filter__clear-btn" (click)="clearExcelFilter(openFilterKey!)">Clear</button>
+      }
+    </div>
+    <div class="osl-rg-excel-filter__search">
+      <input class="osl-rg-excel-filter__search-input" placeholder="Search values…"
+             [(ngModel)]="excelFilterState[openFilterKey].search" />
+    </div>
+    <div class="osl-rg-excel-filter__select-all">
+      <label class="osl-rg-excel-filter__item osl-rg-excel-filter__item--all">
+        <input type="checkbox" class="osl-rg-checkbox" [checked]="isAllExcelChecked(openFilterKey)"
+               (change)="toggleAllExcelFilter(openFilterKey!, $any($event.target).checked)" />
+        <span class="osl-rg-excel-filter__item-label">(Select All)</span>
+      </label>
+    </div>
+    <div class="osl-rg-excel-filter__list">
+      @for (item of getFilteredExcelItems(openFilterKey); track item.value) {
+        <label class="osl-rg-excel-filter__item">
+          <input type="checkbox" class="osl-rg-checkbox" [(ngModel)]="item.checked" />
+          <span class="osl-rg-excel-filter__item-label">{{ item.label }}</span>
+        </label>
+      }
+    </div>
+    <div class="osl-rg-excel-filter__footer">
+      <button class="osl-rg-excel-filter__apply" (click)="applyExcelFilter(openFilterKey!)">Apply Filter</button>
+      <button class="osl-rg-excel-filter__cancel" (click)="openFilterKey=null">Cancel</button>
+    </div>
+  </div>
+}
+
+
+<!-- ══ COLUMN CONTEXT MENU (fixed) ══════════════════════════════════════════ -->
+@if (columnMenuKey && getColumnByKey(columnMenuKey); as menuCol) {
+  <div class="osl-rg-col-menu"
+       [style.top.px]="columnMenuPos.top" [style.left.px]="columnMenuPos.left"
+       (click)="$event.stopPropagation()">
+    <div class="osl-rg-col-menu__header">{{ menuCol.label }}</div>
+    @if (menuCol.sortable) {
+      <button class="osl-rg-col-menu__item"
+              (click)="sortStates.clear(); sortStates.set(menuCol.key,{key:menuCol.key,asc:true,index:0}); sortCounter=1; processData(); closeColumnMenu()">
+        <svg class="rg-icon rg-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-7 7 7-7 7 7"/></svg>
+        Sort A → Z
+      </button>
+      <button class="osl-rg-col-menu__item"
+              (click)="sortStates.clear(); sortStates.set(menuCol.key,{key:menuCol.key,asc:false,index:0}); sortCounter=1; processData(); closeColumnMenu()">
+        <svg class="rg-icon rg-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m7-7-7 7-7-7"/></svg>
+        Sort Z → A
+      </button>
+    }
+    @if (menuCol.groupable) {
+      <div class="osl-rg-col-menu__divider"></div>
+      <button class="osl-rg-col-menu__item" (click)="addGroup(menuCol.key); closeColumnMenu()">
+        <svg class="rg-icon rg-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/></svg>
+        Group by this
+      </button>
+    }
+    <div class="osl-rg-col-menu__divider"></div>
+    <button class="osl-rg-col-menu__item" (click)="toggleColumnPin(menuCol)">
+      <svg class="rg-icon rg-icon--sm" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      {{ menuCol._pinned ? 'Unpin column' : 'Pin to left' }}
+    </button>
+    <button class="osl-rg-col-menu__item" (click)="autoSizeColumn(menuCol); closeColumnMenu()">
+      <svg class="rg-icon rg-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6H3M21 18H3"/><path d="M8 3 3 6l5 3M16 3l5 3-5 3M8 15l-5 3 5 3M16 15l5 3-5 3"/></svg>
+      Auto-size column
+    </button>
+    <div class="osl-rg-col-menu__divider"></div>
+    <button class="osl-rg-col-menu__item osl-rg-col-menu__item--danger" (click)="toggleColumnVisibility(menuCol); closeColumnMenu()">
+      <svg class="rg-icon rg-icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/>
+      </svg>
+      Hide column
+    </button>
+  </div>
+}
+
+
+<!-- ══ COLUMN CONFIG SIDE DRAWER ═════════════════════════════════════════════ -->
+@if (showColumnConfig) {
+  <div class="osl-rg-config-backdrop" (click)="showColumnConfig=false"></div>
+  <div class="osl-rg-config-panel" (click)="$event.stopPropagation()">
+    <div class="osl-rg-config-panel__header">
+      <div class="osl-rg-config-panel__title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+          <circle cx="8"  cy="6"  r="2" fill="white" stroke="currentColor" stroke-width="2"/>
+          <circle cx="16" cy="12" r="2" fill="white" stroke="currentColor" stroke-width="2"/>
+          <circle cx="8"  cy="18" r="2" fill="white" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        Column Settings
+      </div>
+      <button class="osl-rg-config-panel__close" (click)="showColumnConfig=false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="osl-rg-config-panel__actions">
+      <button class="osl-rg-config-action" (click)="autoSizeAll()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M21 6H3M21 18H3"/><path d="M8 3 3 6l5 3M16 3l5 3-5 3"/></svg>
+        Auto-size all
+      </button>
+      <button class="osl-rg-config-action" (click)="showAllColumns()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Show all
+      </button>
+    </div>
+    <div class="osl-rg-config-hint">Drag to reorder · Toggle to show/hide · Pin to freeze</div>
+    <div class="osl-rg-config-list" cdkDropList (cdkDropListDropped)="onConfigColumnReorder($event)">
+      @for (col of _cols; track col.key) {
+        <div class="osl-rg-config-item" cdkDrag [class.osl-rg-config-item--hidden]="col._hidden">
+          <svg cdkDragHandle class="rg-drag-handle" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/>
+            <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+            <circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
+          </svg>
+          <input type="checkbox" class="osl-rg-checkbox" [checked]="!col._hidden" (change)="toggleColumnVisibility(col)" />
+          <span class="osl-rg-config-item__label" [class.osl-rg-config-item__label--hidden]="col._hidden">{{ col.label }}</span>
+          <button class="osl-rg-config-item__pin-btn" (click)="toggleColumnPin(col)"
+                  [class.osl-rg-config-item__pin-btn--active]="col._pinned"
+                  [title]="col._pinned ? 'Unpin' : 'Pin to left'">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+
+<!-- ══ COPY TOAST ════════════════════════════════════════════════════════════ -->
+@if (copiedCell !== null) {
+  <div class="osl-rg-copy-toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>
+    Copied to clipboard
+  </div>
+}
