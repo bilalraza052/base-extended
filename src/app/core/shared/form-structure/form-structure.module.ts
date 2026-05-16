@@ -2,7 +2,7 @@ import { NgModule } from "@angular/core";
 import { AUTOCOMPLETE_LISTER_COMPONENT } from "./autocomplete-lister/autocomplete-lister-types";
 import { DynamicForm } from "./dynamic-form/dynamic-form";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { NgStyle, NgTemplateOutlet } from "@angular/common";
+import { DatePipe, DecimalPipe, NgClass, NgStyle, NgTemplateOutlet, UpperCasePipe } from "@angular/common";
 import { MatFormFieldModule, MatHint } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { Oslinput } from "./input/input";
@@ -25,9 +25,13 @@ import { OslFormGrid } from "./form-grid/form-grid";
 import { OslAutocompleteLister } from "./autocomplete-lister/autocomplete-lister";
 import { OslSkeletonModule } from "../directive/skeleton/skeleton.module";
 import { OslChipsInput } from "./chips-input/chips-input";
-import { MatDatepicker, MatDatepickerModule } from "@angular/material/datepicker";
+import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatMenuModule } from "@angular/material/menu";
+import { ScrollingModule } from "@angular/cdk/scrolling";
+import { DragDropModule } from "@angular/cdk/drag-drop";
+import { OslReportGrid } from "./report-grid/report-grid";
+import { OslReportForm } from "./report-form/report-form";
 
 @NgModule({
   declarations: [
@@ -47,11 +51,17 @@ import { MatMenuModule } from "@angular/material/menu";
     OslGrid,
     OslFormGrid,
     OslAutocompleteLister,
-    OslChipsInput
+    OslChipsInput,
+    OslReportGrid,
+    OslReportForm,
   ],
   imports: [
     NgTemplateOutlet,
     NgStyle,
+    NgClass,
+    DatePipe,
+    DecimalPipe,
+    UpperCasePipe,
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -63,9 +73,11 @@ import { MatMenuModule } from "@angular/material/menu";
     OslSkeletonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatMenuModule
+    MatMenuModule,
+    ScrollingModule,
+    DragDropModule,
   ],
-  exports: [DynamicForm, OslSetup, OslGrid, OslFormGrid,Oslinput,
+  exports: [DynamicForm, OslSetup, OslGrid, OslFormGrid, Oslinput,
     Osltextarea,
     OslSelect,
     OslRadio,
@@ -76,8 +88,10 @@ import { MatMenuModule } from "@angular/material/menu";
     OslCheckbox,
     OslButton,
     OslSetup,
-    OslSearchbar, OslAutocompleteLister, OslChipsInput],
+    OslSearchbar, OslAutocompleteLister, OslChipsInput, OslReportGrid, OslReportForm],
   providers: [
+    DatePipe,
+    DecimalPipe,
     { provide: AUTOCOMPLETE_LISTER_COMPONENT, useValue: OslAutocompleteLister },
   ],
 })
