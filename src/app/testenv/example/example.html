@@ -1,22 +1,26 @@
-<div class="row">
-  <div class="col-3">
-   hello
+<div class="p-3">
 
-  </div>
-  <!-- ── Account Ledger Report ──────────────────────────────────────────────── -->
-  <div class="col-md-9">
-    <osl-report-form
-    class="w-100"
-      title="Account Ledger Report"
-      [formElements]="ledgerFormElements"
-      [(model)]="ledgerModel"
-      [generateOptions]="['grid', 'pdf']"
-      [reportColumns]="ledgerColumns"
-      [onGenerate]="onLedgerGenerate"
-      tableHeight="calc(100vh - 420px)"
-      [pageSize]="50"
-    ></osl-report-form>
-
-  </div>
+  <!-- ── osl-setup: Table + Card View Demo ─────────────────────── -->
+  <osl-setup
+    title="Leads"
+    stateKey="leads-list"
+    [columns]="columns"
+    [datasource]="leads"
+    [loading]="loading"
+    [isPaginated]="true"
+    [autoMode]="true"
+    [totalRecords]="leads.length"
+    [cardPageSize]="6"
+    [formElements]="formElements"
+    [moreMenuActions]="moreMenu"
+    [canAdd]="true"
+    [canEdit]="true"
+    [canDelete]="true"
+    tableHeight="calc(100vh - 180px)"
+   
+    (onEdit)="onEdit($event)"
+    (onDelete)="onDeleteLead($event)"
+    (pageChange)="onPageChange($event)"
+  ></osl-setup>
 
 </div>

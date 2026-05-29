@@ -239,9 +239,9 @@ export class Example extends baseComponent {
   }
   
   async getAllVessel(page = 1, pageSize = 10, searchValue:any) {
-    this.cd.markForCheck()
+    // this.cd.markForCheck()
 
-    this.cd.detectChanges()
+    // this.cd.detectChanges()
 
     this.loader= true
     // const res = await this.service.getAllVessels({
@@ -257,15 +257,32 @@ export class Example extends baseComponent {
           vesselTypeId:1
         }
       ]
- this.cd.detectChanges()
-    this.cd.markForCheck()
+//  this.cd.detectChanges()
+//     this.cd.markForCheck()
     },200)
    
   
     // this.listData = res.result?.data || [];
   }
+  // onSave = async (event: any): Promise<boolean> => {
+  //   console.log('save', event);
+  //   return true;
+  // };
+
+  onEdit(row: any) {
+    console.log('edit', row);
+  }
+
+  onDeleteLead(row: any) {
+    this.leads = this.leads.filter(l => l !== row);
+  }
+
+  onSearchLeads(value: string) {
+    console.log('search', value);
+  }
+
   onSearch(){
-  
+
   }
   async onPageChange(event:any) {
     console.log(event)
@@ -800,30 +817,6 @@ export class Example extends baseComponent {
   // ─────────────────────────────────────────────────────────────────────────────
 
   ngAfterViewInit() {
-    // this.getAllVessel()
-
-    this.columns = [
-      {
-        key: 'vesselName',
-        label: 'Vessel Name',
-      },
-      {
-        key: 'vesselTypeId',
-        label: 'Type',
-      },
-      {
-        key: 'imo',
-        label: 'IMO',
-      },
-      {
-        key: 'callSign',
-        label: 'Call Sign',
-      },
-      {
-        key: 'flag',
-        label: 'Flag',
-      },
-    ];
   }
   ngOnInit(){
    
