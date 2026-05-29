@@ -74,7 +74,7 @@
               @for (col of columns; track col.key) {
                 <td class="osl-fg-td" [style.width]="col.width">
                   @if (col.formElem) {
-                    <div class="osl-fg-cell-form">
+                    <div class="osl-fg-cell-form" [style.width]="col.width">
                       @switch (col.formElem.elementType) {
 
                         @case ('textbox') {
@@ -207,6 +207,20 @@
                             (modelChange)="onCellChange(row, col, $event)"
                             (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
                           </osl-datepicker>
+                        }
+
+                        @case ('datetimepicker') {
+                          <osl-datetimepicker
+                            [label]="''"
+                            [required]="false"
+                            [disabled]="isDisabled(col.formElem,row,i)"
+                            [placeholder]="col.formElem.placeholder || col.displayName"
+                            [minDatetime]="col.formElem.minDatetime || ''"
+                            [maxDatetime]="col.formElem.maxDatetime || ''"
+                            [model]="row[col.key]"
+                            (modelChange)="onCellChange(row, col, $event)"
+                            (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
+                          </osl-datetimepicker>
                         }
 
                         @case ('file-uploader') {

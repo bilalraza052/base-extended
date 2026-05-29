@@ -1,0 +1,26 @@
+<div class="d-flex flex-column">
+    @if (label) {
+        <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
+            <label class="label" [class.txt-clr-red]="dtField.touched && dtField.invalid">
+                {{label}} <span class="txt-clr-red">{{required ? '*' : ''}}</span>
+            </label>
+        </div>
+    }
+    <div class="input-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
+        <input
+            type="datetime-local"
+            class="dt-input"
+            [ngModel]="model"
+            (ngModelChange)="onValueChange($event)"
+            [required]="required"
+            [disabled]="disabled"
+            [min]="minDatetime"
+            [max]="maxDatetime"
+            [class.error]="dtField.touched && dtField.invalid"
+            #dtField="ngModel"
+        >
+    </div>
+    @if (dtField.touched && dtField.invalid && required) {
+        <mat-hint class="hint">{{label}} is Required!</mat-hint>
+    }
+</div>

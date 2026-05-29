@@ -13,6 +13,7 @@ import { OslSlideToggle } from "./slide-toggle/slide-toggle";
 import { OslAutocomplete } from "./autocomplete/autocomplete";
 import { OslFileUpload } from "./file-upload/file-upload";
 import { OslDatepicker } from "./datepicker/datepicker";
+import { OslDatetimepicker } from "./datetimepicker/datetimepicker";
 import { OslCheckbox } from "./checkbox/checkbox";
 import { OslButton } from "./button/button";
 import { OslSetup } from "./setup/setup";
@@ -42,6 +43,7 @@ import { OslReportForm } from "./report-form/report-form";
     OslAutocomplete,
     OslFileUpload,
     OslDatepicker,
+    OslDatetimepicker,
     OslCheckbox,
     OslButton,
     OslSetup,
@@ -81,6 +83,7 @@ import { OslReportForm } from "./report-form/report-form";
     OslAutocomplete,
     OslFileUpload,
     OslDatepicker,
+    OslDatetimepicker,
     OslCheckbox,
     OslButton,
     OslSetup,

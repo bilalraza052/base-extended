@@ -91,7 +91,7 @@ export class DynamicForm implements OnInit, OnChanges {
 export interface elements {
   columns: number;
   label: string;
-  elementType: 'button' | 'checkbox' | 'textbox' | 'textarea' | 'radio' | 'select' | 'datepicker' | 'file-uploader' | 'autocomplete' | 'slide-toggle' | 'fieldset' | 'templateRef' | 'chips-input' | 'spacer';
+  elementType: 'button' | 'checkbox' | 'textbox' | 'textarea' | 'radio' | 'select' | 'datepicker' | 'datetimepicker' | 'file-uploader' | 'autocomplete' | 'slide-toggle' | 'fieldset' | 'templateRef' | 'chips-input' | 'spacer';
   key: string;
   /** Child elements rendered inside a fieldset. Only used when elementType is 'fieldset'. */
   rows?: elements[];
@@ -146,6 +146,12 @@ export interface elements {
   dateType?: DateInputType;
   minDate?: string;
   maxDate?: string;
+
+  // ── osl-datetimepicker ────────────────────────────
+  minDatetime?: string;
+  maxDatetime?: string;
+  minDatetimeIf?: (model: any) => string;
+  maxDatetimeIf?: (model: any) => string;
 
   // ── osl-radio ─────────────────────────────────────
   inline?: boolean;

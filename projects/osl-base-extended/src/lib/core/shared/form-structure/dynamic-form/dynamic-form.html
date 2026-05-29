@@ -181,6 +181,23 @@
                 </div>
             }
 
+            @case ("datetimepicker") {
+                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                    <osl-datetimepicker
+                        [skeletonLoading]="skeletonLoading"
+                        [skeletonTheme]="skeletonTheme"
+                        [label]="elem.label"
+                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+                        [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
+                        [placeholder]="elem.placeholder || ''"
+                        [minDatetime]="elem.minDatetimeIf ? elem.minDatetimeIf(model) : elem.minDatetime || ''"
+                        [maxDatetime]="elem.maxDatetimeIf ? elem.maxDatetimeIf(model) : elem.maxDatetime || ''"
+                        (changeEv)="elem.change ? elem.change(model) : null"
+                        [(model)]="model[elem.key]"
+                    ></osl-datetimepicker>
+                </div>
+            }
+
             @case ("checkbox") {
                 <div [class]="'col-md-'+elem.columns+' mt-2'">
                     <osl-checkbox
