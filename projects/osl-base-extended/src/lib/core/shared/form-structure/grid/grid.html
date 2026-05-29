@@ -1,6 +1,6 @@
 <div class="osl-grid-wrapper">
 
-  <div class="osl-grid-table-container" [style.height]="tableHeight">
+  <div #tableContainer class="osl-grid-table-container" [style.height]="tableHeight">
     <table class="osl-grid-table">
       <thead class="osl-grid-thead">
         <tr>
@@ -74,7 +74,10 @@
             </tr>
           }
           @for (row of pagedData; track $index; let rowIdx = $index) {
-            <tr class="osl-grid-row" [class.pointer]="isSelectable" (click)="onRowClick.emit(row)">
+            <tr class="osl-grid-row"
+                [class.pointer]="isSelectable"
+                [class.osl-grid-row--highlighted]="isHighlightedRow(row)"
+                (click)="onRowClick.emit(row)">
               @for (col of columns; track col.key; let last = $last) {
                 @if (col.isActions) {
                   <td class="osl-grid-td osl-grid-td--actions" [class.osl-grid-td--last]="last">
@@ -112,13 +115,15 @@
                     }
                   </td>
                 } @else {
-                  <td class="osl-grid-td" [class.osl-grid-td--last]="last">
+                  <td class="osl-grid-td" [class.osl-grid-td--last]="last" >
+                    <span [class.link]="col.displayType == 'link'" (click)="col.click ? col.click(row,col):null">
                     @switch (col.displayType) {
                       @case ('date') { {{ row[col.key] | date }} }
                       @case ('datetime') { {{ row[col.key] | date:'medium' }} }
                       @case ('time') { {{ row[col.key] | date:'shortTime' }} }
                       @default { {{ getCellValue(row, col) }} }
                     }
+                  </span>
                   </td>
                 }
               }

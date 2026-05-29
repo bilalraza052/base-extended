@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
-export type OslDisplayType = 'date' | 'datetime' | 'time';
+export type OslDisplayType = 'date' | 'datetime' | 'time' | 'link';
 
 export interface OslGridColumn {
   key: string;
@@ -10,6 +10,7 @@ export interface OslGridColumn {
   /** When true, renders edit + delete icon buttons instead of cell text. */
   isActions?: boolean;
   displayType?: OslDisplayType;
+  click?: (row: any, col: any) => void;
 }
 
 export interface OslMenuAction {
