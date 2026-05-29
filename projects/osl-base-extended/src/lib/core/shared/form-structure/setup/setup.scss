@@ -1,9 +1,11 @@
+// ── Setup Header ───────────────────────────────────────────────
 .osl-setup-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
+// ── Dialog Footer ──────────────────────────────────────────────
 .osl-setup-dialog-footer {
     display: flex;
     align-items: center;
@@ -68,4 +70,525 @@
         transform: translateY(0);
         box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
     }
+}
+
+// ── View Toggle ────────────────────────────────────────────────
+.osl-view-toggle {
+    display: flex;
+    border: 1.5px solid var(--osl-border-color, #e5e7eb);
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #fff;
+}
+
+.osl-view-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: background 0.15s, color 0.15s;
+    padding: 0;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        transition: stroke 0.15s;
+    }
+
+    &:first-child {
+        border-right: 1.5px solid var(--osl-border-color, #e5e7eb);
+    }
+
+    &--active {
+        background: var(--osl-primary, #6366f1);
+        color: #fff;
+
+        svg {
+            stroke: #fff;
+        }
+    }
+
+    &:not(.osl-view-toggle-btn--active):hover {
+        background: #f3f4f6;
+        color: #374151;
+    }
+}
+
+// ── Card Container ─────────────────────────────────────────────
+.osl-card-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 12px;
+    padding: 4px 2px 16px;
+    box-sizing: border-box;
+}
+
+// ── Card Grid ──────────────────────────────────────────────────
+.osl-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 4px; // room for box-shadow overflow
+}
+
+// ── Card Entry Animation ───────────────────────────────────────
+@keyframes osl-card-enter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Stagger first 12 cards
+@for $i from 1 through 12 {
+    .osl-card-grid .osl-card:nth-child(#{$i}) {
+        animation-delay: #{($i - 1) * 0.04}s;
+    }
+}
+
+// ── Individual Card ────────────────────────────────────────────
+.osl-card {
+    position: relative;
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #eaecf0;
+    box-shadow: 0 1px 4px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
+    overflow: hidden;
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease;
+    animation: osl-card-enter 0.28s ease both;
+
+    // ── Accent colour palette (cycles every 6 cards) ──────────
+    &:nth-child(6n+1) { --card-accent: #6366f1; --card-accent-bg: #eef2ff; }
+    &:nth-child(6n+2) { --card-accent: #0ea5e9; --card-accent-bg: #f0f9ff; }
+    &:nth-child(6n+3) { --card-accent: #10b981; --card-accent-bg: #ecfdf5; }
+    &:nth-child(6n+4) { --card-accent: #f59e0b; --card-accent-bg: #fffbeb; }
+    &:nth-child(6n+5) { --card-accent: #f43f5e; --card-accent-bg: #fff1f2; }
+    &:nth-child(6n)   { --card-accent: #8b5cf6; --card-accent-bg: #faf5ff; }
+
+    // Left accent bar
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--card-accent, var(--osl-primary, #6366f1));
+    }
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(16, 24, 40, 0.1), 0 4px 12px rgba(16, 24, 40, 0.06);
+        border-color: #d0d5dd;
+    }
+
+    // Highlighted (state restore)
+    &--highlighted {
+        outline: 2px solid var(--osl-primary, #6366f1);
+        outline-offset: 2px;
+        animation: osl-card-enter 0.28s ease both, osl-card-highlight-pulse 2.5s ease-out 0.3s both;
+    }
+
+    // Selectable (lister mode)
+    &--selectable {
+        cursor: pointer;
+    }
+
+    // Skeleton state
+    &--skeleton {
+        pointer-events: none;
+        animation: osl-card-enter 0.28s ease both;
+
+        &:hover {
+            transform: none;
+            box-shadow: 0 1px 4px rgba(16, 24, 40, 0.06);
+        }
+    }
+}
+
+@keyframes osl-card-highlight-pulse {
+    0%   { box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3); }
+    100% { box-shadow: none; }
+}
+
+// ── Card Inner (accounts for left accent bar) ──────────────────
+.osl-card-inner {
+    padding: 16px 16px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+// ── Card Header ────────────────────────────────────────────────
+.osl-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0;
+}
+
+// ── Avatar ─────────────────────────────────────────────────────
+.osl-card-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--card-accent, var(--osl-primary, #6366f1));
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+
+    &--skeleton {
+        background: #e5e7eb;
+        box-shadow: none;
+        animation: osl-sk-pulse 1.4s ease-in-out infinite;
+    }
+}
+
+// ── Title ──────────────────────────────────────────────────────
+.osl-card-title-wrap {
+    flex: 1;
+    min-width: 0;
+}
+
+.osl-card-title {
+    display: block;
+    font-weight: 700;
+    font-size: 14px;
+    color: #101828;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+
+// ── Action Buttons ─────────────────────────────────────────────
+.osl-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.osl-card-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1.5px solid #e4e7ec;
+    background: #ffffff;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+    padding: 0;
+
+    svg {
+        width: 14px;
+        height: 14px;
+        transition: stroke 0.15s, fill 0.15s;
+    }
+
+    // ── More-actions (filled dots) ─────────────────────────────
+    &--more {
+        svg {
+            fill: #9ca3af;
+            stroke: none;
+        }
+
+        &:hover {
+            background: var(--card-accent-bg, #eef2ff);
+            border-color: var(--card-accent, var(--osl-primary, #6366f1));
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            transform: scale(1.05);
+
+            svg {
+                fill: var(--card-accent, var(--osl-primary, #6366f1));
+            }
+        }
+    }
+
+    // ── Edit (stroke pencil) ───────────────────────────────────
+    &--edit {
+        svg {
+            stroke: #6b7280;
+        }
+
+        &:hover {
+            background: var(--card-accent-bg, #eef2ff);
+            border-color: var(--card-accent, var(--osl-primary, #6366f1));
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            transform: scale(1.05);
+
+            svg {
+                stroke: var(--card-accent, var(--osl-primary, #6366f1));
+            }
+        }
+    }
+
+    // ── Delete (stroke trash) ──────────────────────────────────
+    &--delete {
+        svg {
+            stroke: #9ca3af;
+        }
+
+        &:hover {
+            background: #fff1f2;
+            border-color: #f43f5e;
+            box-shadow: 0 2px 6px rgba(244, 63, 94, 0.15);
+            transform: scale(1.05);
+
+            svg {
+                stroke: #f43f5e;
+            }
+        }
+    }
+}
+
+// ── Divider ────────────────────────────────────────────────────
+.osl-card-divider {
+    height: 1px;
+    background: #f2f4f7;
+    margin: 14px 0;
+}
+
+// ── Card Body ──────────────────────────────────────────────────
+.osl-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.osl-card-field {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 6px;
+    align-items: baseline;
+}
+
+.osl-card-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.osl-card-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+
+    &.link {
+        text-decoration: underline;
+        color: #2563eb;
+        cursor: pointer;
+    }
+}
+
+// ── Empty State ────────────────────────────────────────────────
+.osl-card-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+    gap: 12px;
+    padding: 40px 20px;
+}
+
+.osl-card-empty-svg {
+    width: 180px;
+    height: auto;
+    opacity: 0.85;
+}
+
+.osl-card-empty-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin: 4px 0 0;
+    text-align: center;
+}
+
+.osl-card-empty-desc {
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 0;
+    text-align: center;
+}
+
+// ── Infinite Scroll Loader ─────────────────────────────────────
+.osl-card-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 28px 20px 16px;
+}
+
+.osl-card-loader-track {
+    width: 160px;
+    height: 3px;
+    background: #f3f4f6;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.osl-card-loader-bar {
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, var(--osl-primary, #6366f1), transparent);
+    border-radius: 99px;
+    animation: osl-loader-sweep 1.2s ease-in-out infinite;
+}
+
+@keyframes osl-loader-sweep {
+    0%   { transform: translateX(-200%); }
+    100% { transform: translateX(500%); }
+}
+
+.osl-card-loader-text {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+// ── All Records Loaded ─────────────────────────────────────────
+.osl-card-all-loaded {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 16px 8px;
+    justify-content: center;
+}
+
+.osl-card-all-loaded-line {
+    flex: 1;
+    max-width: 80px;
+    height: 1px;
+    background: #e5e7eb;
+}
+
+.osl-card-all-loaded-text {
+    font-size: 11px;
+    color: #d1d5db;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+// ── Card Skeleton Lines ────────────────────────────────────────
+@keyframes osl-sk-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+.osl-sk-line {
+    height: 12px;
+    background: #e9eaec;
+    border-radius: 6px;
+    animation: osl-sk-pulse 1.4s ease-in-out infinite;
+    width: 80%;
+
+    &--title  { height: 14px; width: 65%; }
+    &--label  { width: 40%; height: 10px; }
+    &--short  { width: 50%; }
+}
+
+// ── Card More-Actions Dropdown Menu ────────────────────────────
+.osl-card-menu {
+    position: fixed;
+    z-index: 9999;
+    min-width: 196px;
+    background: #ffffff;
+    border: 1px solid #eaecf0;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(16, 24, 40, 0.14), 0 4px 12px rgba(16, 24, 40, 0.06);
+    overflow: hidden;
+    animation: osl-menu-pop 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes osl-menu-pop {
+    from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.osl-card-menu-header {
+    padding: 10px 14px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    border-bottom: 1px solid #f2f4f7;
+    user-select: none;
+}
+
+.osl-card-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid #f9fafb;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    color: #374151;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.12s, color 0.12s, border-left-color 0.12s;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background: var(--card-accent-bg, #f5f3ff);
+        color: var(--card-accent, var(--osl-primary, #6366f1));
+        border-left-color: var(--card-accent, var(--osl-primary, #6366f1));
+
+        .osl-card-menu-dot {
+            background: var(--card-accent, var(--osl-primary, #6366f1));
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16);
+        }
+    }
+}
+
+.osl-card-menu-dot {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d1d5db;
+    transition: background 0.12s, box-shadow 0.12s;
 }

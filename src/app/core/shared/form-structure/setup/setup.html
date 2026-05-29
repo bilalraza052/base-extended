@@ -1,53 +1,237 @@
 <div class="p-2">
 
-  <!-- Header -->
+  <!-- ── Header ──────────────────────────────────────────────── -->
   <div class="osl-setup-header">
     <h5 class="mb-0">{{ title }}</h5>
     <div class="d-flex align-items-center gap-2">
       <osl-searchbar #searchbar class="mx-2" (onSearch)="onSearchSetup($event)"></osl-searchbar>
-      @if(!isLister && canAdd){
-        <osl-button
-          variant="secondary"
-          size="sm"
-          [label]="'Add ' + title"
-          (clickEv)="openAddDialog()"
-        ></osl-button>
 
+      <!-- View Toggle -->
+       @if(!isLister){
+      <div class="osl-view-toggle">
+        <button class="osl-view-toggle-btn" [class.osl-view-toggle-btn--active]="viewMode === 'table'"
+          (click)="toggleView('table')" title="Table view">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="3" y1="15" x2="21" y2="15"/>
+            <line x1="9" y1="9" x2="9" y2="21"/>
+          </svg>
+        </button>
+        <button class="osl-view-toggle-btn" [class.osl-view-toggle-btn--active]="viewMode === 'card'"
+          (click)="toggleView('card')" title="Card view">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </button>
+      </div>
+    }
+
+      @if (!isLister && canAdd) {
+        <osl-button variant="secondary" size="sm" [label]="'Add ' + title" (clickEv)="openAddDialog()"></osl-button>
       }
     </div>
   </div>
 
-  <!-- Grid -->
-  <div class="osl-setup-body my-2">
-    <osl-grid
-      #gridRef
-      [columns]="columnsWithActions"
-      [(datasource)]="datasource"
-      [isPaginated]="isPaginated"
-      [pageSize]="pageSize"
-      [autoMode]="autoMode"
-      [tableHeight]="tableHeight"
-      [totalRecords]="totalRecords"
-      [loading]="loading"
-      [moreMenuActions]="moreMenuActions"
-      [canEdit]="canEdit"
-      [canDelete]="canDelete"
-      (editClick)="openEditDialog($event)"
-      (deleteClick)="onDeleteClick($event)"
-      (pageChange)="onPageChange(pageChange,$event)"
-      (pageSizeChange)="onPageChange(pageSizeChange,$event)"
-      (sortChange)="sortChange.emit($event)"
-      [isSelectable]="isLister";
-      (onRowClick)="onRowClick.emit($event)"
-    />
-  </div>
+  <!-- ── Table View ───────────────────────────────────────────── -->
+  @if (viewMode === 'table') {
+    <div class="osl-setup-body my-2">
+      <osl-grid
+        #gridRef
+        [columns]="columnsWithActions"
+        [(datasource)]="datasource"
+        [isPaginated]="isPaginated"
+        [pageSize]="pageSize"
+        [autoMode]="autoMode"
+        [tableHeight]="tableHeight"
+        [totalRecords]="totalRecords"
+        [loading]="loading"
+        [moreMenuActions]="moreMenuActions"
+        [canEdit]="canEdit"
+        [canDelete]="canDelete"
+        (editClick)="openEditDialog($event)"
+        (deleteClick)="onDeleteClick($event)"
+        (pageChange)="onPageChange(pageChange, $event)"
+        (pageSizeChange)="onPageChange(pageSizeChange, $event)"
+        (sortChange)="sortChange.emit($event)"
+        [isSelectable]="isLister"
+        (onRowClick)="onRowClick.emit($event)"
+      />
+    </div>
+  }
+
+  <!-- ── Card View ────────────────────────────────────────────── -->
+  @if (viewMode === 'card') {
+    <div #cardContainerRef class="osl-card-container my-2" [style.height]="tableHeight" (scroll)="onCardScroll($event)">
+
+      <!-- Skeleton cards on initial load -->
+      @if (loading && cardDatasource.length === 0) {
+        <div class="osl-card-grid">
+          @for (sk of skeletonCardRows; track $index) {
+            <div class="osl-card osl-card--skeleton">
+              <div class="osl-card-inner">
+                <div class="osl-card-header">
+                  <div class="osl-card-avatar osl-card-avatar--skeleton"></div>
+                  <div style="flex:1">
+                    <div class="osl-sk-line osl-sk-line--title"></div>
+                  </div>
+                </div>
+                <div class="osl-card-divider"></div>
+                <div class="osl-card-body">
+                  <div class="osl-card-field"><div class="osl-sk-line osl-sk-line--label"></div><div class="osl-sk-line"></div></div>
+                  <div class="osl-card-field"><div class="osl-sk-line osl-sk-line--label"></div><div class="osl-sk-line osl-sk-line--short"></div></div>
+                  <div class="osl-card-field"><div class="osl-sk-line osl-sk-line--label"></div><div class="osl-sk-line"></div></div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Empty state -->
+      @else if (cardDatasource.length === 0 && !loading) {
+        <div class="osl-card-empty">
+          <svg class="osl-card-empty-svg" viewBox="0 0 180 160" fill="none">
+            <ellipse cx="90" cy="140" rx="60" ry="8" fill="#f3f4f6"/>
+            <rect x="30" y="30" width="120" height="96" rx="10" fill="#f9fafb" stroke="#e5e7eb" stroke-width="2"/>
+            <rect x="44" y="48" width="92" height="10" rx="5" fill="#e5e7eb"/>
+            <rect x="44" y="66" width="72" height="8" rx="4" fill="#f3f4f6"/>
+            <rect x="44" y="82" width="84" height="8" rx="4" fill="#f3f4f6"/>
+            <rect x="44" y="98" width="56" height="8" rx="4" fill="#f3f4f6"/>
+            <circle cx="140" cy="108" r="26" fill="#fff" stroke="#e5e7eb" stroke-width="2"/>
+            <line x1="133" y1="101" x2="147" y2="115" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="147" y1="101" x2="133" y2="115" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <p class="osl-card-empty-title">No records found</p>
+          <p class="osl-card-empty-desc">Try adjusting your search or filter criteria</p>
+        </div>
+      }
+
+      <!-- Card grid -->
+      @else {
+        <div class="osl-card-grid">
+
+          @if (cardTemplate) {
+            @for (row of cardDatasource; track row[primaryKey]; let i = $index) {
+              <ng-container *ngTemplateOutlet="cardTemplate; context: { $implicit: row, index: i }"></ng-container>
+            }
+          } @else {
+            @for (row of cardDatasource; track row[primaryKey]; let i = $index) {
+              <div class="osl-card"
+                   [class.osl-card--selectable]="isLister"
+                   (click)="isLister ? onRowClick.emit(row) : null">
+
+                <div class="osl-card-inner">
+
+                  <!-- Card header -->
+                  <div class="osl-card-header">
+                    @if (cardTitleColumn) {
+                      <!-- <div class="osl-card-avatar">{{ getCardInitial(row) }}</div> -->
+                    }
+
+                    <div class="osl-card-title-wrap">
+                      <span class="osl-card-title">
+                        @if (cardTitleColumn) {
+                          @switch (cardTitleColumn.displayType) {
+                            @case ('date')     { {{ row[cardTitleColumn.key] | date }} }
+                            @case ('datetime') { {{ row[cardTitleColumn.key] | date:'medium' }} }
+                            @case ('time')     { {{ row[cardTitleColumn.key] | date:'shortTime' }} }
+                            @default           { {{ getCellValue(row, cardTitleColumn) }} }
+                          }
+                        }
+                      </span>
+                    </div>
+
+                    @if (!isLister && ((hasForm && (canEdit || canDelete)) || (moreMenuActions.length > 0 && hasVisibleActions(row)))) {
+                      <div class="osl-card-actions">
+
+                        @if (moreMenuActions.length > 0 && hasVisibleActions(row)) {
+                          <button class="osl-card-action-btn osl-card-action-btn--more"
+                                  (click)="toggleCardMenu(i, $event)" title="More actions">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                              <circle cx="12" cy="5" r="2.2"/>
+                              <circle cx="12" cy="12" r="2.2"/>
+                              <circle cx="12" cy="19" r="2.2"/>
+                            </svg>
+                          </button>
+                        }
+
+                        @if (hasForm && canEdit) {
+                          <button class="osl-card-action-btn osl-card-action-btn--edit"
+                                  (click)="$event.stopPropagation(); openEditDialog(row)" title="Edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                          </button>
+                        }
+
+                        @if (hasForm && canDelete) {
+                          <button class="osl-card-action-btn osl-card-action-btn--delete"
+                                  (click)="$event.stopPropagation(); onDeleteClick(row)" title="Delete">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="3 6 5 6 21 6"/>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+
+                  <div class="osl-card-divider"></div>
+
+                  <div class="osl-card-body">
+                    @for (col of cardBodyColumns; track col.key) {
+                      <div class="osl-card-field">
+                        <span class="osl-card-label">{{ col.label }}</span>
+                        <span class="osl-card-value" [class.link]="col.displayType === 'link'" (click)="col.click ? col.click(row, col) : null">
+                          @switch (col.displayType) {
+                            @case ('date')     { {{ row[col.key] | date }} }
+                            @case ('datetime') { {{ row[col.key] | date:'medium' }} }
+                            @case ('time')     { {{ row[col.key] | date:'shortTime' }} }
+                            @default           { {{ getCellValue(row, col) }} }
+                          }
+                        </span>
+                      </div>
+                    }
+                  </div>
+
+                </div>
+              </div>
+            }
+          }
+        </div>
+
+        @if (loading) {
+          <div class="osl-card-loader">
+            <div class="osl-card-loader-track">
+              <div class="osl-card-loader-bar"></div>
+            </div>
+            <span class="osl-card-loader-text">Loading more…</span>
+          </div>
+        }
+
+        @if (allCardsLoaded && !loading && cardDatasource.length > 0) {
+          <div class="osl-card-all-loaded">
+            <span class="osl-card-all-loaded-line"></span>
+            <span class="osl-card-all-loaded-text">All {{ totalRecords || cardDatasource.length }} records loaded</span>
+            <span class="osl-card-all-loaded-line"></span>
+          </div>
+        }
+      }
+    </div>
+  }
 
 </div>
 
 <!-- Dialog: Form Body -->
 <ng-template #formBodyTpl>
   <osl-dynamic-form
-  [skeletonLoading]="formLoading"
+    [skeletonLoading]="formLoading"
     [elements]="formElements"
     [(model)]="dialogModel"
   ></osl-dynamic-form>
@@ -56,13 +240,29 @@
 <!-- Dialog: Form Footer -->
 <ng-template #formFooterTpl>
   <div class="osl-setup-dialog-footer">
-
-
     <osl-button [loading]="saveLoading" variant="secondary" label="Save" (click)="saveDialog()"></osl-button>
   </div>
 </ng-template>
 
-<!-- Wrapper that bridges DialogWrapper's implicit context to the custom footer template -->
 <ng-template #customFooterWrapperTpl let-data>
   <ng-container *ngTemplateOutlet="customFormFooter!; context: { $implicit: { dialogModel: dialogModel, dialogMode: dialogMode, dialogRef: data.dialogRef } }"></ng-container>
 </ng-template>
+
+<!-- Floating card more-actions menu — rendered outside card DOM to avoid transform containment -->
+@if (viewMode === 'card' && cardOpenMenuIndex !== null && moreMenuActions.length > 0) {
+  <div class="osl-card-menu"
+       [style.top.px]="cardMenuPosition.top"
+       [style.left.px]="cardMenuPosition.left"
+       (click)="$event.stopPropagation()">
+    <div class="osl-card-menu-header">Actions</div>
+    @for (action of moreMenuActions; track $index) {
+      @if (!action.hideIf || !action.hideIf(cardDatasource[cardOpenMenuIndex])) {
+        <button class="osl-card-menu-item"
+                (click)="action.click(cardDatasource[cardOpenMenuIndex]); cardOpenMenuIndex = null">
+          <span class="osl-card-menu-dot"></span>
+          {{ action.labelIf ? action.labelIf(cardDatasource[cardOpenMenuIndex]) : action.label }}
+        </button>
+      }
+    }
+  </div>
+}
