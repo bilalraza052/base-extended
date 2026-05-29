@@ -13,6 +13,7 @@ export class baseComponent{
         if(Array.isArray(message)){
             message = message.join(',')
         }
+        
         this.showSnack(message)
     }
 
@@ -29,6 +30,7 @@ export class baseComponent{
     }
 
     private showSnack(message:string){
+        message =  message.replace(/<[^>]*>/g, '');
         this._injector.get(MatSnackBar).open(message,'Ok',{
             duration:3000
         })
