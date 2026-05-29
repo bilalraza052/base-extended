@@ -28,12 +28,12 @@ export class OslAutocomplete implements OnInit, OnChanges {
   constructor(private elRef: ElementRef) {}
 
   ngOnInit() {
-    this.filteredItems = [...this.datasource];
+    this.filteredItems = [...(this.datasource || [])];
     this.syncInputFromModel();
   }
 
   ngOnChanges() {
-    this.filteredItems = [...this.datasource];
+    this.filteredItems = [...(this.datasource || [])];
     this.syncInputFromModel();
   }
 

@@ -101,7 +101,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
   }
 
   ngOnChanges() {
-    this.filteredItems = [...this.datasource];
+    this.filteredItems = [...(this.datasource || [])];
     this.syncInputFromModel();
   }
 

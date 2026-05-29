@@ -7,11 +7,13 @@ import {
   inject,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { baseComponent } from '../../../base/base.component';
 import { AUTOCOMPLETE_LISTER_COMPONENT, oslListerData } from '../autocomplete-lister/autocomplete-lister-types';
 import { HttpResponse } from '../../../http/httpbase';
@@ -22,32 +24,30 @@ import { HttpResponse } from '../../../http/httpbase';
   templateUrl: './autocomplete.html',
   styleUrl: './autocomplete.scss',
 })
-export class OslAutocomplete extends baseComponent implements OnInit, OnChanges {
+export class OslAutocomplete extends baseComponent implements OnInit, OnChanges, OnDestroy {
   @Input('label') label: string = '';
   @Input('required') required: boolean = false;
   @Input('disabled') disabled: boolean = false;
- private _model: any;
+
+  private _model: any = null;
   private _object: any;
-  @Input('model') set model(val:any){
-    if(val){
-      this._model = val;
-      if(this.object){
-        this.datasource = [this.object]
-        
-        this.filteredItems = [...this.datasource]
-        this.syncInputFromModel()
-        this.datasourceChange.emit(this.datasource)
 
-
-      }
+  // Fix: removed if(val) guard — _model must be settable to null/0/false
+  @Input('model') set model(val: any) {
+    this._model = val;
+    if (val !== null && val !== undefined && this._object) {
+      this.datasource = [this._object];
+      this.filteredItems = [...this.datasource];
+      this.syncInputFromModel();
+      this.datasourceChange.emit(this.datasource);
     }
-    
   }
 
-  get model(){
-    return this._model
+  get model(): any {
+    return this._model;
   }
-  @Input('datasource') datasource:any[]=[];
+
+  @Input('datasource') datasource: any[] = [];
   @Output() datasourceChange = new EventEmitter<any>();
   @Input('displayField') displayField: string = '';
   @Input('valueField') valueField: string = '';
@@ -57,25 +57,26 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
   @Input('methodName') methodName: string = '';
   @Input('configMethodName') configMethodName: string = '';
   @Input('service') service: any;
-   @Input('object') set object(val:any){
-      if(val){
-        this._object = val;
-        this.datasource = [val]
-        this.filteredItems = [...this.datasource]
-        this.datasourceChange.emit(this.datasource)
 
-      }
-      if(this.model){
-        this.syncInputFromModel()
-
-      }
+  @Input('object') set object(val: any) {
+    if (val) {
+      this._object = val;
+      this.datasource = [val];
+      this.filteredItems = [...this.datasource];
+      this.datasourceChange.emit(this.datasource);
     }
+    if (this._model !== null && this._model !== undefined) {
+      this.syncInputFromModel();
+    }
+  }
+
   @Input('skeletonLoading') skeletonLoading: boolean = false;
   @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
   @Input('isLister') isLister: boolean = false;
 
   @Output() modelChange = new EventEmitter<any>();
   @Output() changeEv = new EventEmitter<any>();
+
   private listerComponent = inject(AUTOCOMPLETE_LISTER_COMPONENT);
   inputControl = new FormControl('');
 
@@ -90,11 +91,23 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
   filteredItems: any[] = [];
   touched: boolean = false;
 
+  private scrollHandler = (event: Event) => {
+    if (!this._showDropdown) return;
+    const dropdown = this.elRef.nativeElement.querySelector('.dropdown');
+    if (dropdown && dropdown.contains(event.target as Node)) return;
+    this._showDropdown = false;
+    this.cdr.markForCheck();
+  };
+
   constructor(
     private elRef: ElementRef,
     public cdr: ChangeDetectorRef,
   ) {
     super();
+  }
+
+  ngOnDestroy() {
+    document.removeEventListener('scroll', this.scrollHandler, true);
   }
 
   private updateDropdownPosition() {
@@ -128,7 +141,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
     dialogRef.afterClosed().subscribe((selectedRow: any) => {
       if (selectedRow && selectedRow[this.valueField]) {
         this.datasource = [selectedRow];
-        this.datasourceChange.emit(this.datasource)
+        this.datasourceChange.emit(this.datasource);
         this.filteredItems = [...this.datasource];
         this.selectItem(selectedRow);
       }
@@ -136,50 +149,60 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
   }
 
   ngOnInit() {
-    if (this.searchType == 'Api' && this.methodName && this.service) {
-       if(this.isLister){
-          this.placeholder = 'Type to Search Or Press Enter';
-        }else{
-          this.placeholder = 'Type to Search';
+    document.addEventListener('scroll', this.scrollHandler, { capture: true, passive: true });
 
-        }
+    if (this.searchType === 'Api' && this.methodName && this.service) {
+      this.placeholder = this.isLister ? 'Type to Search Or Press Enter' : 'Type to Search';
+
+      // Fix: [formControl] already updates inputControl on user input, so valueChanges
+      // fires once per keystroke. Do NOT call inputControl.setValue() inside onInput
+      // for API mode to avoid double emission.
       this.inputControl.valueChanges
         .pipe(debounceTime(500), distinctUntilChanged())
         .subscribe(async (value) => {
-          if(!value) return;
-          const res:HttpResponse = await this.service[this.methodName](value);
-          if(!res.isSuccessful) return
-          this.datasource = res?.result && Array.isArray(res?.result) ? res?.result : res?.result?.data;
-          this.datasourceChange.emit(this.datasource)
-
-          this.filteredItems = this.datasource
+          if (!value) return;
+          const res: HttpResponse = await this.service[this.methodName](value);
+          if (!res.isSuccessful) return;
+          this.datasource = res?.result && Array.isArray(res?.result) ? res.result : res?.result?.data;
+          this.datasourceChange.emit(this.datasource);
+          this.filteredItems = this.datasource;
           this.cdr.markForCheck();
         });
 
-      if (this.object) {
-        this.datasource = [this.object];
-        this.datasourceChange.emit(this.datasource)
+      if (this._object) {
+        this.datasource = [this._object];
+        this.datasourceChange.emit(this.datasource);
         this.filteredItems = [...this.datasource];
-
       }
     }
-    this.cdr.markForCheck();
     this.syncInputFromModel();
+    this.cdr.markForCheck();
   }
 
-  ngOnChanges() {
-    this.filteredItems = [...this.datasource];
-    this.syncInputFromModel();
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['datasource']) {
+      this.filteredItems = [...(this.datasource || [])];
+      // Only sync when dropdown is closed (user is not actively typing/searching)
+      if (!this._showDropdown) {
+        this.syncInputFromModel();
+      }
+    }
+    if (changes['model']) {
+      this.syncInputFromModel();
+    }
   }
 
   private syncInputFromModel() {
-    if (this.model !== null && this.model !== undefined) {
-      const found = this.datasource.find((item) => this.getValue(item) === this.model);
-      if (found) this.inputValue = this.getDisplay(found);
-      this.inputControl.setValue(this.getDisplay(found));
+    if (this._model !== null && this._model !== undefined) {
+      const found = this.datasource.find((item) => this.getValue(item) === this._model);
+      if (found) {
+        const display = this.getDisplay(found);
+        this.inputValue = display;
+        this.inputControl.setValue(display, { emitEvent: false });
+      }
     } else {
       this.inputValue = '';
-      this.inputControl.setValue('');
+      this.inputControl.setValue('', { emitEvent: false });
     }
     this.cdr.markForCheck();
   }
@@ -193,22 +216,33 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
   }
 
   get isInvalid(): boolean {
-    return this.touched && this.required && !this.model;
+    return this.touched && this.required && !this._model;
   }
 
   onInput(val: string) {
-    this.model = null;
-    if (this.searchType == 'Local') {
-      this.inputValue = val;
-      this.inputControl.setValue(val);
-      this.showDropdown = true;
+    // Fix: set _model directly so null is always stored, bypassing the setter's
+    // datasource-refresh side effect which should only run on external model changes
+    this._model = null;
+    this.inputValue = val;
 
+    if (this.searchType === 'Local') {
+      this.showDropdown = true;
       this.filteredItems = this.datasource.filter((item) =>
         this.getDisplay(item)?.toLowerCase()?.includes(val?.toLowerCase()),
       );
       if (!val) {
-        this.model = null;
         this.modelChange.emit(null);
+        this.changeEv.emit(null);
+      }
+    } else {
+      // API mode: [formControl] already updated inputControl, valueChanges handles the search
+      if (!val) {
+        this.filteredItems = [];
+        this.showDropdown = false;
+        this.modelChange.emit(null);
+        this.changeEv.emit(null);
+      } else {
+        this.showDropdown = true;
       }
     }
   }
@@ -216,39 +250,47 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
   onFocus() {
     if (this.loading) return;
     this.showDropdown = true;
-    this.filteredItems = this.datasource.filter((item) =>
-      this.getDisplay(item)?.toLowerCase()?.includes(this.inputValue?.toLowerCase()),
-    );
-  }
-  onFocusOut() {
-    if (this.inputValue && this.filteredItems.length == 1) {
-      this.selectItem(this.filteredItems[0]);
-    }
-    if (!this.model) {
-      this.clearValue();
+    if (this.searchType === 'Local') {
+      this.filteredItems = this.datasource.filter((item) =>
+        this.getDisplay(item)?.toLowerCase()?.includes(this.inputValue?.toLowerCase()),
+      );
     }
   }
 
-  onBlur() {
+  onFocusOut() {
     this.touched = true;
+    this.showDropdown = false;
+    // Fix: removed auto-select-on-single-match — it caused refill when user
+    // cleared text and datasource had only 1 item.
+    // If no selection was made, clear the typed text.
+    if (this._model === null || this._model === undefined) {
+      this.inputValue = '';
+      this.inputControl.setValue('', { emitEvent: false });
+    }
+    this.cdr.markForCheck();
   }
 
   clearValue(event?: Event) {
     event?.stopPropagation();
+    // Fix: set _model directly to null — using the setter would trigger the
+    // datasource-refresh side effect unnecessarily
+    this._model = null;
     this.inputValue = '';
-    this.inputControl.setValue('');
-    this.model = null;
+    this.inputControl.setValue('', { emitEvent: false });
+    this.showDropdown = false;
     this.modelChange.emit(null);
     this.changeEv.emit(null);
+    this.cdr.markForCheck();
   }
 
   selectItem(item: any) {
-    this.inputValue = this.getDisplay(item);
-    this.inputControl.setValue(this.getDisplay(item));
-
-    this.model = this.getValue(item);
-    this.modelChange.emit(this.model);
-    this.changeEv.emit(this.model);
+    const display = this.getDisplay(item);
+    const value = this.getValue(item);
+    this.inputValue = display;
+    this.inputControl.setValue(display, { emitEvent: false });
+    this._model = value;
+    this.modelChange.emit(value);
+    this.changeEv.emit(value);
     this.showDropdown = false;
   }
 

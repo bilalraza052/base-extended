@@ -4,19 +4,17 @@
             <label class="label" [class.txt-clr-red]="isInvalid">
                 {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
             </label>
-    
+
         </div>
 
     }
     <div class="autocomplete-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme" [class.error]="isInvalid" [class.autocomplete-wrapper--api]="searchType == 'Api'">
         <input
-            [value]="inputValue"
             (input)="onInput($any($event.target).value)"
             (focus)="onFocus()"
-            (blur)="onBlur()"
             (focusout)="onFocusOut()"
             [disabled]="disabled || loading"
-           [formControl]="inputControl"
+            [formControl]="inputControl"
             [class.error]="isInvalid"
             [placeholder]="loading ? 'Loading...' : placeholder"
             autocomplete="off"
@@ -25,14 +23,13 @@
         @if(loading) {
             <span class="ac-spinner"></span>
         } @else {
-            @if(inputValue && !disabled) {
+            @if(inputControl.value && !disabled) {
                 <button type="button" class="ac-clear" [class.ac-clear--shifted]="searchType == 'Api'" (mousedown)="clearValue($event)" tabindex="-1" title="Clear">
                     <mat-icon>close</mat-icon>
                 </button>
             }
             @if(searchType == 'Api' && isLister && !disabled) {
                 <button  type="button" class="ac-lister-btn" (mousedown)="$event.preventDefault(); openLister()" tabindex="-1" title="Browse list or press Enter">
-                    <!-- <img src="assets/enter (2).png" alt="Enter" class="ac-lister-img"> -->
                      <mat-icon>manage_search</mat-icon>
                 </button>
             }

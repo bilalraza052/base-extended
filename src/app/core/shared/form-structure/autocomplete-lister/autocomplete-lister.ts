@@ -25,6 +25,7 @@ export class OslAutocompleteLister {
      this.autocompleteData = this.data?.data 
          this.loader = true
     await this.getConfig()
+    this.onPageChange()
     // await this.search()
     // this.loader = false
       this.cd.markForCheck()
@@ -55,8 +56,8 @@ export class OslAutocompleteLister {
     this.recordCount = res.result?.recordsFiltered
     // this.recordCount = Number(res.headers?.get('recordCount')|| 0)
   }
-  onPageChange(event:OslPageEvent){
-    this.search(event.searchValue,event.page,event.pageSize)
+  onPageChange(event?:OslPageEvent){
+    this.search(event?.searchValue,event?.page,event?.pageSize)
 
   }
   onSearch(value:string){
