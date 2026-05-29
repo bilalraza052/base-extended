@@ -5,6 +5,7 @@
         </svg>
         <input
           type="text"
+          (keyup)="onKeyChange()"
          [formControl]="searchControl"
           class="search-input"
           [placeholder]="label"

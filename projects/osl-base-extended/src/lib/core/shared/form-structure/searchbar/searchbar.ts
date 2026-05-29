@@ -16,13 +16,20 @@ export class OslSearchbar {
 
 
 searchControl = new FormControl('');
-
+onKeyChange(){
+  if(!this.searchQuery){
+    this.onSearch.emit(this.searchQuery)
+  }
+}
 ngOnInit() {
   this.searchControl.valueChanges.pipe(
     debounceTime(300),
     distinctUntilChanged()
   ).subscribe(value => {
-    this.onSearch.emit(value)
+    if(value){
+      this.onSearch.emit(value)
+
+    }
   });
 }
 }
