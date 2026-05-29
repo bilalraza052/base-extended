@@ -13,13 +13,34 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes orf-shimmer {
+  0%   { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(220%)  skewX(-12deg); }
+}
+
+@keyframes orf-badge-pop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  70%  { transform: scale(1.08); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+// ── Shared icon sizing ────────────────────────────────────────────────────────
+.orf-btn-icon {
+  display: block;
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+}
+
 // ── Card wrapper ──────────────────────────────────────────────────────────────
 .orf-card {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.07),
+    0 1px 4px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+  animation: orf-fade-in 0.28s ease;
 }
 
 // ── Header ────────────────────────────────────────────────────────────────────
@@ -34,23 +55,24 @@
   overflow: hidden;
   flex-wrap: wrap;
 
+  // dot-grid texture
   &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+  }
+
+  // glow orb top-right
+  &::after {
     content: '';
     position: absolute;
     width: 260px; height: 260px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-    top: -110px; right: 10px;
-    pointer-events: none;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    width: 160px; height: 160px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.07);
-    bottom: -70px; right: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    top: -120px; right: -20px;
     pointer-events: none;
   }
 }
@@ -64,18 +86,19 @@
 }
 
 .orf-header__icon-wrap {
-  width: 50px; height: 50px;
+  width: 52px; height: 52px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
 .orf-header__icon {
+  width: 26px; height: 26px;
   color: #fff;
-  font-size: 26px; width: 26px; height: 26px;
 }
 
 .orf-header__text {
@@ -86,13 +109,15 @@
   margin: 0;
   font-size: 19px; font-weight: 700;
   color: #fff;
-  letter-spacing: -0.015em; line-height: 1.2;
+  letter-spacing: -0.02em; line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
 .orf-header__sub {
   margin: 0;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.01em;
 }
 
 .orf-header__right {
@@ -103,11 +128,11 @@
 
 // ── Type toggle buttons ───────────────────────────────────────────────────────
 .orf-type-btn {
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; gap: 7px;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: 9px;
   border: 1px solid rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.11);
   color: rgba(255, 255, 255, 0.82);
   font-size: 13px; font-weight: 500;
   cursor: pointer;
@@ -116,39 +141,68 @@
   backdrop-filter: blur(6px);
   font-family: inherit;
 
-  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  .orf-btn-icon { width: 15px; height: 15px; transition: transform 0.2s ease; }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.21);
     border-color: rgba(255, 255, 255, 0.45);
     color: #fff;
     transform: translateY(-1px);
+    .orf-btn-icon { transform: scale(1.1); }
   }
 
   &.active {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.96);
     border-color: transparent;
     color: #1e3a8a;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22), 0 1px 3px rgba(0,0,0,0.1);
     transform: translateY(-1px);
     font-weight: 600;
-    mat-icon { color: #1e3a8a; }
+    .orf-btn-icon { color: #1e3a8a; }
   }
 
-  &--pdf.active   { color: #dc2626; mat-icon { color: #dc2626; } }
-  &--excel.active { color: #16a34a; mat-icon { color: #16a34a; } }
-  &--grid.active  { color: #2563eb; mat-icon { color: #2563eb; } }
+  &--pdf.active   { color: #dc2626; .orf-btn-icon { color: #dc2626; } }
+  &--excel.active { color: #16a34a; .orf-btn-icon { color: #16a34a; } }
+  &--grid.active  { color: #2563eb; .orf-btn-icon { color: #2563eb; } }
 }
 
-// ── Divider ───────────────────────────────────────────────────────────────────
-.orf-divider {
-  height: 1px;
-  background: linear-gradient(90deg, #e5e7eb 0%, #c7d2fe 50%, #e5e7eb 100%);
+// ── Section divider ───────────────────────────────────────────────────────────
+.orf-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  margin: 18px 0 0;
+
+  &__line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e2e8f0, #c7d2fe, #e2e8f0, transparent);
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: #f0f4ff;
+    border: 1px solid #c7d2fe;
+    color: #4f46e5;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    svg { width: 12px; height: 12px; color: #6366f1; }
+  }
 }
 
 // ── Form body ─────────────────────────────────────────────────────────────────
 .orf-body {
-  padding: 20px 20px 4px;
+  padding: 16px 20px 4px;
 }
 
 // ── Footer ────────────────────────────────────────────────────────────────────
@@ -156,34 +210,50 @@
   padding: 12px 20px 20px;
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
 }
 
 .orf-generate-btn {
   display: inline-flex; align-items: center; gap: 8px;
-  padding: 10px 22px;
-  border-radius: 8px; border: none;
+  padding: 11px 24px;
+  border-radius: 10px; border: none;
   background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
   color: #fff;
   font-size: 14px; font-weight: 600;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.32);
+  box-shadow: 0 4px 18px rgba(37, 99, 235, 0.35);
   letter-spacing: 0.01em;
   font-family: inherit;
+  position: relative;
+  overflow: hidden;
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  // shimmer sweep on hover
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+    transform: translateX(-100%) skewX(-12deg);
+    pointer-events: none;
+  }
+
+  .orf-btn-icon { width: 18px; height: 18px; }
 
   &__arrow {
-    transition: transform 0.2s ease;
-    font-size: 16px !important; width: 16px !important; height: 16px !important;
-    margin-left: 2px;
+    width: 18px; height: 18px;
+    transition: transform 0.22s ease;
+    flex-shrink: 0;
   }
 
   &:hover:not([disabled]) {
     background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
-    box-shadow: 0 6px 22px rgba(37, 99, 235, 0.48);
+    box-shadow: 0 6px 24px rgba(37, 99, 235, 0.5);
     transform: translateY(-1px);
-    .orf-generate-btn__arrow { transform: translateX(4px); }
+
+    &::after { animation: orf-shimmer 0.55s ease forwards; }
+    .orf-generate-btn__arrow { transform: translateX(5px); }
   }
 
   &:active:not([disabled]) {
@@ -227,16 +297,26 @@
   gap: 12px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 2px 14px rgba(37, 99, 235, 0.45);
 
-  // subtle shine orb
+  // dot texture
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1px);
+    background-size: 16px 16px;
+    pointer-events: none;
+  }
+
+  // glow orb
   &::after {
     content: '';
     position: absolute;
-    width: 180px; height: 180px;
+    width: 200px; height: 200px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
-    top: -80px; right: 60px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    top: -90px; right: 40px;
     pointer-events: none;
   }
 }
@@ -259,8 +339,8 @@
 }
 
 .orf-results-header__report-icon {
+  width: 20px; height: 20px;
   color: rgba(255, 255, 255, 0.85);
-  font-size: 20px; width: 20px; height: 20px;
   flex-shrink: 0;
 }
 
@@ -272,24 +352,25 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.12);
 }
 
 .orf-results-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   padding: 3px 10px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.92);
   font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
-  animation: orf-slide-in 0.3s ease;
+  animation: orf-badge-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 
-  mat-icon { font-size: 13px; width: 13px; height: 13px; }
+  .orf-btn-icon { width: 13px; height: 13px; }
 }
 
 // ── Back button ───────────────────────────────────────────────────────────────
@@ -298,9 +379,9 @@
   align-items: center;
   gap: 5px;
   padding: 6px 14px;
-  border-radius: 7px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.13);
   color: #fff;
   font-size: 13px; font-weight: 500;
   cursor: pointer;
@@ -308,13 +389,18 @@
   backdrop-filter: blur(6px);
   font-family: inherit;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 
-  mat-icon { font-size: 17px; width: 17px; height: 17px; transition: transform 0.18s ease; }
+  .orf-btn-icon {
+    width: 16px; height: 16px;
+    transition: transform 0.18s ease;
+  }
 
   &:hover {
     background: rgba(255, 255, 255, 0.24);
     border-color: rgba(255, 255, 255, 0.5);
-    mat-icon { transform: translateX(-3px); }
+    .orf-btn-icon { transform: translateX(-3px); }
   }
 
   &:active { transform: scale(0.97); }
@@ -335,7 +421,7 @@
   align-items: center;
   gap: 5px;
   padding: 6px 13px;
-  border-radius: 7px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.85);
@@ -346,7 +432,7 @@
   font-family: inherit;
   white-space: nowrap;
 
-  mat-icon { font-size: 15px; width: 15px; height: 15px; }
+  .orf-btn-icon { width: 15px; height: 15px; }
 
   &:hover {
     background: rgba(255, 255, 255, 0.22);
@@ -355,8 +441,14 @@
     transform: translateY(-1px);
   }
 
-  &--excel:hover { background: rgba(22, 163, 74, 0.35); border-color: rgba(22, 163, 74, 0.5); }
-  &--pdf:hover   { background: rgba(220, 38,  38, 0.35); border-color: rgba(220, 38,  38, 0.5); }
+  &--excel:hover {
+    background: rgba(22, 163, 74, 0.32);
+    border-color: rgba(22, 163, 74, 0.55);
+  }
+  &--pdf:hover {
+    background: rgba(220, 38, 38, 0.32);
+    border-color: rgba(220, 38, 38, 0.55);
+  }
 }
 
 // ── Results body ──────────────────────────────────────────────────────────────
