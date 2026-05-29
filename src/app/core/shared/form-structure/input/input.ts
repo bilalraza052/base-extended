@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
-export type InputType = 'text' | 'password' | 'email' | 'number' | 'tel' | 'url';
+export type InputType = 'text' | 'password' | 'email' | 'number' | 'tel' | 'url' | 'int';
 
 @Component({
   selector: 'osl-input',
@@ -38,7 +38,7 @@ export class Oslinput implements OnInit, OnChanges {
 
   get inputType(): string {
     if (this.type === 'password') return this.showPassword ? 'text' : 'password';
-    if (this.decimalPortion !== null) return 'text';
+    if (this.decimalPortion !== null || this.type === 'int') return 'text';
     return this.type;
   }
 
@@ -117,6 +117,13 @@ export class Oslinput implements OnInit, OnChanges {
       return;
     }
 
+    if (this.type === 'int') {
+      if (!/\d/.test(event.key)) {
+        event.preventDefault();
+      }
+      return;
+    }
+
     if (this.decimalPortion !== null) {
       const key = event.key;
       if (!/[\d.]/.test(key)) {
@@ -174,6 +181,14 @@ export class Oslinput implements OnInit, OnChanges {
     if (this.decimalPortion !== null) {
       const cleaned = this.cleanDecimalInput(value);
       this.model = cleaned;
+      this.modelChange.emit(this.model);
+      return;
+    }
+    if (this.type === 'int') {
+      const dotIndex = value.indexOf('.');
+      const truncated = dotIndex !== -1 ? value.substring(0, dotIndex) : value;
+      const digits = truncated.replace(/[^\d]/g, '');
+      this.model = digits === '' ? null : parseInt(digits, 10);
       this.modelChange.emit(this.model);
       return;
     }
