@@ -181,10 +181,29 @@
       background: linear-gradient(135deg, #166534, #145a2c);
       border-color: #14532d;
       color: #fff;
+
       box-shadow: 0 2px 6px rgba(22, 101, 52, .4);
     }
   }
+
+  // PDF export button — distinctive red look
+  &--pdf {
+    background: linear-gradient(135deg, #e53935, #C62828);
+    border-color: #b71c1c;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(183, 28, 28, .3);
+
+    &:hover {
+      background: linear-gradient(135deg, #c62828, #ad1515);
+      border-color: #ad1515;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(183, 28, 28, .4);
+    }
+  }
 }
+
+.rg-icon--pdf { width: 18px; height: 18px; }
 
 // ── Global search ─────────────────────────────────────────────────────────────
 .osl-rg-global-search {

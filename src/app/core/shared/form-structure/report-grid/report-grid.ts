@@ -1,4 +1,4 @@
-﻿import {
+import {
   Component, Input, Output, EventEmitter, OnChanges, SimpleChanges,
   HostListener, ElementRef, ViewChild, ChangeDetectorRef, ChangeDetectionStrategy, inject
 } from '@angular/core';
@@ -27,10 +27,27 @@ export interface OslReportColumn {
   enums?: { value: any; label: string }[];
   /** Optional group label shown in the top header row (double header). Consecutive columns sharing the same label are merged into one spanning cell. */
   headerGroup?: string;
+  /** When true, this column's values are summed in PDF/Excel exports (subtotal per group + grand total). */
+  sumOnPdf?: boolean;
 }
 
 export interface OslReportPageEvent { page: number; pageSize: number; }
 export interface OslReportSortEvent { sorts: { key: string; asc: boolean }[]; }
+
+export interface OslPdfConfig {
+  /** Base64 or URL of logo image shown top-left of PDF header. */
+  logo?: string;
+  /** Company name displayed centered in PDF header. */
+  companyName?: string;
+  /** Company address line displayed under company name. */
+  companyAddress?: string;
+  /** Report name rendered between two full-width horizontal lines, centered. */
+  reportName?: string;
+  /** Page orientation (default: landscape). */
+  orientation?: 'portrait' | 'landscape';
+  /** Show alternating row background colors (default: false — clean white). */
+  alternatingRows?: boolean;
+}
 
 // ─── Internal types ───────────────────────────────────────────────────────────
 
@@ -79,6 +96,8 @@ export class OslReportGrid implements OnChanges {
   @Input() rowSelection: 'single' | 'multiple' | null = null;
   @Input() showAggregates = false;
   @Input() title = '';
+  @Input() pdfExportFromGrid = false;
+  @Input() pdfConfig: OslPdfConfig = {};
 
   // Outputs
   @Output() pageChange = new EventEmitter<OslReportPageEvent>();
@@ -243,9 +262,8 @@ export class OslReportGrid implements OnChanges {
     return rows;
   }
 
-  processData(): void {
+  private getSortedFilteredRows(): any[] {
     let rows = this.getFilteredRows();
-
     if (this.autoMode && this.sortStates.size > 0) {
       const sorts = [...this.sortStates.values()].sort((a, b) => a.index - b.index);
       rows.sort((a, b) => {
@@ -256,7 +274,11 @@ export class OslReportGrid implements OnChanges {
         return 0;
       });
     }
+    return rows;
+  }
 
+  processData(): void {
+    const rows = this.getSortedFilteredRows();
     this._filteredTotal = rows.length;
 
     if (this.activeGroups.length > 0) {
@@ -351,7 +373,7 @@ export class OslReportGrid implements OnChanges {
   openExcelFilter(key: string, event: Event): void {
     event.stopPropagation();
     if (this.openFilterKey === key) { this.openFilterKey = null; return; }
-    if (!this.excelFilterState[key]) this.buildExcelFilterItems(key);
+    this.buildExcelFilterItems(key);
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     this.filterDropdownPos = {
       top: rect.bottom + 4,
@@ -360,16 +382,43 @@ export class OslReportGrid implements OnChanges {
     this.openFilterKey = key;
   }
 
+  private getFilteredRowsExcluding(excludeKey: string): any[] {
+    let rows = [...this.datasource];
+
+    if (this.globalSearch.trim()) {
+      const term = this.globalSearch.toLowerCase();
+      rows = rows.filter(row =>
+        this.visibleCols.some(col => String(this.getCellDisplay(row, col)).toLowerCase().includes(term))
+      );
+    }
+
+    for (const col of this._cols) {
+      const term = (this.columnSearch[col.key] ?? '').trim().toLowerCase();
+      if (term) {
+        rows = rows.filter(row => String(this.getCellDisplay(row, col)).toLowerCase().includes(term));
+      }
+    }
+
+    for (const [key, activeSet] of Object.entries(this.excelFilters)) {
+      if (key === excludeKey) continue;
+      if (activeSet.size > 0) {
+        rows = rows.filter(row => activeSet.has(row[key]));
+      }
+    }
+
+    return rows;
+  }
+
   private buildExcelFilterItems(key: string): void {
     const activeSet = this.excelFilters[key] ?? new Set();
     const col = this._cols.find(c => c.key === key)!;
     const seen = new Map<any, string>();
-    for (const row of this.datasource) {
+    for (const row of this.getFilteredRowsExcluding(key)) {
       const val = row[key];
       if (!seen.has(val)) seen.set(val, this.getCellDisplayByKey(val, col, undefined));
     }
     this.excelFilterState[key] = {
-      search: '',
+      search: this.excelFilterState[key]?.search ?? '',
       allItems: [...seen.entries()].map(([value, label]) => ({
         value, label,
         checked: activeSet.size === 0 || activeSet.has(value),
@@ -681,23 +730,385 @@ export class OslReportGrid implements OnChanges {
     this.pageSizeChange.emit({ page: 1, pageSize: this.pageSize });
   }
 
-  // ─── Export CSV ───────────────────────────────────────────────────────────────
+  // ─── Export Excel ─────────────────────────────────────────────────────────────
 
-  exportCsv(): void {
+  exportExcel(): void {
+    this._doExportExcel().catch(err => console.error('Excel export failed:', err));
+  }
+
+  private async _doExportExcel(): Promise<void> {
+    const xlsxMod = await import('xlsx-js-style');
+    const XLSX: any = (xlsxMod as any).default ?? xlsxMod;
+
     const cols = this.visibleCols;
-    const lines: string[] = [];
+    const filteredRows = this.getSortedFilteredRows();
 
-    lines.push(cols.map(c => `"${c.headerGroup ? `${c.label}(${c.headerGroup})` : c.label}"`).join(','));
-    this.getFilteredRows().forEach(row =>
-      lines.push(cols.map(col => `"${String(this.getCellDisplay(row, col)).replace(/"/g, '""')}"`).join(','))
-    );
-
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const a = Object.assign(document.createElement('a'), {
-      href: URL.createObjectURL(blob), download: `${this.title || 'report'}.csv`,
+    const thinBorder = (rgb = 'D9D9D9') => ({
+      top: { style: 'thin', color: { rgb } },
+      bottom: { style: 'thin', color: { rgb } },
+      left: { style: 'thin', color: { rgb } },
+      right: { style: 'thin', color: { rgb } },
     });
-    a.click();
-    URL.revokeObjectURL(a.href);
+
+    const headerStyle = {
+      font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 10 },
+      fill: { patternType: 'solid', fgColor: { rgb: '4472C4' } },
+      alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+      border: thinBorder('4472C4'),
+    };
+
+    const groupColors = [
+      { bg: 'D9E1F2', fg: '1F3864' },
+      { bg: 'E2EFDA', fg: '375623' },
+      { bg: 'FFF2CC', fg: '7F6000' },
+    ];
+
+    const dataStyle = {
+      font: { sz: 10 },
+      border: thinBorder(),
+    };
+
+    const ws: any = {};
+    const merges: { s: { r: number; c: number }; e: { r: number; c: number } }[] = [];
+    let rowIdx = 0;
+
+    // ── Header group row ────────────────────────────────────────────────────────
+    if (this.hasHeaderGroups) {
+      let colIdx = 0;
+      let i = 0;
+      while (i < cols.length) {
+        const groupLabel = cols[i].headerGroup ?? '';
+        let span = 1;
+        while (i + span < cols.length && (cols[i + span].headerGroup ?? '') === groupLabel) span++;
+        ws[XLSX.utils.encode_cell({ r: rowIdx, c: colIdx })] = { v: groupLabel, t: 's', s: headerStyle };
+        for (let k = 1; k < span; k++) {
+          ws[XLSX.utils.encode_cell({ r: rowIdx, c: colIdx + k })] = { v: '', t: 's', s: headerStyle };
+        }
+        if (span > 1) merges.push({ s: { r: rowIdx, c: colIdx }, e: { r: rowIdx, c: colIdx + span - 1 } });
+        colIdx += span;
+        i += span;
+      }
+      rowIdx++;
+    }
+
+    // ── Column label row ────────────────────────────────────────────────────────
+    cols.forEach((col, ci) => {
+      ws[XLSX.utils.encode_cell({ r: rowIdx, c: ci })] = { v: col.label, t: 's', s: headerStyle };
+    });
+    rowIdx++;
+
+    // ── Data / group rows ───────────────────────────────────────────────────────
+    const writeDataRows = (rows: any[]): void => {
+      rows.forEach(r => {
+        cols.forEach((col, ci) => {
+          ws[XLSX.utils.encode_cell({ r: rowIdx, c: ci })] = {
+            v: this.getCellDisplay(r, col), t: 's', s: dataStyle,
+          };
+        });
+        rowIdx++;
+      });
+    };
+
+    const buildExcelRows = (rows: any[], groupKeys: string[], level: number): void => {
+      if (groupKeys.length === 0) { writeDataRows(rows); return; }
+      const key = groupKeys[0];
+      const remaining = groupKeys.slice(1);
+      const groups = new Map<any, any[]>();
+      for (const row of rows) {
+        const v = row[key]; if (!groups.has(v)) groups.set(v, []); groups.get(v)!.push(row);
+      }
+      const colDef = this._cols.find(c => c.key === key)!;
+      const color = groupColors[Math.min(level, groupColors.length - 1)];
+      const groupStyle = {
+        font: { bold: true, color: { rgb: color.fg }, sz: 10 },
+        fill: { patternType: 'solid', fgColor: { rgb: color.bg } },
+        alignment: { horizontal: 'left', vertical: 'center' },
+        border: thinBorder(),
+      };
+      const subtotalStyle = {
+        font: { bold: true, sz: 10 },
+        fill: { patternType: 'solid', fgColor: { rgb: 'F2F2F2' } },
+        border: thinBorder(),
+      };
+      const sumCols = cols.filter(c => c.sumOnPdf);
+
+      for (const [val, gr] of groups) {
+        const label = this.getCellDisplayByKey(val, colDef, undefined);
+        const indent = '  '.repeat(level);
+        ws[XLSX.utils.encode_cell({ r: rowIdx, c: 0 })] = {
+          v: `${indent}${colDef?.label ?? key}: ${label}  (${gr.length} rows)`, t: 's', s: groupStyle,
+        };
+        for (let k = 1; k < cols.length; k++) {
+          ws[XLSX.utils.encode_cell({ r: rowIdx, c: k })] = { v: '', t: 's', s: groupStyle };
+        }
+        if (cols.length > 1) merges.push({ s: { r: rowIdx, c: 0 }, e: { r: rowIdx, c: cols.length - 1 } });
+        rowIdx++;
+
+        buildExcelRows(gr, remaining, level + 1);
+
+        if (sumCols.length > 0) {
+          cols.forEach((col, ci) => {
+            if (col.sumOnPdf) {
+              const s = gr.map(r => Number(r[col.key])).filter(v => !isNaN(v)).reduce((a, b) => a + b, 0);
+              ws[XLSX.utils.encode_cell({ r: rowIdx, c: ci })] = {
+                v: s, t: 'n', s: { ...subtotalStyle, alignment: { horizontal: 'right' } },
+              };
+            } else {
+              ws[XLSX.utils.encode_cell({ r: rowIdx, c: ci })] = {
+                v: ci === 0 ? `${indent}Subtotal: ${label}` : '', t: 's', s: subtotalStyle,
+              };
+            }
+          });
+          rowIdx++;
+        }
+      }
+    };
+
+    if (this.activeGroups.length > 0) {
+      buildExcelRows(filteredRows, this.activeGroups, 0);
+    } else {
+      writeDataRows(filteredRows);
+    }
+
+    // ── Grand total row ─────────────────────────────────────────────────────────
+    const sumCols = cols.filter(c => c.sumOnPdf);
+    if (sumCols.length > 0) {
+      const grandStyle = {
+        font: { bold: true, sz: 10 },
+        fill: { patternType: 'solid', fgColor: { rgb: 'D9D9D9' } },
+        border: thinBorder('000000'),
+      };
+      cols.forEach((col, ci) => {
+        if (col.sumOnPdf) {
+          const s = filteredRows.map(r => Number(r[col.key])).filter(v => !isNaN(v)).reduce((a, b) => a + b, 0);
+          ws[XLSX.utils.encode_cell({ r: rowIdx, c: ci })] = {
+            v: s, t: 'n', s: { ...grandStyle, alignment: { horizontal: 'right' } },
+          };
+        } else {
+          ws[XLSX.utils.encode_cell({ r: rowIdx, c: ci })] = {
+            v: ci === 0 ? 'Grand Total' : '', t: 's', s: grandStyle,
+          };
+        }
+      });
+      rowIdx++;
+    }
+
+    ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rowIdx - 1, c: cols.length - 1 } });
+    ws['!cols'] = cols.map(c => ({ wpx: c._width }));
+    if (merges.length) ws['!merges'] = merges;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, (this.title || 'Report').slice(0, 31));
+    XLSX.writeFile(wb, `${this.title || 'report'}.xlsx`);
+  }
+
+  // ─── Export PDF ───────────────────────────────────────────────────────────────
+
+  async exportPdf(): Promise<void> {
+    const [{ jsPDF }, { default: autoTable }] = await Promise.all([
+      import('jspdf'),
+      import('jspdf-autotable'),
+    ]);
+
+    const cfg = this.pdfConfig ?? {};
+    const orientation = cfg.orientation ?? 'landscape';
+    const doc = new jsPDF({ orientation, unit: 'pt', format: 'a4' });
+    const pw = doc.internal.pageSize.getWidth();
+    const ph = doc.internal.pageSize.getHeight();
+    const margin = 36;
+    const usableW = pw - margin * 2;
+    let yPos = margin;
+
+    // Logo (top-left) + Company name/address (center)
+    const logoH = 50;
+    if (cfg.logo) {
+      try {
+        const img = await this._loadImageForPdf(cfg.logo);
+        const logoW = (img.naturalWidth / img.naturalHeight) * logoH;
+        doc.addImage(img.dataUrl, img.imgType as any, margin, yPos, logoW, logoH);
+      } catch { /* ignore broken logo */ }
+    }
+    if (cfg.companyName) {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(0, 0, 0);
+      doc.text(cfg.companyName, pw / 2, yPos + 20, { align: 'center' });
+    }
+    if (cfg.companyAddress) {
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(60, 60, 60);
+      doc.text(cfg.companyAddress, pw / 2, yPos + 34, { align: 'center' });
+    }
+    if (cfg.logo || cfg.companyName || cfg.companyAddress) { yPos += logoH + 10; }
+
+    // Report name: ══════ Report Name ══════ (double lines on each side, centered)
+    if (cfg.reportName) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      const textW = doc.getTextWidth(cfg.reportName);
+      const cx  = pw / 2;
+      const gap = 12;
+      const ty  = yPos + 16;  // text baseline
+      const ly  = ty - 5;     // top line Y
+      doc.setLineWidth(0.4);
+      doc.setDrawColor(0, 0, 0);
+      // left double lines — end exactly where the text begins
+      doc.line(margin, ly,     cx - textW / 2 - gap, ly);
+      doc.line(margin, ly + 2, cx - textW / 2 - gap, ly + 2);
+      // centered report name
+      doc.text(cfg.reportName, cx, ty, { align: 'center' });
+      // right double lines — start exactly where the text ends
+      doc.line(cx + textW / 2 + gap, ly,     pw - margin, ly);
+      doc.line(cx + textW / 2 + gap, ly + 2, pw - margin, ly + 2);
+      yPos = ty + 14;
+    }
+
+    // Build table body (recursive, supports groups + subtotals)
+    const cols = this.visibleCols;
+    const filteredRows = this.getSortedFilteredRows();
+    const totalGridW = cols.reduce((s, c) => s + c._width, 0) || 1;
+    const colWidths = cols.map(c => (c._width / totalGridW) * usableW);
+    const sumCols = cols.filter(c => c.sumOnPdf);
+
+    const body: any[][] = [];
+    // Light gray shading per group level — no blue, clean financial-report look
+    const groupBg    = [[242, 242, 242], [247, 247, 247], [252, 252, 252]];
+    const subtotalBg = [[232, 232, 232], [237, 237, 237], [242, 242, 242]];
+
+    const buildPdfRows = (rows: any[], groupKeys: string[], level: number): void => {
+      if (groupKeys.length === 0) {
+        rows.forEach(r => body.push(cols.map(col => ({
+          content: this.getCellDisplay(r, col),
+          styles: { halign: col.align ?? 'left', textColor: [0, 0, 0] },
+        }))));
+        return;
+      }
+      const key = groupKeys[0];
+      const remaining = groupKeys.slice(1);
+      const groups = new Map<any, any[]>();
+      for (const row of rows) { const v = row[key]; if (!groups.has(v)) groups.set(v, []); groups.get(v)!.push(row); }
+      const colDef = this._cols.find(c => c.key === key)!;
+      const bg = groupBg[Math.min(level, groupBg.length - 1)];
+      const sb = subtotalBg[Math.min(level, subtotalBg.length - 1)];
+
+      for (const [val, gr] of groups) {
+        const label = this.getCellDisplayByKey(val, colDef, undefined);
+        const indent = '    '.repeat(level);
+        body.push([{
+          content: `${indent}${colDef?.label ?? key}: ${label}`,
+          colSpan: cols.length,
+          styles: { fontStyle: 'bold', fillColor: bg, textColor: [0, 0, 0] },
+        }]);
+        buildPdfRows(gr, remaining, level + 1);
+        if (sumCols.length > 0) {
+          body.push(cols.map((col, i) => {
+            if (col.sumOnPdf) {
+              const s = gr.map(r => Number(r[col.key])).filter(v => !isNaN(v)).reduce((a, b) => a + b, 0);
+              return { content: this.decimalPipe.transform(s, '1.0-2') ?? String(s), styles: { fontStyle: 'bold', halign: 'right', fillColor: sb, textColor: [0, 0, 0] } };
+            }
+            return { content: i === 0 ? `${indent}Subtotal: ${label}` : '', styles: { fontStyle: 'bold', fillColor: sb, textColor: [0, 0, 0] } };
+          }));
+        }
+      }
+    };
+
+    if (this.activeGroups.length > 0) {
+      buildPdfRows(filteredRows, this.activeGroups, 0);
+    } else {
+      filteredRows.forEach(r => body.push(cols.map(col => ({
+        content: this.getCellDisplay(r, col),
+        styles: { halign: col.align ?? 'left', textColor: [0, 0, 0] },
+      }))));
+    }
+
+    // Grand total row
+    if (sumCols.length > 0) {
+      body.push(cols.map((col, i) => {
+        if (col.sumOnPdf) {
+          const s = filteredRows.map(r => Number(r[col.key])).filter(v => !isNaN(v)).reduce((a, b) => a + b, 0);
+          return { content: this.decimalPipe.transform(s, '1.0-2') ?? String(s), styles: { fontStyle: 'bold', halign: 'right', fillColor: [220, 220, 220], textColor: [0, 0, 0] } };
+        }
+        return { content: i === 0 ? 'Grand Total' : '', styles: { fontStyle: 'bold', fillColor: [220, 220, 220], textColor: [0, 0, 0] } };
+      }));
+    }
+
+    // Render table: clean black-bordered financial-report style
+    const colStylesMap: Record<number, any> = {};
+    cols.forEach((_col, i) => { colStylesMap[i] = { cellWidth: colWidths[i] }; });
+
+    // Build double header rows when headerGroup is used
+    const colLabelsRow = cols.map((c, i) => ({ content: c.label, styles: { halign: c.align ?? 'left', cellWidth: colWidths[i] } }));
+    const pdfHead: any[][] = [];
+    if (this.hasHeaderGroups) {
+      const groupRow: any[] = [];
+      let i = 0;
+      while (i < cols.length) {
+        const groupLabel = cols[i].headerGroup ?? '';
+        let span = 1;
+        while (i + span < cols.length && (cols[i + span].headerGroup ?? '') === groupLabel) span++;
+        groupRow.push({ content: groupLabel, colSpan: span, styles: { halign: 'center', fontStyle: 'bold' } });
+        i += span;
+      }
+      pdfHead.push(groupRow);
+    }
+    pdfHead.push(colLabelsRow);
+
+    autoTable(doc, {
+      head: pdfHead,
+      body,
+      startY: yPos,
+      margin: { left: margin, right: margin, top: margin, bottom: margin + 18 },
+      styles: {
+        fontSize: 8,
+        cellPadding: { top: 4, right: 6, bottom: 4, left: 6 },
+        overflow: 'linebreak',
+        lineColor: [0, 0, 0],
+        lineWidth: 0.3,
+        textColor: [0, 0, 0],
+        fillColor: [255, 255, 255],
+      },
+      headStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [0, 0, 0],
+        fontStyle: 'bold',
+        fontSize: 8.5,
+        lineColor: [0, 0, 0],
+        lineWidth: 0.4,
+      },
+      alternateRowStyles: cfg.alternatingRows ? { fillColor: [248, 248, 248] } : {},
+      columnStyles: colStylesMap,
+      showHead: 'everyPage',
+      tableLineColor: [0, 0, 0],
+      tableLineWidth: 0.4,
+    } as any);
+
+    // Footer: page numbers + timestamp on every page
+    const total = (doc as any).internal.pages.length - 1;
+    const ts = new Date().toLocaleString();
+    for (let p = 1; p <= total; p++) {
+      doc.setPage(p);
+      doc.setFontSize(7.5); doc.setTextColor(100);
+      doc.text(`Generated: ${ts}`, margin, ph - 14);
+      doc.text(`Page ${p} of ${total}`, pw - margin, ph - 14, { align: 'right' });
+      doc.setTextColor(0);
+    }
+
+    doc.save(`${this.title || 'report'}.pdf`);
+  }
+
+  private async _loadImageForPdf(src: string): Promise<{ dataUrl: string; imgType: string; naturalWidth: number; naturalHeight: number }> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+        canvas.getContext('2d')!.drawImage(img, 0, 0);
+        const ext = (src.split('?')[0].split('.').pop() ?? '').toLowerCase();
+        const imgType = ext === 'png' ? 'PNG' : 'JPEG';
+        resolve({ dataUrl: canvas.toDataURL(`image/${imgType.toLowerCase()}`), imgType, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
+      };
+      img.onerror = reject;
+      img.src = src;
+    });
   }
 
   // ─── Aggregates ───────────────────────────────────────────────────────────────
