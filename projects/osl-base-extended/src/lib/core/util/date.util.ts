@@ -295,3 +295,10 @@ export function parseDate(dateStr: string): Date | null {
   const result = new Date(y, mo - 1, d);
   return isValidDate(result) ? result : null;
 }
+
+
+export function localeDate(dateStr: string){
+  const date = new Date(dateStr);
+  date.toLocaleString('en-US')
+
+}
