@@ -191,6 +191,11 @@ export class Oslinput implements OnInit, OnChanges {
       this.modelChange.emit(this.model);
       return;
     }
+    if (this.type === 'number') {
+      this.model = value === '' ? null : value;
+      this.modelChange.emit(this.model);
+      return;
+    }
     if(this.isCapitalize){
       value = typeof value == 'string' ? value?.toUpperCase() : value
     }
