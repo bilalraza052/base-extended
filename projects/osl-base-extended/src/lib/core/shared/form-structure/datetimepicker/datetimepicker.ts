@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { formatDate } from '../../../util/date.util';
 
 @Component({
   selector: 'osl-datetimepicker',
@@ -6,20 +7,44 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   templateUrl: './datetimepicker.html',
   styleUrl: './datetimepicker.scss',
 })
-export class OslDatetimepicker {
+export class OslDatetimepicker implements AfterViewInit {
+  @ViewChild('dtNativeInput') private dtNativeInput!: ElementRef<HTMLInputElement>;
+
   @Input('label') label: string = '';
   @Input('required') required: boolean = false;
   @Input('disabled') disabled: boolean = false;
 
-  private _model: string = '';
+  dateModel: Date | null = null;
+
   @Input('model') set model(val: string) {
-    this._model = this._normalize(val);
+    this.dateModel = this._parseToDate(val);
+    this._scheduleDisplayUpdate();
   }
-  get model(): string { return this._model; }
 
   @Input('placeholder') placeholder: string = '';
-  @Input('minDatetime') minDatetime: string = '';
-  @Input('maxDatetime') maxDatetime: string = '';
+
+  minDate: Date | null = null;
+  maxDate: Date | null = null;
+
+  @Input('minDatetime') set minDatetime(val: string) {
+    this.minDate = this._parseToDate(val);
+  }
+  @Input('maxDatetime') set maxDatetime(val: string) {
+    this.maxDate = this._parseToDate(val);
+  }
+
+  /** Emitted string format. Tokens: YYYY MM DD HH mm ss ddd dddd etc. Default: 'YYYY-MM-DDTHH:mm' */
+  @Input('format') format: string = 'YYYY-MM-DDTHH:mm';
+
+  /** Display format shown inside the input field. Default: 'ddd DD/MM/YYYY HH:mm' → Sun 18/01/2026 19:18 */
+  @Input('displayFormat') set displayFormatInput(val: string) {
+    this._displayFormat = val || 'ddd DD/MM/YYYY HH:mm';
+    this._scheduleDisplayUpdate();
+  }
+  private _displayFormat: string = 'ddd DD/MM/YYYY HH:mm';
+
+  @Input('showSeconds') showSeconds: boolean = false;
+  @Input('enableMeridian') enableMeridian: boolean = false;
 
   @Input('skeletonLoading') skeletonLoading: boolean = false;
   @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
@@ -27,17 +52,31 @@ export class OslDatetimepicker {
   @Output() modelChange = new EventEmitter<string>();
   @Output() changeEv = new EventEmitter<string>();
 
-  onValueChange(val: string) {
-    if (val === this._model) return;
-    this._model = val ?? '';
-    this.modelChange.emit(this._model);
-    this.changeEv.emit(this._model);
+  ngAfterViewInit(): void {
+    this._updateDisplay();
   }
 
-  // Trim to YYYY-MM-DDTHH:MM which datetime-local inputs require
-  private _normalize(val: string): string {
-    if (!val) return '';
-    const match = val.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/);
-    return match ? match[1] : val;
+  onDateChange(date: Date | null): void {
+    this.dateModel = date;
+    this._updateDisplay();
+    const str = date ? formatDate(date, this.format) : '';
+    this.modelChange.emit(str);
+    this.changeEv.emit(str);
+  }
+
+  private _updateDisplay(): void {
+    if (!this.dtNativeInput) return;
+    this.dtNativeInput.nativeElement.value =
+      this.dateModel ? formatDate(this.dateModel, this._displayFormat) : '';
+  }
+
+  private _scheduleDisplayUpdate(): void {
+    setTimeout(() => this._updateDisplay());
+  }
+
+  private _parseToDate(val: string): Date | null {
+    if (!val) return null;
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? null : d;
   }
 }

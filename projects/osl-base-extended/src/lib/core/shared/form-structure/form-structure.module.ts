@@ -31,6 +31,9 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { OslReportGrid } from "./report-grid/report-grid";
 import { OslReportForm } from "./report-form/report-form";
+import { NativeDateAdapter, DateAdapter, MAT_DATE_FORMATS } from "@angular/material/core";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { NgxMatDatetimepicker, NgxMatDatepickerInput } from "@ngxmc/datetime-picker";
 
 @NgModule({
   declarations: [
@@ -74,6 +77,9 @@ import { OslReportForm } from "./report-form/report-form";
     MatMenuModule,
     ScrollingModule,
     DragDropModule,
+    MatTooltipModule,
+    NgxMatDatetimepicker,
+    NgxMatDatepickerInput,
   ],
   exports: [DynamicForm, OslSetup, OslGrid, OslFormGrid, Oslinput,
     Osltextarea,

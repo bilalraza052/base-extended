@@ -17,13 +17,47 @@
     align-items: center;
 }
 
+.dt-icon-btn {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s;
+    border-radius: 4px;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        display: block;
+    }
+
+    &:hover:not(:disabled) {
+        color: var(--osl-focus-border-color);
+    }
+
+    &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+}
+
 .dt-input {
     height: var(--osl-control-height);
     width: 100%;
     border-radius: var(--osl-border-radius);
     outline: none;
     border: 1px solid var(--osl-border-color);
-    padding: 0 10px;
+    padding: 0 38px 0 10px;
     font-size: var(--osl-text-font-size);
     font-family: inherit;
     color: #333;
@@ -59,14 +93,4 @@
         }
     }
 
-    // Style the native picker icon to match the design system
-    &::-webkit-calendar-picker-indicator {
-        opacity: 0.45;
-        cursor: pointer;
-        transition: opacity 0.15s;
-
-        &:hover {
-            opacity: 0.9;
-        }
-    }
 }
