@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 
-export type OslDisplayType = 'date' | 'datetime' | 'time' | 'link';
+export type OslDisplayType = 'date' | 'datetime' | 'time' | 'link' | 'customDateFormat';
 
 export interface OslGridColumn {
   key: string;
@@ -11,6 +11,7 @@ export interface OslGridColumn {
   isActions?: boolean;
   /** Applies a built-in transform to the cell value. 'date' → dd/MM/yyyy, 'datetime' → dd/MM/yyyy HH:mm, 'time' → HH:mm */
   displayType?: OslDisplayType;
+  customDateFormat?:string
   click?:(row:any,col:any)=>void;
 }
 

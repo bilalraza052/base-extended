@@ -121,6 +121,7 @@
                       @case ('date') { {{ row[col.key] | date }} }
                       @case ('datetime') { {{ row[col.key] | date:'medium' }} }
                       @case ('time') { {{ row[col.key] | date:'shortTime' }} }
+                      @case ('customDateFormat') { {{ row[col.key] | date:col.customDateFormat }} }
                       @default { {{ getCellValue(row, col) }} }
                     }
                   </span>
