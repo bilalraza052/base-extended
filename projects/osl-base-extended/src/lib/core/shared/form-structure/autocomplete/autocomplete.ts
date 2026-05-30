@@ -294,6 +294,18 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
     this.showDropdown = false;
   }
 
+  onHintClick(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const route: string | undefined = this.service?.route;
+    if (!route) return;
+
+    const id = this._model;
+    const sep = route.includes('?') ? '&' : '?';
+    const paramId = (id !== null && id !== undefined) ? id : 0;
+    window.open(`${route}${sep}id=${paramId}`, '_blank');
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     if (!this.elRef.nativeElement.contains(event.target)) {
