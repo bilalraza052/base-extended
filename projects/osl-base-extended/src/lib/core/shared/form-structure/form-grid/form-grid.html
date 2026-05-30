@@ -217,6 +217,9 @@
                             [placeholder]="col.formElem.placeholder || col.displayName"
                             [minDatetime]="col.formElem.minDatetime || ''"
                             [maxDatetime]="col.formElem.maxDatetime || ''"
+                            [format]="col.formElem.datetimepickerFormat || 'YYYY-MM-DDTHH:mm'"
+                            [showSeconds]="!!col.formElem.datetimepickerShowSeconds"
+                            [enableMeridian]="!!col.formElem.datetimepickerEnableMeridian"
                             [model]="row[col.key]"
                             (modelChange)="onCellChange(row, col, $event)"
                             (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">

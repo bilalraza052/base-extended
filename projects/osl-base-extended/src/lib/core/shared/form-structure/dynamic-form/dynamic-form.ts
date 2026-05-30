@@ -152,6 +152,10 @@ export interface elements {
   maxDatetime?: string;
   minDatetimeIf?: (model: any) => string;
   maxDatetimeIf?: (model: any) => string;
+  /** Output format tokens: YYYY MM DD HH mm ss. Default: 'YYYY-MM-DDTHH:mm' */
+  datetimepickerFormat?: string;
+  datetimepickerShowSeconds?: boolean;
+  datetimepickerEnableMeridian?: boolean;
 
   // ── osl-radio ─────────────────────────────────────
   inline?: boolean;
