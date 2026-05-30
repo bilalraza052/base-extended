@@ -21,6 +21,7 @@ import { elements } from '../dynamic-form/dynamic-form';
 import { DialogWrapper } from '../../../shared/components/dialog-wrapper/dialog-wrapper';
 import { DeleteConfirmation, DeleteConfirmationData } from '../../../shared/components/delete-confirmation/delete-confirmation';
 import { OslSearchbar } from '../searchbar/searchbar';
+import { ActivatedRoute } from '@angular/router';
 
 export interface OslSetupSaveEvent {
   model: any;
@@ -41,6 +42,7 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   restoredRow: any = null;
   private _pendingScrollTop: number | null = null;
   private _isRestoring = false;
+  private _pendingAutoEditId: string | null = null;
 
   @ViewChild('formBodyTpl') formBodyTpl!: TemplateRef<any>;
   @ViewChild('formFooterTpl') formFooterTpl!: TemplateRef<any>;
@@ -143,6 +145,11 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     if (this.viewMode === 'card') {
       this._needsInitialCardLoad = true;
     }
+    const route = this._injector.get(ActivatedRoute, null);
+    if (route) {
+      const id = route.snapshot.queryParamMap.get('id');
+      if (id) this._pendingAutoEditId = id;
+    }
   }
 
   ngAfterViewInit(): void {
@@ -150,6 +157,15 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     if (this._needsInitialCardLoad) {
       this._needsInitialCardLoad = false;
       setTimeout(() => { this._startCardLoad(); });
+    }
+    if (this._pendingAutoEditId !== null) {
+      const id = this._pendingAutoEditId;
+      this._pendingAutoEditId = null;
+      if (id === '0') {
+        setTimeout(() => this.openAddDialog());
+      } else {
+        setTimeout(() => this.openEditDialog({ [this.primaryKey]: id }));
+      }
     }
   }
 
