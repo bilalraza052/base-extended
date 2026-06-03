@@ -168,13 +168,14 @@ export abstract class Httpbase {
     }
   }
 
-  protected async put<T>(methodName: string, body: any): Promise<HttpResponse<T>> {
+  protected async put<T>(methodName: string, body: any,params?: myParams[]): Promise<HttpResponse<T>> {
     try {
       const res = await firstValueFrom(
         this.http
           .put(this.getEndPoint(methodName), body, {
             observe: 'response',
             headers: this.getHeaders(),
+            params:this.buildParams(params || []),
           })
           .pipe(timeout(30000)),
       );
