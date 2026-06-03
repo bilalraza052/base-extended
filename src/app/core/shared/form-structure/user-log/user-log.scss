@@ -1,0 +1,406 @@
+// ── Shared avatar ────────────────────────────────────────────────
+.osl-ul-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+  line-height: 1;
+
+  &--add {
+    background: #d1fae5;
+    color: #059669;
+  }
+
+  &--edit {
+    background: #dbeafe;
+    color: var(--osl-primary);
+  }
+}
+
+// ── Root wrapper ──────────────────────────────────────────────────
+.osl-user-log {
+  font-size: var(--osl-text-font-size);
+  font-family: inherit;
+
+  // ── BAR MODE ────────────────────────────────────────────────────
+  &--bar {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 2px 2px;
+    border-top: 1px solid var(--osl-border-color);
+    margin-top: 16px;
+    animation: osl-ul-fadein 0.32s ease;
+  }
+
+  // ── FLOAT WRAPPER ───────────────────────────────────────────────
+  &--float {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 1050;
+  }
+}
+
+// ── Bar: entry card ───────────────────────────────────────────────
+.osl-ul-entry {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+  min-width: 0;
+
+  &:hover {
+    background: #f5f8ff;
+  }
+
+  &__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    &--add {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    &--edit {
+      background: #dbeafe;
+      color: var(--osl-primary);
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #9ca3af;
+    line-height: 1;
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  &__name {
+    font-size: var(--osl-text-font-size);
+    font-weight: 500;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 1px;
+
+    svg {
+      width: 11px;
+      height: 11px;
+      flex-shrink: 0;
+    }
+  }
+}
+
+// ── Bar: vertical separator ───────────────────────────────────────
+.osl-ul-sep {
+  width: 1px;
+  background: var(--osl-border-color);
+  align-self: stretch;
+  margin: 4px 6px;
+  flex-shrink: 0;
+}
+
+// ── FAB button ────────────────────────────────────────────────────
+.osl-ul-fab {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  background: var(--osl-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.38);
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.18s ease;
+  outline: none;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &:hover {
+    background: var(--osl-primary-hover);
+    box-shadow: 0 6px 22px rgba(37, 99, 235, 0.5);
+    transform: translateY(-2px);
+  }
+
+  &--active svg {
+    transform: rotate(-25deg) scale(0.9);
+  }
+}
+
+// ── FAB: ping animation ring ──────────────────────────────────────
+.osl-ul-fab__ping {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--osl-primary);
+  opacity: 0;
+  animation: osl-ul-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+// ── Float panel ───────────────────────────────────────────────────
+.osl-ul-panel {
+  position: absolute;
+  bottom: 56px;
+  right: 0;
+  width: 292px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.13),
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transform: translateY(10px) scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.2),
+    opacity 0.2s ease;
+  transform-origin: bottom right;
+
+  &--open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  // ── Panel header ──────────────────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 14px 11px;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #fff;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+
+    svg {
+      width: 15px;
+      height: 15px;
+      opacity: 0.9;
+    }
+  }
+
+  &__close {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: none;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    padding: 0;
+
+    svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.26);
+    }
+  }
+
+  // ── Panel body ────────────────────────────────────────────────
+  &__body {
+    padding: 16px 16px 14px;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0 6px;
+    color: #9ca3af;
+    font-size: 12px;
+    text-align: center;
+
+    svg {
+      width: 32px;
+      height: 32px;
+      opacity: 0.45;
+    }
+  }
+}
+
+// ── Timeline entries (float panel) ───────────────────────────────
+.osl-ul-tl-entry {
+  display: flex;
+  gap: 12px;
+  position: relative;
+  padding-bottom: 18px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 33px;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #e5e7eb 60%, transparent);
+    border-radius: 1px;
+  }
+
+  &--last {
+    padding-bottom: 0;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  &__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    &--add {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    &--edit {
+      background: #dbeafe;
+      color: var(--osl-primary);
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+    padding-top: 5px;
+  }
+
+  &__label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #9ca3af;
+    line-height: 1;
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  &__name {
+    font-size: var(--osl-text-font-size);
+    font-weight: 500;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__date {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 1px;
+  }
+}
+
+// ── Animations ────────────────────────────────────────────────────
+@keyframes osl-ul-fadein {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes osl-ul-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  80%, 100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
