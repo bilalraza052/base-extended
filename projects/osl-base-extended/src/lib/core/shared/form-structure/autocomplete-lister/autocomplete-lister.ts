@@ -1,7 +1,8 @@
-import { ChangeDetectorRef, Component, Input } from '@angular/core';
-import { OslGridColumn, OslPageEvent } from '../grid/grid';
+import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
+import { OslGridColumn, OslPageEvent, OslSortEvent } from '../grid/grid';
 import { MatDialogRef } from '@angular/material/dialog';
 import { HttpResponse } from '../../../http/httpbase';
+import { OslSetup } from '../setup/setup';
 
 @Component({
   selector: 'osl-autocomplete-lister',
@@ -16,6 +17,7 @@ export class OslAutocompleteLister {
   autocompleteData:any;
   recordCount: number=0;
   loader: boolean = false;
+  @ViewChild('setup') setup!:OslSetup
   constructor(public dialogRef: MatDialogRef<OslAutocompleteLister>,public cd:ChangeDetectorRef){
    
     
@@ -36,12 +38,14 @@ export class OslAutocompleteLister {
     this.column = res.result
   }
 
-  async search(searchValue?:any,page = 1 , pageSize = 25){ 
+  async search(searchValue?:any,page = 1 , pageSize = 25,sortKey?:string,sortColumnDirection?:string){ 
       this.loader = true
     const res:HttpResponse = await this.autocompleteData.service[this.autocompleteData.methodName || 'Search']({
       page:page,
       pageSize:pageSize,
-      searchValue
+      searchValue,
+      sortColumn:sortKey,
+      sortColumnDirection:sortColumnDirection
     });
    
       this.cd.markForCheck()
@@ -54,8 +58,19 @@ export class OslAutocompleteLister {
     },20)
     this.recordCount = res.result?.recordsFiltered
   }
+  async onSortChange(event:OslSortEvent){
+    if(this.setup?.gridRef && this.setup?.searchbar){
+      this.setup.gridRef.currentPage  = 1
+      await this.search(this.setup.searchbar?.searchQuery,1,this.setup?.gridRef?.pageSize,event.key,event.asc == true ?'ASC':'DESC')
+      this.cd.detectChanges();
+      this.cd.markForCheck()
+
+    }
+
+
+  }
   onPageChange(event:OslPageEvent){
-    this.search(event.searchValue,event.page,event.pageSize)
+    this.search(event.searchValue,event.page,event.pageSize,event.sortKey,event.sortASC == true ? 'ASC' : 'DESC')
 
   }
   onSearch(value:string){

@@ -1,4 +1,4 @@
 <div class="p-4">
-    <osl-setup [loading]="loader" [autoMode]="false" [title]="autocompleteData?.title"  [totalRecords]="recordCount"  (pageSizeChange)="onPageChange($event)" (pageChange)="onPageChange($event)" (onRowClick)="onRowClick($event)" [columns]="column" [datasource]="datasource" [isLister]="true"></osl-setup>
+    <osl-setup #setup  [loading]="loader" [autoMode]="false" [title]="autocompleteData?.title" (sortChange)="onSortChange($event)" [totalRecords]="recordCount"  (pageSizeChange)="onPageChange($event)" (pageChange)="onPageChange($event)" (onRowClick)="onRowClick($event)" [columns]="column" [datasource]="datasource" [isLister]="true"></osl-setup>
     
 </div>
