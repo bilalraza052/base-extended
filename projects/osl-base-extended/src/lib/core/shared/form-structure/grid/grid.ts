@@ -31,6 +31,8 @@ export interface OslPageEvent {
   page: number;
   pageSize: number;
   searchValue?:any;
+  sortKey?:any;
+  sortASC?:boolean;
 }
 
 @Component({
