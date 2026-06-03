@@ -1,5 +1,93 @@
 <div class="p-3">
 
+  <!-- ── osl-user-log Demo ─────────────────────────────────────── -->
+  <div class="ul-demo-header">
+    <span class="ul-demo-header__tag">Component Preview</span>
+    <h5 class="ul-demo-header__title">osl-user-log</h5>
+    <p class="ul-demo-header__sub">Audit trail widget — shows who created / last modified a record.</p>
+  </div>
+
+  <div class="ul-demo-grid">
+
+    <!-- Card 1: Bar mode — both create & edit -->
+    <div class="ul-demo-card">
+      <div class="ul-demo-card__head">
+        <span class="ul-demo-badge ul-demo-badge--bar">bar mode</span>
+        <span class="ul-demo-card__desc">Created &amp; Modified</span>
+      </div>
+      <div class="ul-demo-card__body">
+        <div class="row g-2">
+          <div class="col-6">
+            <osl-input label="Customer" [model]="'Alpha Corp'" [disabled]="true" />
+          </div>
+          <div class="col-6">
+            <osl-input label="Invoice No" [model]="'INV-2026-001'" [disabled]="true" />
+          </div>
+          <div class="col-4">
+            <osl-input label="Amount (Rs)" [model]="'1,25,000'" [disabled]="true" />
+          </div>
+          <div class="col-4">
+            <osl-input label="Tax" [model]="'17%'" [disabled]="true" />
+          </div>
+          <div class="col-4">
+            <osl-input label="Status" [model]="'Approved'" [disabled]="true" />
+          </div>
+        </div>
+        <osl-user-log [meta]="logMeta" />
+      </div>
+    </div>
+
+    <!-- Card 2: Bar mode — add only -->
+    <div class="ul-demo-card">
+      <div class="ul-demo-card__head">
+        <span class="ul-demo-badge ul-demo-badge--bar">bar mode</span>
+        <span class="ul-demo-card__desc">Created Only</span>
+      </div>
+      <div class="ul-demo-card__body">
+        <div class="row g-2">
+          <div class="col-6">
+            <osl-input label="Voucher No" [model]="'JV-2026-1042'" [disabled]="true" />
+          </div>
+          <div class="col-6">
+            <osl-input label="Narration" [model]="'Opening balance'" [disabled]="true" />
+          </div>
+          <div class="col-4">
+            <osl-input label="Debit" [model]="'50,000'" [disabled]="true" />
+          </div>
+          <div class="col-4">
+            <osl-input label="Credit" [model]="'50,000'" [disabled]="true" />
+          </div>
+          <div class="col-4">
+            <osl-input label="Balance" [model]="'0'" [disabled]="true" />
+          </div>
+        </div>
+        <osl-user-log [meta]="logMetaAddOnly" />
+      </div>
+    </div>
+
+    <!-- Card 3: Float mode info -->
+    <div class="ul-demo-card ul-demo-card--float-info">
+      <div class="ul-demo-card__head">
+        <span class="ul-demo-badge ul-demo-badge--float">float mode</span>
+        <span class="ul-demo-card__desc">Floating FAB</span>
+      </div>
+      <div class="ul-demo-card__body ul-demo-card__body--center">
+        <div class="ul-demo-float-hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
+          </svg>
+          <p>A <strong>FAB button</strong> is pinned to the<br/>bottom-right of the viewport.<br/>Click it to open the record panel.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Float mode: renders as fixed FAB on the page -->
+  <osl-user-log [meta]="logMeta" mode="float" />
+
+  <div class="ul-demo-divider"></div>
+
   <!-- ── osl-setup: Table + Card View Demo ─────────────────────── -->
   <osl-setup
     title="Leads"

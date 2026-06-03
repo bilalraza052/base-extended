@@ -8,6 +8,7 @@ import { OslFormGridColumn } from '../../core/shared/form-structure/form-grid/fo
 import { OslReportColumn } from '../../core/shared/form-structure/report-grid/report-grid';
 import { ReportGenerateType } from '../../core/shared/form-structure/report-form/report-form';
 import { ExampleService } from '../service/example';
+import { UserLogMeta } from '../../core/shared/form-structure/user-log/user-log';
 import { OslSkeletonModule } from '../../core/shared/directive/skeleton/skeleton.module';
 import { SkeletonTheme } from '../../core/shared/directive/skeleton/skeleton.directive';
 import { OslSkeletonThemeService } from '../../core/shared/directive/skeleton/skeleton-theme.service';
@@ -21,6 +22,18 @@ import { raceWith } from 'rxjs';
 })
 export class Example extends baseComponent {
   loading = false;
+
+  logMeta: UserLogMeta = {
+    addLog: 'Bilal Raza',
+    addOn: '2026-05-28T09:15:00',
+    editLog: 'Sara Khan',
+    editOn: new Date(),
+  };
+
+  logMetaAddOnly: UserLogMeta = {
+    addLog: 'Ahmed Ali',
+    addOn: '2026-06-01T11:30:00',
+  };
     listData:any[]=[]
   colList:OslFormGridColumn[]=[]
   model:any={}
