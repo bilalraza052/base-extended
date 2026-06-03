@@ -452,6 +452,8 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
       page: 1,
       pageSize: this.viewMode === 'card' ? this._effectiveCardPageSize : (this.gridRef?.pageSize || 10),
       searchValue: event,
+      sortASC:this.gridRef?.sortAsc,
+      sortKey:this.gridRef?.sortKey
     });
     this.onSearch.emit(event);
   }
@@ -465,7 +467,10 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   }
 
   onPageChange(eventEmitter: EventEmitter<OslPageEvent>, event: OslPageEvent) {
-    eventEmitter.emit({ ...event, searchValue: this.searchbar?.searchControl?.value });
+    eventEmitter.emit({ ...event,...{
+      searchValue: this.searchbar?.searchControl?.value,
+      sortKey:this.gridRef?.sortKey,
+      sortASC:this.gridRef?.sortAsc} });
   }
 
   // ── Dialog actions ────────────────────────────────────────────
@@ -536,7 +541,7 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     }
     if (isSuccess) {
       this._dialogRef?.close();
-      this._dialogRef = null;
+      this._dialogRef = null;   
     }
   }
 
