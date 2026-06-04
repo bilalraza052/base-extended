@@ -28,6 +28,7 @@ export * from './lib/core/shared/form-structure/autocomplete-lister/autocomplete
 export * from './lib/core/shared/form-structure/report-grid/report-grid'
 export * from './lib/core/shared/form-structure/report-form/report-form'
 export * from './lib/core/shared/form-structure/user-log/user-log'
+export * from './lib/core/shared/form-structure/menu/menu'
 export * from './lib/core/shared/directives/skeleton/skeleton.directive'
 export * from './lib/core/shared/directives/skeleton/skeleton.module'
 export * from './lib/core/shared/directives/skeleton/skeleton-theme.service'
