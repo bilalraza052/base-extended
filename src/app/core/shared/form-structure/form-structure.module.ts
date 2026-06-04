@@ -33,7 +33,10 @@ import { DragDropModule } from "@angular/cdk/drag-drop";
 import { OslReportGrid } from "./report-grid/report-grid";
 import { OslReportForm } from "./report-form/report-form";
 import { OslUserLog } from "./user-log/user-log";
+import { OslMenu, OslMenuTriggerFor } from "./menu/menu";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { OverlayModule } from "@angular/cdk/overlay";
+import { PortalModule } from "@angular/cdk/portal";
 
 @NgModule({
   declarations: [
@@ -57,6 +60,8 @@ import { MatTooltipModule } from "@angular/material/tooltip";
     OslReportGrid,
     OslReportForm,
     OslUserLog,
+    OslMenu,
+    OslMenuTriggerFor,
   ],
   imports: [
     NgTemplateOutlet,
@@ -80,6 +85,8 @@ import { MatTooltipModule } from "@angular/material/tooltip";
     ScrollingModule,
     DragDropModule,
     MatTooltipModule,
+    OverlayModule,
+    PortalModule,
   ],
   exports: [DynamicForm, OslSetup, OslGrid, OslFormGrid, Oslinput,
     Osltextarea,
@@ -92,7 +99,8 @@ import { MatTooltipModule } from "@angular/material/tooltip";
     OslCheckbox,
     OslButton,
     OslSetup,
-    OslSearchbar, OslAutocompleteLister, OslChipsInput, OslReportGrid, OslReportForm, OslUserLog],
+    OslSearchbar, OslAutocompleteLister, OslChipsInput, OslReportGrid, OslReportForm, OslUserLog,
+    OslMenu, OslMenuTriggerFor],
   providers: [
     DatePipe,
     DecimalPipe,
