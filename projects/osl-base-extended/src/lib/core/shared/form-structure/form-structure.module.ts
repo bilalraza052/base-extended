@@ -32,7 +32,9 @@ import { DragDropModule } from "@angular/cdk/drag-drop";
 import { OslReportGrid } from "./report-grid/report-grid";
 import { OslReportForm } from "./report-form/report-form";
 import { OslUserLog } from "./user-log/user-log";
-import { NativeDateAdapter, DateAdapter, MAT_DATE_FORMATS } from "@angular/material/core";
+import { OslMenu, OslMenuTriggerFor } from "./menu/menu";
+import { OverlayModule } from "@angular/cdk/overlay";
+import { PortalModule } from "@angular/cdk/portal";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { NgxMatDatetimepicker, NgxMatDatepickerInput } from "@ngxmc/datetime-picker";
 
@@ -58,6 +60,8 @@ import { NgxMatDatetimepicker, NgxMatDatepickerInput } from "@ngxmc/datetime-pic
     OslReportGrid,
     OslReportForm,
     OslUserLog,
+    OslMenu,
+    OslMenuTriggerFor,
   ],
   imports: [
     NgTemplateOutlet,
@@ -80,6 +84,8 @@ import { NgxMatDatetimepicker, NgxMatDatepickerInput } from "@ngxmc/datetime-pic
     ScrollingModule,
     DragDropModule,
     MatTooltipModule,
+    OverlayModule,
+    PortalModule,
     NgxMatDatetimepicker,
     NgxMatDatepickerInput,
   ],
@@ -95,7 +101,8 @@ import { NgxMatDatetimepicker, NgxMatDatepickerInput } from "@ngxmc/datetime-pic
     OslCheckbox,
     OslButton,
     OslSetup,
-    OslSearchbar, OslAutocompleteLister, OslReportGrid, OslReportForm],
+    OslSearchbar, OslAutocompleteLister, OslReportGrid, OslReportForm,
+    OslMenu, OslMenuTriggerFor],
   providers: [
     { provide: AUTOCOMPLETE_LISTER_COMPONENT, useValue: OslAutocompleteLister },
   ],
