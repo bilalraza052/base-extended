@@ -1,11 +1,29 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { formatDate } from '../../../util/date.util';
+import { MAT_DATE_FORMATS } from '@angular/material/core'
 
 @Component({
   selector: 'osl-datetimepicker',
   standalone: false,
   templateUrl: './datetimepicker.html',
   styleUrl: './datetimepicker.scss',
+  providers: [
+    {
+      provide: MAT_DATE_FORMATS,
+      useValue: {
+        parse: {
+          dateInput: 'DD-MMM-YYYY hh:mm a',
+
+        },
+        display: {
+          dateInput: 'DD-MMM-YYYY hh:mm a',
+          monthYearLabel: 'MMM YYYY', dateA11yLabel: 'LL', monthYearA11yLabel: 'MMMM YYYY',
+        }
+
+      }
+
+    }
+  ]
 })
 export class OslDatetimepicker implements AfterViewInit {
   @ViewChild('dtNativeInput') private dtNativeInput!: ElementRef<HTMLInputElement>;
