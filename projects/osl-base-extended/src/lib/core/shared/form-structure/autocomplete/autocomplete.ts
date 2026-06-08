@@ -73,6 +73,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   @Input('skeletonLoading') skeletonLoading: boolean = false;
   @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
   @Input('isLister') isLister: boolean = false;
+  @Input('apiBody') apiBody: any;
 
   @Output() modelChange = new EventEmitter<any>();
   @Output() changeEv = new EventEmitter<any>();
@@ -161,7 +162,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
         .pipe(debounceTime(500), distinctUntilChanged())
         .subscribe(async (value) => {
           if (!value) return;
-          const res: HttpResponse = await this.service[this.methodName](value);
+          const res: HttpResponse = await this.service[this.methodName](value, this.apiBody);
           if (!res.isSuccessful) return;
           this.datasource = res?.result && Array.isArray(res?.result) ? res.result : res?.result?.data;
           this.datasourceChange.emit(this.datasource);
@@ -194,7 +195,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
 
   private syncInputFromModel() {
     if (this._model !== null && this._model !== undefined) {
-      const found = this.datasource.find((item) => this.getValue(item) === this._model);
+      const found = this.datasource?.find((item) => this.getValue(item) === this._model);
       if (found) {
         const display = this.getDisplay(found);
         this.inputValue = display;
