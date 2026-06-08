@@ -1,0 +1,341 @@
+<div class="du-container" [class.du--disabled]="disabled" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
+
+  @if (label) {
+    <label class="du-label" [class.du-label--error]="isInvalid">
+      <span class="du-label__text" [title]="label">{{ label }}</span>
+      @if (required) { <span class="du-label__req">*</span> }
+    </label>
+  }
+
+  <input type="file" [accept]="accept" [multiple]="multiple" [disabled]="disabled || maxFilesReached"
+    (change)="onFileChange($event)" #fileInput class="du-file-input">
+
+  <!-- ── Drop Zone ── -->
+  <div class="du-dropzone"
+    [class.du-dropzone--over]="isDragOver"
+    [class.du-dropzone--error]="isInvalid"
+    [class.du-dropzone--disabled]="disabled"
+    [class.du-dropzone--maxed]="maxFilesReached"
+    (click)="triggerInput(fileInput)"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)">
+
+    <div class="du-particles">
+      <span class="du-p du-p--1"></span>
+      <span class="du-p du-p--2"></span>
+      <span class="du-p du-p--3"></span>
+      <span class="du-p du-p--4"></span>
+      <span class="du-p du-p--5"></span>
+      <span class="du-p du-p--6"></span>
+    </div>
+
+    <div class="du-dropzone__inner">
+
+      @if (maxFilesReached) {
+        <!-- Max files reached state -->
+        <div class="du-maxed-icon">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="28" fill="#f0fdf4" stroke="#86efac" stroke-width="2"/>
+            <path d="M20 32l8 8 16-16" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="du-dropzone__headline">
+          <span class="du-gradient-text du-gradient-text--green">Limit reached</span>
+        </p>
+        <p class="du-maxed-sub">{{ maxFiles }} / {{ maxFiles }} files added</p>
+      } @else {
+
+        <!-- Cloud SVG -->
+        <div class="du-cloud-wrap" [class.du-cloud-wrap--over]="isDragOver">
+          <svg class="du-cloud-svg" viewBox="0 0 90 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="du-cloud-body"
+              d="M63 42H27C19.8 42 14 36.2 14 29C14 22.2 19.2 16.7 25.8 16.1C25.9 9.4 31.3 4 38 4C42.8 4 47 6.7 49.2 10.7C50.8 9.6 52.8 9 55 9C61 9 65.9 13.9 65.9 19.9V20.1C72.1 20.9 77 26.3 77 33C77 38.1 70.7 42 63 42Z"
+              stroke="#667eea" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line class="du-arrow" x1="45" y1="64" x2="45" y2="46" stroke="#764ba2" stroke-width="2.5" stroke-linecap="round"/>
+            <polyline class="du-arrow" points="37,55 45,46 53,55"
+              stroke="#764ba2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <circle class="du-cloud-glint" cx="30" cy="26" r="3" fill="#a5b4fc" opacity="0.5"/>
+          </svg>
+        </div>
+
+        @if (!isDragOver) {
+          <p class="du-dropzone__headline">
+            <span class="du-gradient-text">Click to browse</span><span class="du-or"> or drag &amp; drop</span>
+          </p>
+          <div class="du-dropzone__meta">
+            @if (multiple) {
+              @if (maxFiles > 0 && minFiles > 0) {
+                <span class="du-chip du-chip--info">{{ minFiles }}–{{ maxFiles }} files</span>
+              } @else if (maxFiles > 0) {
+                <span class="du-chip du-chip--info">Max {{ maxFiles }} files</span>
+              } @else if (minFiles > 0) {
+                <span class="du-chip du-chip--info">Min {{ minFiles }} files</span>
+              } @else {
+                <span class="du-chip du-chip--info">Multiple files</span>
+              }
+            } @else {
+              <span class="du-chip du-chip--info">Single file</span>
+            }
+            @if (accept)  { <span class="du-chip">{{ accept }}</span> }
+            @if (maxSize) { <span class="du-chip">{{ maxSizeLabel }}</span> }
+          </div>
+        } @else {
+          <p class="du-dropzone__headline du-dropzone__headline--drop">
+            <span class="du-gradient-text">Release to drop!</span>
+          </p>
+        }
+
+      }
+    </div>
+  </div>
+
+  <!-- ── Errors ── -->
+  @for (err of sizeErrors; track err) {
+    <div class="du-msg du-msg--error">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <line x1="12" y1="8" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="17" r="1.2" fill="currentColor"/>
+      </svg>
+      {{ err }}
+    </div>
+  }
+  @if (requiredError) {
+    <div class="du-msg du-msg--error">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <line x1="12" y1="8" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="17" r="1.2" fill="currentColor"/>
+      </svg>
+      {{ label || 'File' }} is required!
+    </div>
+  }
+  @if (minFilesError) {
+    <div class="du-msg du-msg--error">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <line x1="12" y1="8" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="17" r="1.2" fill="currentColor"/>
+      </svg>
+      At least {{ minFiles }} files are required ({{ pendingFiles.length }} added).
+    </div>
+  }
+
+  <!-- ── Pending Files ── -->
+  @if (pendingFiles.length > 0) {
+    <div class="du-section">
+      <div class="du-section__hdr">
+        <span class="du-section__title">Queued Files</span>
+        @if (multiple && maxFiles > 0) {
+          <span class="du-count-label" [class.du-count-label--full]="maxFilesReached">
+            {{ pendingFiles.length }} / {{ maxFiles }}
+          </span>
+        } @else {
+          <span class="du-count du-count--purple">{{ pendingFiles.length }}</span>
+        }
+      </div>
+      <div class="du-file-list">
+        @for (file of pendingFiles; track file.name; let i = $index) {
+          <div class="du-file-card" [attr.data-ftype]="getFileType(file.name)" [style.animation-delay]="i * 40 + 'ms'">
+
+            <div class="du-file-icon">
+              @switch (getFileType(file.name)) {
+                @case ('pdf') {
+                  <svg viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 4h20l10 10v30a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" fill="#FEE2E2"/>
+                    <path d="M26 4v10h10" fill="#FECACA"/>
+                    <rect x="4" y="28" width="32" height="12" rx="2" fill="#EF4444"/>
+                    <text x="20" y="38" text-anchor="middle" fill="white" font-size="7" font-weight="800" font-family="sans-serif">PDF</text>
+                  </svg>
+                }
+                @case ('word') {
+                  <svg viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 4h20l10 10v30a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" fill="#DBEAFE"/>
+                    <path d="M26 4v10h10" fill="#BFDBFE"/>
+                    <rect x="4" y="28" width="32" height="12" rx="2" fill="#3B82F6"/>
+                    <text x="20" y="38" text-anchor="middle" fill="white" font-size="7" font-weight="800" font-family="sans-serif">DOC</text>
+                  </svg>
+                }
+                @case ('excel') {
+                  <svg viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 4h20l10 10v30a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" fill="#DCFCE7"/>
+                    <path d="M26 4v10h10" fill="#BBF7D0"/>
+                    <rect x="4" y="28" width="32" height="12" rx="2" fill="#22C55E"/>
+                    <text x="20" y="38" text-anchor="middle" fill="white" font-size="7" font-weight="800" font-family="sans-serif">XLS</text>
+                  </svg>
+                }
+                @case ('image') {
+                  <svg viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 4h20l10 10v30a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" fill="#FEF9C3"/>
+                    <path d="M26 4v10h10" fill="#FEF08A"/>
+                    <rect x="6" y="18" width="28" height="18" rx="2" fill="#FDE047"/>
+                    <circle cx="13" cy="24" r="3" fill="#CA8A04"/>
+                    <path d="M6 36l9-9 5 5 4-4 10 8H6Z" fill="#EAB308" opacity="0.8"/>
+                  </svg>
+                }
+                @case ('archive') {
+                  <svg viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 4h20l10 10v30a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" fill="#EDE9FE"/>
+                    <path d="M26 4v10h10" fill="#DDD6FE"/>
+                    <rect x="14" y="12" width="12" height="4" rx="1" fill="#A78BFA"/>
+                    <rect x="14" y="18" width="12" height="4" rx="1" fill="#C4B5FD"/>
+                    <rect x="14" y="24" width="12" height="4" rx="1" fill="#A78BFA"/>
+                    <rect x="14" y="30" width="12" height="4" rx="1" fill="#C4B5FD"/>
+                    <rect x="16" y="26" width="8" height="6" rx="1" fill="#7C3AED"/>
+                  </svg>
+                }
+                @default {
+                  <svg viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 4h20l10 10v30a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" fill="#F1F5F9"/>
+                    <path d="M26 4v10h10" fill="#E2E8F0"/>
+                    <line x1="10" y1="24" x2="30" y2="24" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="10" y1="30" x2="26" y2="30" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="10" y1="36" x2="22" y2="36" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                }
+              }
+            </div>
+
+            <div class="du-file-info">
+              <span class="du-file-name" [title]="file.name">{{ file.name }}</span>
+              <span class="du-file-size">{{ getFileSize(file.size) }}</span>
+            </div>
+
+            <button type="button" class="du-remove-btn" (click)="removeFile(i)" title="Remove">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M15 9L9 15M9 9l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── Upload Button ── -->
+  @if (showUploadButton && pendingFiles.length > 0) {
+    <button type="button" class="du-upload-btn" (click)="upload()" [disabled]="disabled">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="17" height="17">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <polyline points="17,8 12,3 7,8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      {{ uploadButtonLabel }}
+      <span class="du-upload-btn__badge">{{ pendingFiles.length }}</span>
+    </button>
+  }
+
+  <!-- ── Saved Documents ── -->
+  @if (savedDocuments.length > 0) {
+    <div class="du-section">
+      <div class="du-section__hdr">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="du-section__icon">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="14,2 14,8 20,8" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="du-section__title">Saved Documents</span>
+        <span class="du-count du-count--green">{{ savedDocuments.length }}</span>
+      </div>
+      <div class="du-saved-list" [style.max-height]="savedDocsMaxHeight">
+        @for (doc of savedDocuments; track doc.id; let i = $index) {
+          <div class="du-saved-card" [style.animation-delay]="i * 50 + 'ms'">
+
+            <div class="du-saved-icon">
+              @switch (getFileType(doc.name)) {
+                @case ('pdf') {
+                  <svg viewBox="0 0 32 38" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 3h16l8 8v24a1.5 1.5 0 01-1.5 1.5H4A1.5 1.5 0 012.5 35V4.5A1.5 1.5 0 014 3z" fill="#FEE2E2"/>
+                    <path d="M20 3v8h8" fill="#FECACA"/>
+                    <rect x="2" y="22" width="28" height="10" rx="2" fill="#EF4444"/>
+                    <text x="16" y="30" text-anchor="middle" fill="white" font-size="6" font-weight="800" font-family="sans-serif">PDF</text>
+                  </svg>
+                }
+                @case ('word') {
+                  <svg viewBox="0 0 32 38" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 3h16l8 8v24a1.5 1.5 0 01-1.5 1.5H4A1.5 1.5 0 012.5 35V4.5A1.5 1.5 0 014 3z" fill="#DBEAFE"/>
+                    <path d="M20 3v8h8" fill="#BFDBFE"/>
+                    <rect x="2" y="22" width="28" height="10" rx="2" fill="#3B82F6"/>
+                    <text x="16" y="30" text-anchor="middle" fill="white" font-size="6" font-weight="800" font-family="sans-serif">DOC</text>
+                  </svg>
+                }
+                @case ('excel') {
+                  <svg viewBox="0 0 32 38" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 3h16l8 8v24a1.5 1.5 0 01-1.5 1.5H4A1.5 1.5 0 012.5 35V4.5A1.5 1.5 0 014 3z" fill="#DCFCE7"/>
+                    <path d="M20 3v8h8" fill="#BBF7D0"/>
+                    <rect x="2" y="22" width="28" height="10" rx="2" fill="#22C55E"/>
+                    <text x="16" y="30" text-anchor="middle" fill="white" font-size="6" font-weight="800" font-family="sans-serif">XLS</text>
+                  </svg>
+                }
+                @case ('image') {
+                  <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="6" fill="#FEF9C3"/>
+                    <rect x="4" y="7" width="24" height="18" rx="2" fill="#FDE047"/>
+                    <circle cx="10" cy="13" r="2.5" fill="#CA8A04"/>
+                    <path d="M4 25l8-8 5 5 4-4 11 7H4Z" fill="#EAB308" opacity="0.7"/>
+                  </svg>
+                }
+                @case ('archive') {
+                  <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="6" fill="#EDE9FE"/>
+                    <rect x="4" y="8" width="24" height="5" rx="1.5" fill="#A78BFA"/>
+                    <rect x="4" y="14" width="24" height="14" rx="2" fill="#C4B5FD"/>
+                    <rect x="11" y="18" width="10" height="6" rx="1.5" fill="#7C3AED"/>
+                    <line x1="16" y1="18" x2="16" y2="24" stroke="white" stroke-width="1.5"/>
+                  </svg>
+                }
+                @default {
+                  <svg viewBox="0 0 32 38" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 3h16l8 8v24a1.5 1.5 0 01-1.5 1.5H4A1.5 1.5 0 012.5 35V4.5A1.5 1.5 0 014 3z" fill="#F1F5F9"/>
+                    <path d="M20 3v8h8" fill="#E2E8F0"/>
+                    <line x1="7" y1="20" x2="25" y2="20" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round"/>
+                    <line x1="7" y1="25" x2="21" y2="25" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round"/>
+                    <line x1="7" y1="30" x2="17" y2="30" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                }
+              }
+            </div>
+
+            <div class="du-saved-info">
+              <span class="du-saved-name" [title]="doc.name">{{ doc.name }}</span>
+              @if (doc.addBy || doc.addOn) {
+                <span class="du-saved-meta">
+                  @if (doc.addBy) { <span class="du-saved-by">{{ doc.addBy }}</span> }
+                  @if (doc.addBy && doc.addOn) { <span class="du-saved-sep">·</span> }
+                  @if (doc.addOn) { <span class="du-saved-on">{{ formatDate(doc.addOn) }}</span> }
+                </span>
+              }
+            </div>
+
+            <div class="du-saved-actions">
+              <!-- <button type="button" class="du-act du-act--view" (click)="onView(doc)" title="View">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </button> -->
+              <button type="button" class="du-act du-act--download" (click)="onDownload(doc)" title="Download">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <polyline points="7,10 12,15 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button type="button" class="du-act du-act--delete" (click)="onDelete(doc)" title="Delete">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <polyline points="3,6 5,6 21,6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+</div>

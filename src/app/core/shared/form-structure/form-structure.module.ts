@@ -34,6 +34,7 @@ import { OslReportGrid } from "./report-grid/report-grid";
 import { OslReportForm } from "./report-form/report-form";
 import { OslUserLog } from "./user-log/user-log";
 import { OslMenu, OslMenuTriggerFor } from "./menu/menu";
+import { OslDocumentUploader } from "./document-uploader/document-uploader";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { OverlayModule } from "@angular/cdk/overlay";
 import { PortalModule } from "@angular/cdk/portal";
@@ -62,6 +63,7 @@ import { PortalModule } from "@angular/cdk/portal";
     OslUserLog,
     OslMenu,
     OslMenuTriggerFor,
+    OslDocumentUploader,
   ],
   imports: [
     NgTemplateOutlet,
@@ -100,7 +102,7 @@ import { PortalModule } from "@angular/cdk/portal";
     OslButton,
     OslSetup,
     OslSearchbar, OslAutocompleteLister, OslChipsInput, OslReportGrid, OslReportForm, OslUserLog,
-    OslMenu, OslMenuTriggerFor],
+    OslMenu, OslMenuTriggerFor, OslDocumentUploader],
   providers: [
     DatePipe,
     DecimalPipe,

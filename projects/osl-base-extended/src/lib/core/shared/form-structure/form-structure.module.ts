@@ -33,6 +33,7 @@ import { OslReportGrid } from "./report-grid/report-grid";
 import { OslReportForm } from "./report-form/report-form";
 import { OslUserLog } from "./user-log/user-log";
 import { OslMenu, OslMenuTriggerFor } from "./menu/menu";
+import { OslDocumentUploader } from "./document-uploader/document-uploader";
 import { OverlayModule } from "@angular/cdk/overlay";
 import { PortalModule } from "@angular/cdk/portal";
 import { MatTooltipModule } from "@angular/material/tooltip";
@@ -62,6 +63,7 @@ import { NgxMatDatetimepicker, NgxMatDatepickerInput } from "@ngxmc/datetime-pic
     OslUserLog,
     OslMenu,
     OslMenuTriggerFor,
+    OslDocumentUploader,
   ],
   imports: [
     NgTemplateOutlet,
@@ -102,7 +104,7 @@ import { NgxMatDatetimepicker, NgxMatDatepickerInput } from "@ngxmc/datetime-pic
     OslButton,
     OslSetup,
     OslSearchbar, OslAutocompleteLister, OslReportGrid, OslReportForm,
-    OslMenu, OslMenuTriggerFor],
+    OslMenu, OslMenuTriggerFor, OslDocumentUploader],
   providers: [
     { provide: AUTOCOMPLETE_LISTER_COMPONENT, useValue: OslAutocompleteLister },
   ],
