@@ -5,6 +5,7 @@
     cursor: pointer;
     font-size: var(--osl-label-font-size);
     width: fit-content;
+    max-width: 100%;
 
     input[type='checkbox'] {
         width: 16px;
@@ -16,6 +17,10 @@
 
     .checkbox-label {
         user-select: none;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        min-width: 0;
     }
 
     &.checkbox-disabled {
@@ -30,6 +35,17 @@
     &.checkbox-invalid {
         color: var(--osl-error-color);
     }
+}
+
+.label-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.label-required {
+    flex-shrink: 0;
 }
 
 .hint {

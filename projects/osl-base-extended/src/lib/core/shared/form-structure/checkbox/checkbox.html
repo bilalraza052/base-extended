@@ -9,7 +9,7 @@
             [disabled]="disabled"
         >
         <span class="checkbox-label"  [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
-            {{label}} <span class="txt-clr-red">{{required?'*':''}}</span>
+            <span class="label-text" [title]="label">{{label}}</span><span class="txt-clr-red label-required">{{required?'*':''}}</span>
         </span>
     </label>
     @if(isInvalid) {

@@ -1,7 +1,7 @@
 <div class="d-flex flex-column">
     @if(label) {
         <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
-            <label class="label">{{label}}</label>
+            <label class="label" [title]="label"><span class="label-text">{{label}}</span></label>
 
         </div>
     }

@@ -1,6 +1,20 @@
 .label {
     font-size: var(--osl-label-font-size);
     margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.label-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.label-required {
+    flex-shrink: 0;
 }
 
 .radio-group {

@@ -2,7 +2,7 @@
     @if (label) {
         <div [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
             <label class="label" [class.txt-clr-red]="myField.touched && myField.invalid">
-                {{label}} <span class="txt-clr-red">{{required ? '*' : ''}}</span>
+                <span class="label-text" [title]="label">{{label}}</span><span class="txt-clr-red label-required">{{required ? '*' : ''}}</span>
             </label>
         </div>
     }
