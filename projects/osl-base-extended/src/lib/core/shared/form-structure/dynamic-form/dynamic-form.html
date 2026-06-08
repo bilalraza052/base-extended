@@ -130,7 +130,7 @@
                         [valueField]="elem.valueField || ''"
                         [placeholder]="elem.autocompletePlaceholder || 'Type to search...'"
                         [loading]="elem.loadingIf ? elem.loadingIf(model) : false"
-                        (changeEv)="elem.change ? onSelectChange(elem, $event) : null"
+                        (changeEv)="onFieldChange(elem, $event)"
                         [(model)]="model[elem.key]"
                         [methodName]="elem.apiMethod"
                         [service]="elem.apiService"
@@ -138,6 +138,7 @@
                         [searchType]="elem.searchType"
                         [configMethodName]="elem.apiConfigMethod"
                         [isLister]="elem.isListerAutocomplete"
+                        [apiBody]="elem.apiBody ? elem.apiBody(model) : null"
                     ></osl-autocomplete>
                 </div>
             }

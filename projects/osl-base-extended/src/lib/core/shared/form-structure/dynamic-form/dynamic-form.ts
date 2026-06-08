@@ -35,7 +35,7 @@ export class DynamicForm implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['elements']) {
+    if (changes['elements'] || changes['model']) {
       this.loadApiDatasources();
     }
   }
@@ -49,6 +49,11 @@ export class DynamicForm implements OnInit, OnChanges {
       if (elem.elementType === 'fieldset' && elem.rows?.length) {
         this._loadForList(elem.rows);
       } else if (elem.apiService && elem.apiMethod && (!elem.searchType || elem.searchType == 'Local')) {
+        if (elem.dependsOn?.length) {
+          const allReady = elem.dependsOn.every(k => this.model?.[k] != null);
+          if (!allReady) continue;
+          if (elem.datasource?.length) continue;
+        }
         elem.loadingIf = ()=>true
       const data =  await this.datasourceCache.load(elem.apiService, elem.apiMethod, elem.apiBody? elem.apiBody(this.model):null)
         elem.loadingIf = ()=>false
@@ -86,6 +91,58 @@ export class DynamicForm implements OnInit, OnChanges {
     }
     elem.change(this.model, undefined, selectedObj);
   }
+
+  onFieldChange(elem: elements, value: any) {
+    this.model[elem.key] = value;
+    if (elem.change) this.onSelectChange(elem, value);
+    this._refreshDependents(elem.key);
+  }
+
+  private async _refreshDependents(changedKey: string): Promise<void> {
+    const dependents = this._flatElements().filter(e => e.dependsOn?.includes(changedKey));
+    for (const dep of dependents) {
+      let valueCleared = false;
+
+      // If any parent dependency is now null, clear field + datasource without API call
+      const anyDepNull = dep.dependsOn!.some(k => this.model[k] == null);
+      if (anyDepNull) {
+        if (this.model[dep.key] != null) { this.model[dep.key] = null; valueCleared = true; }
+        dep.datasource = [];
+        this.cdr.markForCheck();
+        if (valueCleared) await this._refreshDependents(dep.key);
+        continue;
+      }
+
+      const body = dep.apiBody ? dep.apiBody(this.model) : undefined;
+
+      if (dep.searchType !== 'Api' && dep.apiService && dep.apiMethod) {
+        dep.loadingIf = () => true;
+        this.cdr.markForCheck();
+        try {
+          const res = await dep.apiService[dep.apiMethod](body);
+          dep.datasource = Array.isArray(res) ? res : (res?.result ?? []);
+        } finally {
+          dep.loadingIf = () => false;
+        }
+        const cur = this.model[dep.key];
+        if (cur != null) {
+          const exists = dep.datasource!.some(item =>
+            (dep.valueField ? item[dep.valueField] : item) === cur
+          );
+          if (!exists) { this.model[dep.key] = null; valueCleared = true; }
+        }
+      } else if (dep.searchType === 'Api') {
+        if (this.model[dep.key] != null) { this.model[dep.key] = null; valueCleared = true; }
+      }
+
+      this.cdr.markForCheck();
+      if (valueCleared) await this._refreshDependents(dep.key);
+    }
+  }
+
+  private _flatElements(list = this.elements): elements[] {
+    return list.flatMap(e => e.rows?.length ? [e, ...this._flatElements(e.rows)] : [e]);
+  }
 }
 
 export interface elements {
@@ -113,6 +170,8 @@ export interface elements {
   apiMethod?: string;
   apiConfigMethod?: string;
   apiBody?:(model:any)=>any,
+  /** Model keys this field depends on. When any change, datasource is refreshed automatically. */
+  dependsOn?: string[];
 
   // ── osl-input ─────────────────────────────────────
   inputType?: InputType;

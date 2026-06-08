@@ -148,14 +148,15 @@
                         [placeholder]="elem.autocompletePlaceholder || 'Type to search...'"
                         [loading]="elem.loadingIf ? elem.loadingIf(model) : false"
                         [multiple]="!!elem.autocompleteMultiple"
-                        (changeEv)="elem.change ? onSelectChange(elem, $event) : null"
+                        (changeEv)="onFieldChange(elem, $event)"
                         [(model)]="model[elem.key]"
                         [methodName]="elem.apiMethod"
                         [service]="elem.apiService"
                         [object]="model[elem.objectName]"
                         [searchType]="elem.searchType"
-                        [configMethodName]="elem.apiConfigMethod"4
+                        [configMethodName]="elem.apiConfigMethod"
                         [isLister]="elem.isListerAutocomplete"
+                        [apiBody]="elem.apiBody"
 
 
                     ></osl-autocomplete>
