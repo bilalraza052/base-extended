@@ -13,6 +13,7 @@ import { OslSkeletonModule } from '../../core/shared/directive/skeleton/skeleton
 import { SkeletonTheme } from '../../core/shared/directive/skeleton/skeleton.directive';
 import { OslSkeletonThemeService } from '../../core/shared/directive/skeleton/skeleton-theme.service';
 import { raceWith } from 'rxjs';
+import { OslDocumentUploader, OslSavedDocument } from '../../core/shared/form-structure/document-uploader/document-uploader';
 
 @Component({
   selector: 'app-example',
@@ -47,6 +48,49 @@ export class Example extends baseComponent {
     }
   ]
   @ViewChild('mainEngineConsumptionGrid',{static:true}) mainEngineConsumptionGrid:TemplateRef<any> | undefined
+  @ViewChild('docUploader') docUploader!: OslDocumentUploader;
+
+  // ── Document Uploader Demo ────────────────────────────────────────────────
+  docUploaderModel: any = {};
+  docPendingFiles: File[] = [];
+
+  savedDocs: OslSavedDocument[] = [
+    { id: 1, name: 'Vessel_Certificate.pdf', file: '/docs/1',  addBy: 'Bilal Raza',  addOn: '2026-01-15' },
+    { id: 2, name: 'Bill_of_Lading.docx',    file: '/docs/2',  addBy: 'Sara Khan',   addOn: '2026-02-20' },
+    { id: 3, name: 'Cargo_Manifest.xlsx',    file: '/docs/3',  addBy: 'Ahmed Ali',   addOn: '2026-03-05' },
+    { id: 4, name: 'Port_Survey_Photo.jpg',  file: '/docs/4',  addBy: 'Bilal Raza',  addOn: new Date('2026-05-10') },
+  ];
+
+  onDocUpload(formData: FormData) {
+    console.log('FormData ready for API:', formData);
+    for (const [key, val] of (formData as any).entries()) {
+      console.log(` ${key}:`, val);
+    }
+    alert(`Uploading ${this.docPendingFiles.length} file(s). Check console for FormData entries.`);
+  }
+
+  onDocView(doc: OslSavedDocument) {
+    console.log('View:', doc);
+    alert(`Viewing: ${doc.name}`);
+  }
+
+  onDocDownload(doc: OslSavedDocument) {
+    console.log('Download:', doc);
+    alert(`Downloading: ${doc.name}`);
+  }
+
+  onDocDelete(doc: OslSavedDocument) {
+    this.savedDocs = this.savedDocs.filter(d => d.id !== doc.id);
+  }
+
+  onDocFilesChanged(files: File[]) {
+    this.docPendingFiles = files;
+  }
+
+  uploadViaRef() {
+    this.docUploader.upload();
+  }
+  // ─────────────────────────────────────────────────────────────────────────
 
   leads: any[] = [
     {

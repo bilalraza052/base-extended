@@ -1,5 +1,79 @@
 <div class="p-3">
 
+  <!-- ══════════════════════════════════════════════════════════════
+       osl-document-uploader Demo
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="ex-section-hdr">
+    <span class="ex-section-tag">Component Preview</span>
+    <h5 class="ex-section-title">osl-document-uploader</h5>
+    <p class="ex-section-sub">Drag-and-drop file uploader with saved-document management. Upload via button or <code>componentRef.upload()</code>.</p>
+  </div>
+
+  <div class="row g-3 mb-4">
+
+    <!-- Card 1 · Multiple + saved documents + upload button -->
+    <div class="col-md-6">
+      <div class="ex-card">
+        <div class="ex-card__head">
+          <span class="ex-badge ex-badge--purple">multiple · minFiles=2 · maxFiles=5 · button</span>
+        </div>
+        <div class="ex-card__body">
+          <osl-document-uploader
+            #docUploader
+            label="Vessel Documents"
+            [required]="true"
+            [multiple]="true"
+            [minFiles]="2"
+            [maxFiles]="5"
+            accept=".pdf,.docx,.xlsx,.jpg,.png"
+            [maxSize]="10485760"
+            [showUploadButton]="true"
+            uploadButtonLabel="Submit to Server"
+            [savedDocuments]="savedDocs"
+            (uploadCallback)="onDocUpload($event)"
+            (viewCallback)="onDocView($event)"
+            (downloadCallback)="onDocDownload($event)"
+            (deleteCallback)="onDocDelete($event)"
+            (filesChanged)="onDocFilesChanged($event)"
+          />
+          <div class="ex-ref-row">
+            <span class="ex-ref-label">Programmatic upload:</span>
+            <button class="ex-ref-btn" type="button" (click)="uploadViaRef()">
+              componentRef.upload()
+            </button>
+            @if (docPendingFiles.length > 0) {
+              <span class="ex-ref-count">{{ docPendingFiles.length }} file(s) queued</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 · Single file, no button, no saved docs -->
+    <div class="col-md-6">
+      <div class="ex-card">
+        <div class="ex-card__head">
+          <span class="ex-badge ex-badge--green">single file · no button · images only</span>
+        </div>
+        <div class="ex-card__body">
+          <osl-document-uploader
+            label="Profile Photo"
+            accept=".jpg,.jpeg,.png,.webp"
+            [maxSize]="2097152"
+            [multiple]="false"
+            [showUploadButton]="false"
+            (uploadCallback)="onDocUpload($event)"
+            (filesChanged)="onDocFilesChanged($event)"
+          />
+          <p class="ex-hint">No upload button — call <code>ref.upload()</code> from parent on form submit.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ul-demo-divider"></div>
+
   <!-- ── osl-user-log Demo ─────────────────────────────────────── -->
   <div class="ul-demo-header">
     <span class="ul-demo-header__tag">Component Preview</span>
