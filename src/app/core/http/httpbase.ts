@@ -219,13 +219,14 @@ export abstract class Httpbase {
   }
 
   /** Multipart file upload — do NOT pass Content-Type; browser sets the boundary */
-  protected async upload<T>(methodName: string, formData: FormData): Promise<HttpResponse<T>> {
+  protected async upload<T>(methodName: string, formData: FormData,params?: myParams[]): Promise<HttpResponse<T>> {
     try {
       const res = await firstValueFrom(
         this.http
           .post(this.getEndPoint(methodName), formData, {
             observe: 'response',
             headers: this.getUploadHeaders(),
+            params:this.buildParams(params || []) 
           })
           .pipe(timeout(60000)),
       );

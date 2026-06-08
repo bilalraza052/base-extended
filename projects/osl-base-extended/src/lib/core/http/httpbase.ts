@@ -218,14 +218,40 @@ export abstract class Httpbase {
     }
   }
 
+  protected async download(methodName: string, fileName: string, params?: myParams[]): Promise<HttpResponse<void>> {
+    try {
+      const res = await firstValueFrom(
+        this.http
+          .get(this.getEndPoint(methodName), {
+            observe: 'response',
+            headers: this.getHeaders(),
+            params: this.buildParams(params || []),
+            responseType: 'blob',
+          })
+          .pipe(timeout(60000)),
+      );
+      const blob = res.body as Blob;
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = fileName;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      return this.handleSuccess<void>(res.status, null as any, res.headers);
+    } catch (error: any) {
+      return this.handleError(error);
+    }
+  }
+
   /** Multipart file upload — do NOT pass Content-Type; browser sets the boundary */
-  protected async upload<T>(methodName: string, formData: FormData): Promise<HttpResponse<T>> {
+  protected async upload<T>(methodName: string, formData: FormData,params:myParams[]): Promise<HttpResponse<T>> {
     try {
       const res = await firstValueFrom(
         this.http
           .post(this.getEndPoint(methodName), formData, {
             observe: 'response',
             headers: this.getUploadHeaders(),
+            params:this.buildParams(params || [])
           })
           .pipe(timeout(60000)),
       );
