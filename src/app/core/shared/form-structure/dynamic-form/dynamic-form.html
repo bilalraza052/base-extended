@@ -13,7 +13,7 @@
         @switch (elem.elementType) {
 
             @case ("textbox") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-input
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
@@ -39,7 +39,7 @@
             }
 
             @case ("textarea") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-textarea
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
@@ -60,7 +60,7 @@
             }
 
             @case ("select") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-select
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
@@ -83,7 +83,7 @@
             }
 
             @case ("chips-input") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-chips-input
                         [skeletonLoading]="skeletonLoading"
                         [skeletonTheme]="skeletonTheme"
@@ -98,7 +98,7 @@
             }
 
             @case ("radio") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-radio
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
@@ -117,7 +117,7 @@
             }
 
             @case ("slide-toggle") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-slide-toggle
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
@@ -134,7 +134,7 @@
             }
 
             @case ("autocomplete") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-autocomplete
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
@@ -164,7 +164,7 @@
             }
 
             @case ("file-uploader") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-file-upload
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
@@ -182,7 +182,7 @@
             }
 
             @case ("datepicker") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-datepicker
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
@@ -201,7 +201,7 @@
             }
 
             @case ("checkbox") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-checkbox
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
@@ -217,7 +217,7 @@
             }
 
             @case ("button") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-button
 
                         [label]="elem.label"
@@ -255,7 +255,7 @@
                 </div>
             }
              @case ("spacer") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'">
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                  
                 </div>
             }
