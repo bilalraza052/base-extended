@@ -24,6 +24,7 @@ import { OslGrid } from "./grid/grid";
 import { OslFormGrid } from "./form-grid/form-grid";
 import { OslAutocompleteLister } from "./autocomplete-lister/autocomplete-lister";
 import { OslSkeletonModule } from "../directive/skeleton/skeleton.module";
+import { OslTooltipDirective } from "../directive/tooltip/tooltip.directive";
 import { OslChipsInput } from "./chips-input/chips-input";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
@@ -81,6 +82,7 @@ import { PortalModule } from "@angular/cdk/portal";
     MatDialogModule,
     MatButtonModule,
     OslSkeletonModule,
+    OslTooltipDirective,
     MatDatepickerModule,
     MatNativeDateModule,
     MatMenuModule,
@@ -102,7 +104,7 @@ import { PortalModule } from "@angular/cdk/portal";
     OslButton,
     OslSetup,
     OslSearchbar, OslAutocompleteLister, OslChipsInput, OslReportGrid, OslReportForm, OslUserLog,
-    OslMenu, OslMenuTriggerFor, OslDocumentUploader],
+    OslMenu, OslMenuTriggerFor, OslDocumentUploader, OslTooltipDirective],
   providers: [
     DatePipe,
     DecimalPipe,

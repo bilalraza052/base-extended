@@ -25,6 +25,7 @@ import { OslGrid } from "./grid/grid";
 import { OslFormGrid } from "./form-grid/form-grid";
 import { OslAutocompleteLister } from "./autocomplete-lister/autocomplete-lister";
 import { OslSkeletonModule } from "../directives/skeleton/skeleton.module";
+import { OslTooltipDirective } from "../directives/tooltip/tooltip.directive";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatMenuModule } from "@angular/material/menu";
 import { ScrollingModule } from "@angular/cdk/scrolling";
@@ -81,6 +82,7 @@ import { NgxMatDatetimepicker, NgxMatDatepickerInput } from "@ngxmc/datetime-pic
     MatDialogModule,
     MatButtonModule,
     OslSkeletonModule,
+    OslTooltipDirective,
     MatDatepickerModule,
     MatMenuModule,
     ScrollingModule,
@@ -104,7 +106,7 @@ import { NgxMatDatetimepicker, NgxMatDatepickerInput } from "@ngxmc/datetime-pic
     OslButton,
     OslSetup,
     OslSearchbar, OslAutocompleteLister, OslReportGrid, OslReportForm,
-    OslMenu, OslMenuTriggerFor, OslDocumentUploader],
+    OslMenu, OslMenuTriggerFor, OslDocumentUploader, OslTooltipDirective],
   providers: [
     { provide: AUTOCOMPLETE_LISTER_COMPONENT, useValue: OslAutocompleteLister },
   ],
