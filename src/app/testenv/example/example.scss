@@ -128,6 +128,272 @@
   margin: 24px 0 16px;
 }
 
+// ── Shared Example Section Styles (ex-*) ─────────────────────────
+.ex-section-hdr {
+  margin-bottom: 20px;
+}
+
+.ex-section-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7c3aed;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 20px;
+  padding: 2px 10px;
+  margin-bottom: 8px;
+}
+
+.ex-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.ex-section-sub {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: #374151;
+  }
+}
+
+.ex-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  transition: box-shadow 0.2s;
+
+  &:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fafafa;
+  }
+
+  &__desc {
+    font-size: 12px;
+    font-weight: 500;
+    color: #9ca3af;
+  }
+
+  &__body { padding: 16px 14px; }
+}
+
+.ex-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  border-radius: 20px;
+
+  &--purple { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+  &--green  { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  &--blue   { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  &--orange { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+}
+
+.ex-hint {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 8px 0 0;
+
+  code {
+    font-family: 'Courier New', monospace;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 3px;
+    padding: 1px 4px;
+    color: #374151;
+    font-size: 11px;
+  }
+}
+
+.ex-ref-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.ex-ref-label { font-size: 12px; color: #6b7280; font-weight: 500; }
+
+.ex-ref-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+
+  &:hover { background: #e5e7eb; border-color: #9ca3af; }
+}
+
+.ex-ref-count { font-size: 12px; color: #2563eb; font-weight: 500; }
+
+// ── Tooltip Demo (tip-*) ───────────────────────────────────────────
+.tip-demo-btn-row {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 20px 14px !important;
+}
+
+.tip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: 8px;
+  border: 1.5px solid;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+
+  &--default { background:#fff;    border-color:#d1d5db; color:#374151;
+    &:hover { background:#f9fafb; border-color:#9ca3af; } }
+  &--slate   { background:#f8fafc; border-color:#cbd5e1; color:#334155;
+    &:hover { background:#f1f5f9; border-color:#94a3b8; } }
+  &--indigo  { background:#eef2ff; border-color:#c7d2fe; color:#4338ca;
+    &:hover { background:#e0e7ff; border-color:#a5b4fc; } }
+  &--emerald { background:#ecfdf5; border-color:#a7f3d0; color:#065f46;
+    &:hover { background:#d1fae5; border-color:#6ee7b7; } }
+  &--amber   { background:#fffbeb; border-color:#fde68a; color:#92400e;
+    &:hover { background:#fef3c7; border-color:#fcd34d; } }
+}
+
+.tip-demo-table {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.tip-demo-table__row {
+  display: grid;
+  grid-template-columns: 1fr 90px 70px;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  align-items: center;
+  cursor: default;
+  transition: background 0.1s;
+
+  &:last-child { border-bottom: none; }
+
+  &--head {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &:not(&--head):hover { background: #f9fafb; }
+}
+
+.tip-demo-table__cell--truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tip-demo-elements {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tip-demo-el-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tip-demo-status {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 20px;
+  cursor: default;
+
+  &--active  { background: #dcfce7; color: #15803d; }
+  &--pending { background: #fef9c3; color: #854d0e; }
+  &--closed  { background: #f1f5f9; color: #475569; }
+}
+
+.tip-demo-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+
+  &:hover { border-color: #9ca3af; color: #374151; background: #f9fafb; }
+
+  &--danger:hover { border-color: #fca5a5; color: #dc2626; background: #fef2f2; }
+}
+
+.tip-demo-text-link {
+  font-size: 12px;
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.15s;
+
+  &:hover { text-decoration-color: #2563eb; }
+}
+
+.tip-demo-disabled-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
 // ── existing ──────────────────────────────────────────────────────
 .card{
     height: 200px;

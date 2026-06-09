@@ -185,4 +185,191 @@
     (pageChange)="onPageChange($event)"
   ></osl-setup>
 
+  <div class="ul-demo-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       oslTooltip Directive Demo
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="ex-section-hdr">
+    <span class="ex-section-tag">Directive Preview</span>
+    <h5 class="ex-section-title">oslTooltip</h5>
+    <p class="ex-section-sub">
+      Zero-dependency tooltip directive. Attach to any element with <code>[oslTooltip]="text"</code>.
+      Supports 4 positions, 4 entry animations, custom max-width, and a disable flag.
+    </p>
+  </div>
+
+  <div class="row g-3 mb-5">
+
+    <!-- ── Positions ────────────────────────────────────────────── -->
+    <div class="col-md-6">
+      <div class="ex-card">
+        <div class="ex-card__head">
+          <span class="ex-badge ex-badge--blue">positions</span>
+          <span class="ex-card__desc">top · bottom · left · right</span>
+        </div>
+        <div class="ex-card__body tip-demo-btn-row">
+          <button class="tip-btn tip-btn--default"
+                  [oslTooltip]="'Tooltip · top (default)'"
+                  oslTooltipPosition="top">
+            Top
+          </button>
+          <button class="tip-btn tip-btn--default"
+                  [oslTooltip]="'Tooltip · bottom'"
+                  oslTooltipPosition="bottom">
+            Bottom
+          </button>
+          <button class="tip-btn tip-btn--default"
+                  [oslTooltip]="'Tooltip · left'"
+                  oslTooltipPosition="left">
+            Left
+          </button>
+          <button class="tip-btn tip-btn--default"
+                  [oslTooltip]="'Tooltip · right'"
+                  oslTooltipPosition="right">
+            Right
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Animations ───────────────────────────────────────────── -->
+    <div class="col-md-6">
+      <div class="ex-card">
+        <div class="ex-card__head">
+          <span class="ex-badge ex-badge--purple">animations</span>
+          <span class="ex-card__desc">slide · scale · bounce · fade</span>
+        </div>
+        <div class="ex-card__body tip-demo-btn-row">
+          <button class="tip-btn tip-btn--slate"
+                  [oslTooltip]="'Slide — position-aware spring (default)'"
+                  oslTooltipAnimation="slide">
+            Slide
+          </button>
+          <button class="tip-btn tip-btn--indigo"
+                  [oslTooltip]="'Scale — zooms in from centre'"
+                  oslTooltipAnimation="scale">
+            Scale
+          </button>
+          <button class="tip-btn tip-btn--emerald"
+                  [oslTooltip]="'Bounce — spring overshoot'"
+                  oslTooltipAnimation="bounce">
+            Bounce
+          </button>
+          <button class="tip-btn tip-btn--amber"
+                  [oslTooltip]="'Fade — pure opacity'"
+                  oslTooltipAnimation="fade">
+            Fade
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Long text / truncated cell (like the screenshot) ─────── -->
+    <div class="col-md-6">
+      <div class="ex-card">
+        <div class="ex-card__head">
+          <span class="ex-badge ex-badge--green">long text · truncated cell</span>
+          <span class="ex-card__desc">hover a row</span>
+        </div>
+        <div class="ex-card__body" style="padding: 0;">
+          <div class="tip-demo-table">
+            <div class="tip-demo-table__row tip-demo-table__row--head">
+              <span>Call Name</span>
+              <span>Assigned To</span>
+              <span>Duration</span>
+            </div>
+            <div class="tip-demo-table__row"
+                 [oslTooltip]="'(Sample call) Seems like they\'re interested in the extra tasty cupcake option. Need to nail down the number of flavors they want. We set up a meeting with his team for next week.'"
+                 oslTooltipMaxWidth="320px">
+              <span class="tip-demo-table__cell--truncate">(Sample call) Seems like they're interested…</span>
+              <span>No owner</span>
+              <span>--</span>
+            </div>
+            <div class="tip-demo-table__row"
+                 [oslTooltip]="'(Demo call) Client confirmed the order for 200 units of product A. Delivery scheduled for next Friday. Follow-up with the procurement team is required.'"
+                 oslTooltipMaxWidth="320px">
+              <span class="tip-demo-table__cell--truncate">(Demo call) Client confirmed the order for…</span>
+              <span>John Doe</span>
+              <span>4m 32s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Any element ───────────────────────────────────────────── -->
+    <div class="col-md-6">
+      <div class="ex-card">
+        <div class="ex-card__head">
+          <span class="ex-badge ex-badge--orange">any element</span>
+          <span class="ex-card__desc">badges · icons · links · disabled</span>
+        </div>
+        <div class="ex-card__body">
+          <div class="tip-demo-elements">
+
+            <!-- Status badges -->
+            <div class="tip-demo-el-row">
+              <span class="tip-demo-status tip-demo-status--active"
+                    [oslTooltip]="'Record is active and accepting updates'">
+                Active
+              </span>
+              <span class="tip-demo-status tip-demo-status--pending"
+                    [oslTooltip]="'Awaiting approval from finance department'"
+                    oslTooltipPosition="right">
+                Pending
+              </span>
+              <span class="tip-demo-status tip-demo-status--closed"
+                    [oslTooltip]="'Record closed on 2026-01-15'"
+                    oslTooltipAnimation="scale">
+                Closed
+              </span>
+            </div>
+
+            <!-- Icon buttons -->
+            <div class="tip-demo-el-row">
+              <span class="tip-demo-icon-btn"
+                    [oslTooltip]="'Upload files (max 10 MB each)'"
+                    oslTooltipPosition="bottom">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                  <path d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L11 6.414V13a1 1 0 11-2 0V6.414L7.707 7.707A1 1 0 016.293 6.293l3-3A1 1 0 0110 3z"/>
+                  <path d="M3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/>
+                </svg>
+              </span>
+              <span class="tip-demo-icon-btn"
+                    [oslTooltip]="'Edit this record'"
+                    oslTooltipPosition="bottom"
+                    oslTooltipAnimation="bounce">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                  <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/>
+                  <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+              <span class="tip-demo-icon-btn tip-demo-icon-btn--danger"
+                    [oslTooltip]="'Delete this record (cannot be undone)'"
+                    oslTooltipPosition="bottom"
+                    oslTooltipAnimation="scale">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v4a1 1 0 11-2 0V8z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+              <span class="tip-demo-text-link"
+                    [oslTooltip]="'Opens the full report in a new tab'"
+                    oslTooltipPosition="right">
+                View report →
+              </span>
+              <span class="tip-demo-disabled-hint"
+                    [oslTooltip]="'This tooltip is disabled'"
+                    [oslTooltipDisabled]="true">
+                Disabled ✕
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 </div>

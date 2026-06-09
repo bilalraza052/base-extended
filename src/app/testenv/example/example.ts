@@ -14,10 +14,11 @@ import { SkeletonTheme } from '../../core/shared/directive/skeleton/skeleton.dir
 import { OslSkeletonThemeService } from '../../core/shared/directive/skeleton/skeleton-theme.service';
 import { raceWith } from 'rxjs';
 import { OslDocumentUploader, OslSavedDocument } from '../../core/shared/form-structure/document-uploader/document-uploader';
+import { OslTooltipDirective } from '../../core/shared/directive/tooltip/tooltip.directive';
 
 @Component({
   selector: 'app-example',
-  imports: [FormStructureModule, OslSkeletonModule],
+  imports: [FormStructureModule, OslSkeletonModule, OslTooltipDirective],
   templateUrl: './example.html',
   styleUrl: './example.scss',
 })
