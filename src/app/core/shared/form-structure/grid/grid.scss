@@ -233,6 +233,9 @@
   min-width: 80px;
   cursor: default;
   text-align: center;
+  position: sticky;
+  left: 0;
+  z-index: 3;
 
   &:hover {
     background: #f3f4f6;
@@ -245,6 +248,13 @@
   text-align: center;
   padding: 6px 8px;
   white-space: nowrap;
+  position: sticky;
+  left: 0;
+  background: #ffffff;
+}
+
+.osl-grid-row:hover .osl-grid-td--actions {
+  background: #f9fafb;
 }
 
 .osl-grid-icon-btn {
