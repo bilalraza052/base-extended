@@ -1,10 +1,12 @@
 import { DOCUMENT } from "@angular/common";
-import { inject, Injectable, Injector, TemplateRef } from "@angular/core";
+import { HostListener, inject, Injectable, Injector, TemplateRef } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { Router } from "@angular/router";
 import { Dialog, DialogWrapper } from "../shared/components/dialog-wrapper/dialog-wrapper";
 import { DeleteConfirmation, DeleteConfirmationData } from "../shared/components/delete-confirmation/delete-confirmation";
+import { ErrorDialog, ErrorDialogData } from "../shared/components/error-dialog/error-dialog";
+import { DirtyStateService } from "../services/dirty-state.service";
 @Injectable()
 
 export class baseComponent{
@@ -18,11 +20,18 @@ export class baseComponent{
     }
 
 
-    protected showError(error:string|string[]){
-         if(Array.isArray(error)){
-            error = error.join(',')
+    protected showError(error: string | string[], title: string = 'Validation Failed'): void {
+        if (Array.isArray(error) && error.length > 4) {
+            const dialogData: ErrorDialogData = { title, errors: error };
+            this._injector.get(MatDialog).open(ErrorDialog, {
+                width: '460px',
+                data: dialogData,
+                disableClose: false,
+            });
+            return;
         }
-        this.showSnack(error)
+        const message = Array.isArray(error) ? error.join(', ') : error;
+        this.showSnack(message);
     }
 
     protected navigate(url:string){
@@ -77,6 +86,26 @@ export class baseComponent{
        protected isValidBeforeSave<T>(formElements: T[], model: any): string[] {
         const errors: string[] = [];
         this._collectValidationErrors(formElements, model, errors);
+        return errors;
+    }
+
+    protected isValidFormGrid(columns: { key: string; displayName: string; label?: string; formElem?: { required?: boolean; requiredIf?: (row: any) => boolean } }[], datasource: any[]): string[] {
+        const errors: string[] = [];
+        datasource.forEach((row, rowIndex) => {
+            const rowNum = rowIndex + 1;
+            for (const col of columns) {
+                if (!col.formElem) continue;
+                const elem = col.formElem;
+                const isRequired = elem.required || elem.requiredIf?.(row);
+                if (!isRequired) continue;
+                const value = row[col.key];
+                const isEmpty = value === null || value === undefined || value === ''
+                    || (Array.isArray(value) && value.length === 0);
+                if (isEmpty) {
+                    errors.push(`Row ${rowNum}, ${col.label ?? col.displayName} is required`);
+                }
+            }
+        });
         return errors;
     }
 
@@ -161,6 +190,22 @@ export class baseComponent{
                 setTimeout(() => focusable.blur(), 150);
             }
         }, 300);
+    }
+
+    protected markFormDirty(saveCallback?: () => Promise<boolean>): void {
+        this._injector.get(DirtyStateService).markDirty(saveCallback);
+    }
+
+    protected markFormClean(): void {
+        this._injector.get(DirtyStateService).markClean();
+    }
+
+    @HostListener('window:beforeunload', ['$event'])
+    onBeforeUnload(event: BeforeUnloadEvent): void {
+        if (this._injector.get(DirtyStateService).isDirty) {
+            event.preventDefault();
+            event.returnValue = '';
+        }
     }
 
     private _findFirstInvalidElement(formElements: any[], model: any): any {
