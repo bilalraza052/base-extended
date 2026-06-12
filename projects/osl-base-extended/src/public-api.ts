@@ -35,6 +35,10 @@ export * from './lib/core/shared/directives/tooltip/tooltip.directive'
 export * from './lib/core/shared/directives/skeleton/skeleton.module'
 export * from './lib/core/shared/directives/skeleton/skeleton-theme.service'
 export * from './lib/core/util/index'
+export * from './lib/core/services/dirty-state.service'
+export * from './lib/core/guards/unsaved-changes.guard'
+export * from './lib/core/shared/components/unsaved-changes-dialog/unsaved-changes-dialog'
+export * from './lib/core/shared/components/error-dialog/error-dialog'
 
 
 
