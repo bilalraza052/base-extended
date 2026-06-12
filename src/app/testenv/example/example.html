@@ -1,6 +1,63 @@
 <div class="p-3">
 
   <!-- ══════════════════════════════════════════════════════════════
+       osl-file-upload base64 mode Demo
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="ex-section-hdr">
+    <span class="ex-section-tag">Component Preview</span>
+    <h5 class="ex-section-title">osl-file-upload — base64 mode</h5>
+    <p class="ex-section-sub">
+      Use <code>fileMode="base64"</code> to store <code>&#123; fileName, fileContent &#125;</code> in the model.
+      Before save the user can download immediately from the base64 blob.
+      After loading a saved record (only <code>fileName</code> present), a download button calls <code>fileDownloadFn</code>.
+    </p>
+  </div>
+
+  <div class="row g-3 mb-4">
+
+    <!-- Card 1 · New record — upload then download immediately -->
+    <div class="col-md-6">
+      <div class="ex-card">
+        <div class="ex-card__head">
+          <span class="ex-badge ex-badge--blue">New record — upload &amp; immediate download</span>
+        </div>
+        <div class="ex-card__body">
+          <osl-dynamic-form
+            [elements]="fileUploadNewElements"
+            [model]="fileUploadNewModel"
+            (modelChange)="fileUploadNewModel = $event"
+          ></osl-dynamic-form>
+          <div class="ex-hint mt-2">
+            Model: <code>{{ fileUploadNewModel?.attachment ? (fileUploadNewModel.attachment.fileName + ' (' + (fileUploadNewModel.attachment.fileContent ? 'base64 present' : 'no content') + ')') : 'null' }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 · Edit mode — backend returned only fileName -->
+    <div class="col-md-6">
+      <div class="ex-card">
+        <div class="ex-card__head">
+          <span class="ex-badge ex-badge--green">Edit mode — saved record, server-side download</span>
+        </div>
+        <div class="ex-card__body">
+          <osl-dynamic-form
+            [elements]="fileUploadEditElements"
+            [model]="fileUploadEditModel"
+            (modelChange)="fileUploadEditModel = $event"
+          ></osl-dynamic-form>
+          <div class="ex-hint mt-2">
+            Model: <code>{{ fileUploadEditModel?.attachment ? (fileUploadEditModel.attachment.fileName + ' (' + (fileUploadEditModel.attachment.fileContent ? 'base64 present' : 'no content — calls API') + ')') : 'null' }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ul-demo-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════════
        osl-document-uploader Demo
   ══════════════════════════════════════════════════════════════ -->
   <div class="ex-section-hdr">
@@ -184,6 +241,96 @@
     (onDelete)="onDeleteLead($event)"
     (pageChange)="onPageChange($event)"
   ></osl-setup>
+
+  <div class="ul-demo-divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       Unsaved Changes Guard Demo
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="ex-section-hdr">
+    <span class="ex-section-tag">Navigation Guard</span>
+    <h5 class="ex-section-title">Unsaved Changes Guard</h5>
+    <p class="ex-section-sub">
+      Edit any field or grid row below, then click a navigation button to trigger the guard dialog.
+      Refreshing the browser tab also shows the native "Leave site?" prompt.
+    </p>
+  </div>
+
+  <!-- ── Status + Navigation Buttons ──────────────────────────── -->
+  <div class="guard-demo-bar">
+
+    <!-- Dirty status badge -->
+    <div class="guard-status" [class.guard-status--dirty]="isDirty" [class.guard-status--clean]="!isDirty">
+      @if (isDirty) {
+        <span class="guard-status__dot"></span>
+        <span>Unsaved changes detected</span>
+      } @else {
+        <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">
+          <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+        </svg>
+        <span>All changes saved</span>
+      }
+    </div>
+
+    <!-- Navigation buttons to trigger the guard -->
+    <div class="guard-nav-btns">
+      <span class="guard-nav-label">Navigate to trigger guard →</span>
+      <a mat-stroked-button class="guard-nav-link" routerLink="/dashboard">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+          <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+        </svg>
+        Dashboard
+      </a>
+    </div>
+
+  </div>
+
+  <!-- ── Dynamic Form ──────────────────────────────────────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Dynamic Form</span>
+      <span class="ex-card__desc">Editing any field marks the page dirty</span>
+    </div>
+    <div class="ex-card__body">
+      <osl-dynamic-form
+        [elements]="demoFormElements"
+        [model]="demoModel"
+        (modelChange)="onDemoFormChange($event)"
+      ></osl-dynamic-form>
+      <div class="d-flex justify-content-end mt-3 gap-2">
+        <button mat-stroked-button routerLink="/dashboard">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" style="margin-right:4px">
+            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5z"/>
+          </svg>
+          Leave without saving
+        </button>
+        <button mat-flat-button color="primary" [disabled]="demoSaving" (click)="saveDemoForm()">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" style="margin-right:4px">
+            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+          </svg>
+          {{ demoSaving ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Form Grid ─────────────────────────────────────────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Form Grid</span>
+      <span class="ex-card__desc">Inline edits and row add/delete also mark the page dirty</span>
+    </div>
+    <div class="ex-card__body">
+      <osl-form-grid
+        [columns]="orderColumns"
+        [datasource]="orderRows"
+        (datasourceChange)="onDemoGridChange($event)"
+        [canAdd]="true"
+        [canDelete]="true"
+        tableHeight="300px"
+      ></osl-form-grid>
+    </div>
+  </div>
 
   <div class="ul-demo-divider"></div>
 

@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { baseComponent } from '../../core/base/base.component';
 import { FormStructureModule } from '../../core/shared/form-structure/form-structure.module';
 import { OslGridColumn, OslMenuAction } from '../../core/shared/form-structure/grid/grid';
@@ -15,15 +16,18 @@ import { OslSkeletonThemeService } from '../../core/shared/directive/skeleton/sk
 import { raceWith } from 'rxjs';
 import { OslDocumentUploader, OslSavedDocument } from '../../core/shared/form-structure/document-uploader/document-uploader';
 import { OslTooltipDirective } from '../../core/shared/directive/tooltip/tooltip.directive';
+import { DirtyStateService } from '../../core/services/dirty-state.service';
 
 @Component({
   selector: 'app-example',
-  imports: [FormStructureModule, OslSkeletonModule, OslTooltipDirective],
+  imports: [FormStructureModule, OslSkeletonModule, OslTooltipDirective, RouterLink],
   templateUrl: './example.html',
   styleUrl: './example.scss',
 })
 export class Example extends baseComponent {
   loading = false;
+  private _dirtyState = inject(DirtyStateService);
+  get isDirty(): boolean { return this._dirtyState.isDirty; }
 
   logMeta: UserLogMeta = {
     addLog: 'Bilal Raza',
@@ -51,6 +55,30 @@ export class Example extends baseComponent {
   @ViewChild('mainEngineConsumptionGrid',{static:true}) mainEngineConsumptionGrid:TemplateRef<any> | undefined
   @ViewChild('docUploader') docUploader!: OslDocumentUploader;
 
+  // ── File Upload Base64 Demo ───────────────────────────────────────────────
+  fileUploadNewModel: any = {};
+  fileUploadEditModel: any = { attachment: { fileName: 'contract_draft.pdf' } };
+
+  fileUploadNewElements: elements[] = [
+    {
+      columns: 6, elementType: 'file-uploader', key: 'attachment',
+      label: 'Attachment', required: true,
+      fileMode: 'base64',
+      accept: '.pdf,.doc,.docx',
+    },
+  ];
+
+  fileUploadEditElements: elements[] = [
+    {
+      columns: 6, elementType: 'file-uploader', key: 'attachment',
+      label: 'Attachment', required: true,
+      fileMode: 'base64',
+      accept: '.pdf,.doc,.docx',
+      fileDownloadFn: (model: any) => {
+        alert(`Calling API: GET /api/records/${model?.id ?? 1}/attachment\nWould download: ${model?.attachment?.fileName}`);
+      },
+    },
+  ];
   // ── Document Uploader Demo ────────────────────────────────────────────────
   docUploaderModel: any = {};
   docPendingFiles: File[] = [];
@@ -289,6 +317,66 @@ export class Example extends baseComponent {
       },
     },
   ];
+  // ── Unsaved Changes Demo ──────────────────────────────────────────────────
+  demoModel: any = {};
+  demoSaving: boolean = false;
+  // Snapshots of the last-saved state. Compare to detect actual user changes.
+  private _origDemoModel: string = JSON.stringify({});
+  private _origOrderRows: string = JSON.stringify([]);
+
+  demoFormElements: elements[] = [
+    { columns: 4, elementType: 'textbox', key: 'fullName', label: 'Full Name', required: true },
+    { columns: 4, elementType: 'textbox', key: 'email', label: 'Email', inputType: 'email' },
+    { columns: 4, elementType: 'select', key: 'status', label: 'Status', datasource: [
+        { label: 'Active', value: 1 },
+        { label: 'Inactive', value: 2 },
+      ], displayField: 'label', valueField: 'value' },
+    { columns: 12, elementType: 'textarea', key: 'notes', label: 'Notes' },
+  ];
+
+  // Call this after loading existing data (edit mode) so the guard never
+  // triggers for data the user hasn't touched yet.
+  loadDemoEditData(data: any, rows: any[] = []): void {
+    this.demoModel = { ...data };
+    this.orderRows = [...rows];
+    this._origDemoModel = JSON.stringify(this.demoModel);
+    this._origOrderRows = JSON.stringify(this.orderRows);
+    this.markFormClean();
+  }
+
+  private _checkDirty(): void {
+    const formDirty  = JSON.stringify(this.demoModel) !== this._origDemoModel;
+    const gridDirty  = JSON.stringify(this.orderRows) !== this._origOrderRows;
+    if (formDirty || gridDirty) {
+      this.markFormDirty(() => this.saveDemoForm());
+    } else {
+      this.markFormClean();
+    }
+  }
+
+  onDemoFormChange(model: any): void {
+    this.demoModel = model;
+    this._checkDirty();
+  }
+
+  onDemoGridChange(rows: any[]): void {
+    this.orderRows = rows;
+    this._checkDirty();
+  }
+
+  async saveDemoForm(): Promise<boolean> {
+    this.demoSaving = true;
+    await new Promise(r => setTimeout(r, 800));
+    this.demoSaving = false;
+    // Advance the snapshot so the guard resets to a clean baseline
+    this._origDemoModel = JSON.stringify(this.demoModel);
+    this._origOrderRows = JSON.stringify(this.orderRows);
+    this.showSuccess('Changes saved successfully');
+    this.markFormClean();
+    return true;
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   beforeDisplay:((row: any) => any) | undefined;
   beforeSave:((row: any) => any) | undefined;
   loader: boolean =false;
@@ -875,8 +963,10 @@ export class Example extends baseComponent {
   // ─────────────────────────────────────────────────────────────────────────────
 
   ngAfterViewInit() {
+      this.markFormClean();
   }
   ngOnInit(){
+    
    
       this.cd.detectChanges()
       this.cd.markForCheck()
