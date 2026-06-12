@@ -30,7 +30,6 @@
 }
 
 .delete-icon {
-  font-size: 36px;
   width: 36px;
   height: 36px;
   color: var(--osl-danger, #dc2626);
@@ -73,6 +72,12 @@
   gap: 12px;
   padding: 16px 24px 20px !important;
 
+  .btn-icon {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+  }
+
   .cancel-btn {
     border-color: var(--osl-border-color, #d1d5db);
     color: var(--osl-secondary, #6b7280);
@@ -85,12 +90,6 @@
     gap: 4px;
     padding: 0 18px;
     transition: all 0.2s ease;
-
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
 
     &:hover {
       border-color: var(--osl-secondary, #6b7280);
@@ -111,10 +110,8 @@
     padding: 0 18px;
     transition: all 0.2s ease;
 
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+    .btn-icon {
+      color: #fff;
     }
 
     &:hover {
