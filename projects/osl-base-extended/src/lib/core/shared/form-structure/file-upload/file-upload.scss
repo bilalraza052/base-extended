@@ -114,7 +114,7 @@
     text-overflow: ellipsis;
 }
 
-.clear-btn {
+.clear-btn, .download-btn {
     pointer-events: all;
     display: flex;
     align-items: center;
@@ -130,10 +130,14 @@
         width: 16px;
         height: 16px;
     }
+}
 
-    &:hover {
-        color: var(--osl-error-color);
-    }
+.clear-btn:hover {
+    color: var(--osl-error-color);
+}
+
+.download-btn:hover {
+    color: var(--osl-focus-border-color);
 }
 
 .hint {

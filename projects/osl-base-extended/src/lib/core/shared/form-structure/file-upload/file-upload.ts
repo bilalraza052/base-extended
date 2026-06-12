@@ -1,5 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
+export interface OslFileValue {
+  fileName: string;
+  /** Base64 data-URL. Present only when the user just selected a file (before save). */
+  fileContent?: string;
+}
+
 @Component({
   selector: 'osl-file-upload',
   standalone: false,
@@ -10,28 +16,46 @@ export class OslFileUpload {
   @Input('label') label: string = '';
   @Input('required') required: boolean = false;
   @Input('disabled') disabled: boolean = false;
-  @Input('model') model: File | File[] | null = null;
+  @Input('model') model: OslFileValue | File | File[] | null = null;
   @Input('accept') accept: string = '';
   @Input('multiple') multiple: boolean = false;
   /** Max file size in bytes. 0 = no limit. */
   @Input('maxSize') maxSize: number = 0;
   @Input('skeletonLoading') skeletonLoading: boolean = false;
   @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
+  /** When 'base64', emits OslFileValue instead of File objects. */
+  @Input('fileMode') fileMode: 'raw' | 'base64' = 'raw';
+  /** Called when user clicks download on a saved file that has no base64 content. */
+  @Input('downloadFn') downloadFn: (() => void) | null = null;
 
-  @Output() modelChange = new EventEmitter<File | File[] | null>();
-  @Output() changeEv = new EventEmitter<File | File[] | null>();
+  @Output() modelChange = new EventEmitter<OslFileValue | File | File[] | null>();
+  @Output() changeEv = new EventEmitter<OslFileValue | File | File[] | null>();
 
   touched = false;
   isDragOver = false;
   sizeError = false;
 
+  get isBase64Mode(): boolean {
+    return this.fileMode === 'base64';
+  }
+
+  get savedFileName(): string | null {
+    if (!this.isBase64Mode) return null;
+    return (this.model as OslFileValue)?.fileName ?? null;
+  }
+
+  get hasSavedContent(): boolean {
+    return !!(this.model as OslFileValue)?.fileContent;
+  }
+
   get fileNames(): string {
     if (!this.model) return '';
-    if (Array.isArray(this.model)) return this.model.map(f => f.name).join(', ');
-    return this.model.name;
+    if (Array.isArray(this.model)) return (this.model as File[]).map(f => f.name).join(', ');
+    return (this.model as File).name;
   }
 
   get isInvalid(): boolean {
+    if (this.isBase64Mode) return this.touched && this.required && !this.savedFileName;
     return this.touched && this.required && !this.model;
   }
 
@@ -74,6 +98,19 @@ export class OslFileUpload {
       }
     }
 
+    if (this.isBase64Mode) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const value: OslFileValue = { fileName: file.name, fileContent: reader.result as string };
+        this.model = value;
+        this.modelChange.emit(value);
+        this.changeEv.emit(value);
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
     if (this.multiple) {
       this.model = Array.from(files);
     } else {
@@ -93,6 +130,18 @@ export class OslFileUpload {
     this.sizeError = false;
     this.modelChange.emit(null);
     this.changeEv.emit(null);
+  }
+
+  onDownload() {
+    const val = this.model as OslFileValue;
+    if (val?.fileContent) {
+      const a = document.createElement('a');
+      a.href = val.fileContent;
+      a.download = val.fileName;
+      a.click();
+    } else if (this.downloadFn) {
+      this.downloadFn();
+    }
   }
 
   get maxSizeLabel(): string {

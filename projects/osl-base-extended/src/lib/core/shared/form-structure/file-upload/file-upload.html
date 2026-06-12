@@ -21,29 +21,55 @@
         [class.error]="isInvalid || sizeError"
         [class.file-disabled]="disabled"
         [class.drag-over]="isDragOver"
-        [class.has-file]="!!model"
-        (click)="triggerInput(fileInput)"
+        [class.has-file]="isBase64Mode ? !!savedFileName : !!model"
+        (click)="isBase64Mode && savedFileName ? null : triggerInput(fileInput)"
         (dragover)="onDragOver($event)"
         (dragleave)="onDragLeave()"
         (drop)="onDrop($event)"
     >
-        @if(!model) {
-            <div class="drop-content">
-                <mat-icon class="upload-icon">upload_file</mat-icon>
-                <div class="drop-text">
-                    <span class="browse-link">Browse</span> or drag &amp; drop
+        @if(isBase64Mode) {
+            @if(savedFileName) {
+                <div class="file-list">
+                    <mat-icon class="file-icon">insert_drive_file</mat-icon>
+                    <span class="file-name">{{ savedFileName }}</span>
+                    <button type="button" class="download-btn" (click)="onDownload()" title="Download">
+                        <mat-icon>download</mat-icon>
+                    </button>
+                    @if(!disabled) {
+                        <button type="button" class="clear-btn" (click)="clearFiles($event)" title="Remove">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    }
                 </div>
-                @if(accept) { <div class="drop-meta">{{accept}}</div> }
-                @if(maxSize) { <div class="drop-meta">{{maxSizeLabel}}</div> }
-            </div>
+            } @else {
+                <div class="drop-content">
+                    <mat-icon class="upload-icon">upload_file</mat-icon>
+                    <div class="drop-text">
+                        <span class="browse-link">Browse</span> or drag &amp; drop
+                    </div>
+                    @if(accept) { <div class="drop-meta">{{accept}}</div> }
+                    @if(maxSize) { <div class="drop-meta">{{maxSizeLabel}}</div> }
+                </div>
+            }
         } @else {
-            <div class="file-list">
-                <mat-icon class="file-icon">insert_drive_file</mat-icon>
-                <span class="file-name">{{fileNames}}</span>
-                <button type="button" class="clear-btn" (click)="clearFiles($event)" title="Remove">
-                    <mat-icon>close</mat-icon>
-                </button>
-            </div>
+            @if(!model) {
+                <div class="drop-content">
+                    <mat-icon class="upload-icon">upload_file</mat-icon>
+                    <div class="drop-text">
+                        <span class="browse-link">Browse</span> or drag &amp; drop
+                    </div>
+                    @if(accept) { <div class="drop-meta">{{accept}}</div> }
+                    @if(maxSize) { <div class="drop-meta">{{maxSizeLabel}}</div> }
+                </div>
+            } @else {
+                <div class="file-list">
+                    <mat-icon class="file-icon">insert_drive_file</mat-icon>
+                    <span class="file-name">{{fileNames}}</span>
+                    <button type="button" class="clear-btn" (click)="clearFiles($event)" title="Remove">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+            }
         }
     </div>
 
