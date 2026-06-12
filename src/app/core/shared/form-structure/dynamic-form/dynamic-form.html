@@ -32,7 +32,8 @@
                         [onlyChars]="!!elem.onlyChars"
                         [decimalPortion]="elem.decimalPortion ?? null"
                         (changeEv)="elem.change ? elem.change(model) : null"
-                        [(model)]="model[elem.key]"
+                        [model]="model[elem.key]"
+                        (modelChange)="onModelChange($event, elem.key)"
                         [isCapitalize]="elem.isCapitalize"
                     ></osl-input>
                 </div>
@@ -44,7 +45,6 @@
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
-
                         [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [rows]="elem.textareaRows || 3"
@@ -54,7 +54,8 @@
                         [characterCounter]="!!elem.characterCounter"
                         [resize]="elem.resize || 'none'"
                         (changeEv)="elem.change ? elem.change(model) : null"
-                        [(model)]="model[elem.key]"
+                        [model]="model[elem.key]"
+                        (modelChange)="onModelChange($event, elem.key)"
                     ></osl-textarea>
                 </div>
             }
@@ -65,7 +66,6 @@
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
-
                         [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [datasource]="elem.datasource || []"
@@ -77,7 +77,8 @@
                         [multiple]="!!elem.selectMultiple"
                         [showSelectAll]="!!elem.showSelectAll"
                         (changeEv)="elem.change ? onSelectChange(elem, $event) : null"
-                        [(model)]="model[elem.key]"
+                        [model]="model[elem.key]"
+                        (modelChange)="onModelChange($event, elem.key)"
                     ></osl-select>
                 </div>
             }
@@ -92,7 +93,8 @@
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [placeholder]="elem.placeholder || 'Type and press Enter...'"
                         (changeEv)="elem.change ? elem.change(model) : null"
-                        [(model)]="model[elem.key]"
+                        [model]="model[elem.key]"
+                        (modelChange)="onModelChange($event, elem.key)"
                     ></osl-chips-input>
                 </div>
             }
@@ -103,7 +105,6 @@
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
-
                         [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [datasource]="elem.datasource || []"
@@ -111,7 +112,8 @@
                         [valueField]="elem.valueField || ''"
                         [inline]="!!elem.inline"
                         (changeEv)="elem.change ? elem.change(model) : null"
-                        [(model)]="model[elem.key]"
+                        [model]="model[elem.key]"
+                        (modelChange)="onModelChange($event, elem.key)"
                     ></osl-radio>
                 </div>
             }
@@ -122,13 +124,13 @@
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
-
                         [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [labelPosition]="elem.labelPosition || 'after'"
                         [trueLabel]="elem.trueLabel || ''"
                         [falseLabel]="elem.falseLabel || ''"
                         (changeEv)="elem.change ? elem.change(model) : null"
-                        [(model)]="model[elem.key]"
+                        [model]="model[elem.key]"
+                        (modelChange)="onModelChange($event, elem.key)"
                     ></osl-slide-toggle>
                 </div>
             }
@@ -139,7 +141,6 @@
                         [label]="elem.label"
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
-
                         [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [datasource]="elem.datasource || []"
@@ -157,8 +158,6 @@
                         [configMethodName]="elem.apiConfigMethod"
                         [isLister]="elem.isListerAutocomplete"
                         [apiBody]="elem.apiBody"
-
-
                     ></osl-autocomplete>
                 </div>
             }
@@ -168,15 +167,17 @@
                     <osl-file-upload
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
-
                         [label]="elem.label"
                         [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [accept]="elem.accept || ''"
                         [multiple]="!!elem.multiple"
                         [maxSize]="elem.maxFileSize || 0"
+                        [fileMode]="elem.fileMode || 'raw'"
+                        [downloadFn]="elem.fileDownloadFn ? elem.fileDownloadFn.bind(null, model) : null"
                         (changeEv)="elem.change ? elem.change(model) : null"
-                        [(model)]="model[elem.key]"
+                        [model]="model[elem.key]"
+                        (modelChange)="onModelChange($event, elem.key)"
                     ></osl-file-upload>
                 </div>
             }
@@ -186,7 +187,6 @@
                     <osl-datepicker
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
-
                         [label]="elem.label"
                         [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
@@ -195,7 +195,8 @@
                         [minDate]="elem.minDateIf ? elem.minDateIf(model) : elem.minDate || ''"
                         [maxDate]="elem.maxDateIf ? elem.maxDateIf(model) : elem.maxDate || ''"
                         (changeEv)="elem.change ? elem.change(model) : null"
-                        [(model)]="model[elem.key]"
+                        [model]="model[elem.key]"
+                        (modelChange)="onModelChange($event, elem.key)"
                     ></osl-datepicker>
                 </div>
             }
@@ -205,13 +206,13 @@
                     <osl-checkbox
                     [skeletonLoading]="skeletonLoading"
                     [skeletonTheme]="skeletonTheme"
-
                         [label]="elem.label"
                         [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [indeterminate]="!!elem.indeterminate"
                         (changeEv)="elem.change ? elem.change(model) : null"
-                        [(model)]="model[elem.key]"
+                        [model]="model[elem.key]"
+                        (modelChange)="onModelChange($event, elem.key)"
                     ></osl-checkbox>
                 </div>
             }
@@ -219,7 +220,6 @@
             @case ("button") {
                 <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
                     <osl-button
-
                         [label]="elem.label"
                         [loading]="elem.loadingIf ? elem.loadingIf(model) : false"
                         variant="secondary"
@@ -250,13 +250,11 @@
             @case ("templateRef"){
                  <div [class]="'col-md-'+elem.columns+' mt-3'">
                         <ng-container *ngTemplateOutlet="elem.templateRef; context: { $implicit: elem}"></ng-container>
-
-
                 </div>
             }
+
              @case ("spacer") {
                 <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                 
                 </div>
             }
 

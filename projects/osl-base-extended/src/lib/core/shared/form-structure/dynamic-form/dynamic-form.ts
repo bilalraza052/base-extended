@@ -73,6 +73,8 @@ export class DynamicForm implements OnInit, OnChanges {
     this.modelChange.emit(this.model);
   }
 
+
+
   onSelectChange(elem: elements, value: any) {
     if (!elem.change) return;
     let selectedObj: any = undefined;
@@ -94,6 +96,7 @@ export class DynamicForm implements OnInit, OnChanges {
 
   onFieldChange(elem: elements, value: any) {
     this.model[elem.key] = value;
+    this.modelChange.emit(this.model);
     if (elem.change) this.onSelectChange(elem, value);
     this._refreshDependents(elem.key);
   }
@@ -228,6 +231,10 @@ export interface elements {
   accept?: string;
   multiple?: boolean;
   maxFileSize?: number;
+  /** When 'base64', the model key stores OslFileValue instead of a File object. */
+  fileMode?: 'raw' | 'base64';
+  /** Called when user clicks download on a saved file (no base64 content). Receives current model. */
+  fileDownloadFn?: (model: any) => void;
 
   // ── osl-checkbox ──────────────────────────────────
   indeterminate?: boolean;
