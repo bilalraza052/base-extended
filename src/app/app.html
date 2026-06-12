@@ -1,3 +1,44 @@
+<!-- ── Top Navigation Bar ───────────────────────────────────────── -->
+<nav class="osl-topnav">
 
+  <div class="osl-topnav__brand">
+    <svg class="osl-topnav__logo" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="8" fill="#2563eb"/>
+      <path d="M8 16L14 22L24 10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="osl-topnav__name">osl-base-extended</span>
+  </div>
 
-<router-outlet />
+  <div class="osl-topnav__links">
+    <a class="osl-topnav__link"
+       routerLink="/"
+       routerLinkActive="osl-topnav__link--active"
+       [routerLinkActiveOptions]="{exact: true}">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      Example Page
+    </a>
+    <a class="osl-topnav__link"
+       routerLink="/dashboard"
+       routerLinkActive="osl-topnav__link--active">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+      </svg>
+      Dashboard
+    </a>
+  </div>
+
+  @if (isDirty) {
+    <div class="osl-topnav__dirty">
+      <span class="osl-topnav__dirty-dot"></span>
+      Unsaved Changes
+    </div>
+  }
+
+</nav>
+
+<!-- ── Page Content ──────────────────────────────────────────────── -->
+<main class="osl-main">
+  <router-outlet />
+</main>
