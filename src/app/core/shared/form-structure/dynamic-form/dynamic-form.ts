@@ -232,6 +232,8 @@ export interface elements {
   autocompletePlaceholder?: string;
   /** Enable multiple selection with checkboxes — model becomes any[]. */
   autocompleteMultiple?: boolean;
+  /** Custom display function — overrides displayField. Return the string to show in dropdown options and the input when a value is selected. */
+  displayFn?: (item: any) => string;
 
   templateRef?:TemplateRef<any>
   searchType?:'Api' | 'Local';
