@@ -106,7 +106,7 @@ export abstract class Httpbase {
 
   private mapError(error: HttpErrorResponse): string | string[] {
     switch (error.status) {
-      case 0:   return 'Connection Error! Please Contact Administration';
+      case 0:   return 'An error has occurred, Please contact support';
       case 400: return error.error?.errors? this.flatObject(error.error?.errors) :error.error?.error || error.error?.message || 'Bad Request';
       case 401: return 'Unauthorized Access';
       case 403: return "You don't have rights to perform this action";
