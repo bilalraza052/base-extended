@@ -25,7 +25,7 @@
             [class.error]="isInvalid"
             [placeholder]="loading ? 'Loading...' : placeholder"
             autocomplete="off"
-            (keyup.enter)="searchType == 'Api' ? openLister() : null"
+            (keyup.enter)="isLister ? openLister() : null"
         >
         @if(loading) {
             <span class="ac-spinner"></span>
