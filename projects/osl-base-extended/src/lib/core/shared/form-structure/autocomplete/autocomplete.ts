@@ -74,6 +74,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
   @Input('isLister') isLister: boolean = false;
   @Input('apiBody') apiBody: any;
+  @Input('displayFn') displayFn: ((item: any) => string) | null = null;
 
   @Output() modelChange = new EventEmitter<any>();
   @Output() changeEv = new EventEmitter<any>();
@@ -209,6 +210,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   }
 
   getDisplay(item: any): string {
+    if (this.displayFn) return this.displayFn(item);
     return item && this.displayField ? item[this.displayField] : String(item);
   }
 
