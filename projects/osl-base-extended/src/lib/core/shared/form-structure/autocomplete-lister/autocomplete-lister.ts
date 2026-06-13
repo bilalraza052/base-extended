@@ -56,7 +56,8 @@ export class OslAutocompleteLister {
       this.loader = false
 
     },20)
-    this.recordCount = res.result?.recordsFiltered
+       this.recordCount = res.result?.total || res.result?.recordsFiltered
+
   }
   async onSortChange(event:OslSortEvent){
     if(this.setup?.gridRef && this.setup?.searchbar){

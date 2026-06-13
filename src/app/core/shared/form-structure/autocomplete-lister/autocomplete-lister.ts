@@ -53,7 +53,7 @@ export class OslAutocompleteLister {
       this.loader = false
 
     },20)
-    this.recordCount = res.result?.recordsFiltered
+    this.recordCount = res.result?.total || res.result?.recordsFiltered
     // this.recordCount = Number(res.headers?.get('recordCount')|| 0)
   }
   onPageChange(event?:OslPageEvent){
