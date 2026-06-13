@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 
-export type OslDisplayType = 'date' | 'datetime' | 'time' | 'link' | 'customDateFormat';
+export type OslDisplayType = 'date' | 'datetime' | 'time' | 'link' | 'customDateFormat' | 'boolean';
 
 export interface OslGridColumn {
   key: string;

@@ -122,6 +122,23 @@
                       @case ('datetime') { {{ row[col.key] | date:'medium' }} }
                       @case ('time') { {{ row[col.key] | date:'shortTime' }} }
                       @case ('customDateFormat') { {{ row[col.key] | date:col.customDateFormat }} }
+                      @case ('boolean') {
+                        @if (row[col.key]) {
+                          <span class="osl-bool-badge osl-bool-badge--true" title="Yes">
+                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <circle cx="8" cy="8" r="8" fill="#22c55e"/>
+                              <path d="M4.5 8.25L6.75 10.5L11.5 5.5" stroke="#ffffff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </span>
+                        } @else {
+                          <span class="osl-bool-badge osl-bool-badge--false" title="No">
+                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <circle cx="8" cy="8" r="8" fill="#f87171"/>
+                              <path d="M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5" stroke="#ffffff" stroke-width="1.75" stroke-linecap="round"/>
+                            </svg>
+                          </span>
+                        }
+                      }
                       @default { {{ getCellValue(row, col) }} }
                     }
                   </span>
