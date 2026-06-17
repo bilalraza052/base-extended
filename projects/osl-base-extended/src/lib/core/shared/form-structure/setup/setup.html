@@ -67,179 +67,210 @@
 
   <!-- ── Card View ────────────────────────────────────────────── -->
   @if (viewMode === 'card') {
-    <div #cardContainerRef class="osl-card-container my-2" [style.height]="tableHeight" (scroll)="onCardScroll($event)">
 
-      <!-- Skeleton cards on initial load -->
-      @if (loading && cardDatasource.length === 0) {
-        <div class="osl-card-grid">
-          @for (sk of skeletonCardRows; track $index) {
-            <div class="osl-card osl-card--skeleton">
-              <div class="osl-card-inner">
-                <div class="osl-card-header">
-                  <div class="osl-card-avatar osl-card-avatar--skeleton"></div>
-                  <div style="flex:1">
-                    <div class="osl-sk-line osl-sk-line--title"></div>
-                  </div>
-                </div>
-                <div class="osl-card-divider"></div>
-                <div class="osl-card-body">
-                  <div class="osl-card-field"><div class="osl-sk-line osl-sk-line--label"></div><div class="osl-sk-line"></div></div>
-                  <div class="osl-card-field"><div class="osl-sk-line osl-sk-line--label"></div><div class="osl-sk-line osl-sk-line--short"></div></div>
-                  <div class="osl-card-field"><div class="osl-sk-line osl-sk-line--label"></div><div class="osl-sk-line"></div></div>
-                </div>
+    <!-- Skeleton on initial load -->
+    @if (loading && cardPagedData.length === 0) {
+      <div class="osl-card-grid my-2">
+        @for (sk of skeletonCardRows; track $index) {
+          <div class="osl-card osl-card--skeleton">
+            <div class="osl-card-header osl-card-header--skeleton">
+              <div class="osl-card-title-wrap">
+                <div class="osl-sk-line osl-sk-line--title"></div>
               </div>
             </div>
-          }
-        </div>
-      }
+            <div class="osl-card-body">
+              <div class="row g-0">
+                <div class="col-6 osl-card-field"><div class="osl-sk-line osl-sk-line--label"></div><div class="osl-sk-line"></div></div>
+                <div class="col-6 osl-card-field"><div class="osl-sk-line osl-sk-line--label"></div><div class="osl-sk-line osl-sk-line--short"></div></div>
+                <div class="col-6 osl-card-field"><div class="osl-sk-line osl-sk-line--label"></div><div class="osl-sk-line"></div></div>
+                <div class="col-6 osl-card-field"><div class="osl-sk-line osl-sk-line--label"></div><div class="osl-sk-line osl-sk-line--short"></div></div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
 
-      <!-- Empty state -->
-      @else if (cardDatasource.length === 0 && !loading) {
-        <div class="osl-card-empty">
-          <svg class="osl-card-empty-svg" viewBox="0 0 180 160" fill="none">
-            <ellipse cx="90" cy="140" rx="60" ry="8" fill="#f3f4f6"/>
-            <rect x="30" y="30" width="120" height="96" rx="10" fill="#f9fafb" stroke="#e5e7eb" stroke-width="2"/>
-            <rect x="44" y="48" width="92" height="10" rx="5" fill="#e5e7eb"/>
-            <rect x="44" y="66" width="72" height="8" rx="4" fill="#f3f4f6"/>
-            <rect x="44" y="82" width="84" height="8" rx="4" fill="#f3f4f6"/>
-            <rect x="44" y="98" width="56" height="8" rx="4" fill="#f3f4f6"/>
-            <circle cx="140" cy="108" r="26" fill="#fff" stroke="#e5e7eb" stroke-width="2"/>
-            <line x1="133" y1="101" x2="147" y2="115" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round"/>
-            <line x1="147" y1="101" x2="133" y2="115" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round"/>
-          </svg>
-          <p class="osl-card-empty-title">No records found</p>
-          <p class="osl-card-empty-desc">Try adjusting your search or filter criteria</p>
-        </div>
-      }
+    <!-- Empty state -->
+    @else if (cardPagedData.length === 0 && !loading) {
+      <div class="osl-card-empty my-2">
+        <svg class="osl-card-empty-svg" viewBox="0 0 180 160" fill="none">
+          <ellipse cx="90" cy="140" rx="60" ry="8" fill="#f3f4f6"/>
+          <rect x="30" y="30" width="120" height="96" rx="10" fill="#f9fafb" stroke="#e5e7eb" stroke-width="2"/>
+          <rect x="44" y="48" width="92" height="10" rx="5" fill="#e5e7eb"/>
+          <rect x="44" y="66" width="72" height="8" rx="4" fill="#f3f4f6"/>
+          <rect x="44" y="82" width="84" height="8" rx="4" fill="#f3f4f6"/>
+          <rect x="44" y="98" width="56" height="8" rx="4" fill="#f3f4f6"/>
+          <circle cx="140" cy="108" r="26" fill="#fff" stroke="#e5e7eb" stroke-width="2"/>
+          <line x1="133" y1="101" x2="147" y2="115" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="147" y1="101" x2="133" y2="115" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <p class="osl-card-empty-title">No records found</p>
+        <p class="osl-card-empty-desc">Try adjusting your search or filter criteria</p>
+      </div>
+    }
 
-      <!-- Card grid -->
-      @else {
-        <div class="osl-card-grid">
+    <!-- Card grid -->
+    @else {
+      <div #cardGridRef class="osl-card-grid my-2" [style.height]="tableHeight">
+        @for (row of cardPagedData; track row[primaryKey] ?? $index; let i = $index) {
 
           @if (cardTemplate) {
-            @for (row of cardDatasource; track row[primaryKey]; let i = $index) {
-              <ng-container *ngTemplateOutlet="cardTemplate; context: { $implicit: row, index: i }"></ng-container>
-            }
+            <ng-container *ngTemplateOutlet="cardTemplate; context: { $implicit: row, index: i }"></ng-container>
           } @else {
-            @for (row of cardDatasource; track row[primaryKey]; let i = $index) {
-              <div class="osl-card"
-                   [class.osl-card--highlighted]="isHighlightedCard(row)"
-                   [class.osl-card--selectable]="isLister"
-                   (click)="isLister ? onRowClick.emit(row) : null">
+            <div class="osl-card my-2"
+                 [class.osl-card--selectable]="isLister"
+                 [class.osl-card--highlighted]="isHighlightedCard(row)"
+                 (click)="isLister ? onRowClick.emit(row) : null">
 
-                <div class="osl-card-inner">
-
-                  <!-- Card header -->
-                  <div class="osl-card-header">
-                    <!-- Avatar circle -->
+              <!-- Card Header -->
+              <div class="osl-card-header">
+                <!-- <svg class="osl-card-watermark" viewBox="0 0 120 64" fill="currentColor" aria-hidden="true">
+                  <path d="M10 42 L18 52 L102 52 L110 42 Z"/>
+                  <rect x="20" y="34" width="80" height="9" rx="1"/>
+                  <rect x="26" y="20" width="16" height="15" rx="1"/>
+                  <rect x="46" y="20" width="16" height="15" rx="1"/>
+                  <rect x="66" y="20" width="16" height="15" rx="1"/>
+                  <rect x="85" y="14" width="15" height="21" rx="2"/>
+                  <rect x="90.5" y="7" width="2" height="9" rx="1"/>
+                  <path d="M4 57 Q18 53 32 57 Q46 61 60 57 Q74 53 88 57 Q102 61 116 57" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </svg> -->
+                <div class="osl-card-title-wrap">
+                  <span class="osl-card-title"
+                       >
                     @if (cardTitleColumn) {
-                      <div class="osl-card-avatar">{{ getCardInitial(row) }}</div>
-                    }
-
-                    <!-- Title -->
-                    <div class="osl-card-title-wrap">
-                      <span class="osl-card-title">
-                        @if (cardTitleColumn) {
-                          @switch (cardTitleColumn.displayType) {
-                            @case ('date')     { {{ row[cardTitleColumn.key] | date }} }
-                            @case ('datetime') { {{ row[cardTitleColumn.key] | date:'medium' }} }
-                            @case ('time')     { {{ row[cardTitleColumn.key] | date:'shortTime' }} }
-                            @case ('customDateFormat')     { {{ row[cardTitleColumn.key] | date:cardTitleColumn.customDateFormat }} }
-                            @default           { {{ getCellValue(row, cardTitleColumn) }} }
-                          }
-                        }
+                      <span
+                       >
+                      @switch (cardTitleColumn.displayType) {
+                        @case ('date')     { {{ row[cardTitleColumn.key] | date }} }
+                        @case ('datetime') { {{ row[cardTitleColumn.key] | date:'medium' }} }
+                        @case ('time')     { {{ row[cardTitleColumn.key] | date:'shortTime' }} }
+                        @case ('customDateFormat') { {{ row[cardTitleColumn.key] | date:cardTitleColumn.customDateFormat }} }
+                        @default           { {{ getCellValue(row, cardTitleColumn) }} }
+                      }
                       </span>
-                    </div>
-
-                    <!-- Action buttons -->
-                    @if (!isLister && ((hasForm && (canEdit || canDelete)) || (moreMenuActions.length > 0 && hasVisibleActions(row)))) {
-                      <div class="osl-card-actions">
-
-                        <!-- More-actions trigger (menu rendered at root to avoid transform containment) -->
-                        @if (moreMenuActions.length > 0 && hasVisibleActions(row)) {
-                          <button class="osl-card-action-btn osl-card-action-btn--more"
-                                  (click)="toggleCardMenu(i, $event)" title="More actions">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                              <circle cx="12" cy="5" r="2.2"/>
-                              <circle cx="12" cy="12" r="2.2"/>
-                              <circle cx="12" cy="19" r="2.2"/>
-                            </svg>
-                          </button>
-                        }
-
-                        <!-- Edit -->
-                        @if (hasForm && canEdit) {
-                          <button class="osl-card-action-btn osl-card-action-btn--edit"
-                                  (click)="$event.stopPropagation(); openEditDialog(row)" title="Edit">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
-                          </button>
-                        }
-
-                        <!-- Delete -->
-                        @if (hasForm && canDelete) {
-                          <button class="osl-card-action-btn osl-card-action-btn--delete"
-                                  (click)="$event.stopPropagation(); onDeleteClick(row)" title="Delete">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                              <polyline points="3 6 5 6 21 6"/>
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            </svg>
-                          </button>
-                        }
-                      </div>
+                    }
+                  </span>
+                </div>
+                @if (!isLister && ((hasForm && (canEdit || canDelete)) || (moreMenuActions.length > 0 && hasVisibleActions(row)))) {
+                  <div class="osl-card-actions">
+                    @if (hasForm && canEdit) {
+                      <button class="osl-card-action-btn osl-card-action-btn--edit"
+                              (click)="$event.stopPropagation(); openEditDialog(row)"
+                              [oslTooltip]="'Edit'" oslTooltipPosition="bottom">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                      </button>
+                    }
+                    @if (hasForm && canDelete) {
+                      <button class="osl-card-action-btn osl-card-action-btn--delete"
+                              (click)="$event.stopPropagation(); onDeleteClick(row)"
+                              [oslTooltip]="'Delete'" oslTooltipPosition="bottom">
+                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+                      </svg>
+                      </button>
+                    }
+                    @if (moreMenuActions.length > 0 && hasVisibleActions(row)) {
+                      <button class="osl-card-action-btn osl-card-action-btn--more"
+                              (click)="toggleCardMenu(i, $event)"
+                              [oslTooltip]="'More actions'" oslTooltipPosition="bottom">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                          <circle cx="12" cy="5" r="2.2"/>
+                          <circle cx="12" cy="12" r="2.2"/>
+                          <circle cx="12" cy="19" r="2.2"/>
+                        </svg>
+                      </button>
                     }
                   </div>
+                }
+              </div>
 
-                  <!-- Divider -->
-                  <div class="osl-card-divider"></div>
-
-                  <!-- Card body: remaining fields -->
-                  <div class="osl-card-body">
+              <!-- Card Body -->
+              @if (cardBodyColumns.length > 0) {
+                <div class="osl-card-body">
+                  <div class="row g-0">
                     @for (col of cardBodyColumns; track col.key) {
-                      <div class="osl-card-field">
+                      <div [class]="'col-' + cardCol + ' osl-card-field'">
                         <span class="osl-card-label">{{ col.label }}</span>
-                        <span class="osl-card-value" [class.link]="col.displayType === 'link'" (click)="col.click ? col.click(row, col) : null">
+                        <span class="osl-card-value"  [class.link]="col.displayType === 'link'" (click)="col.click ? col.click(row, col) : null">
+
+                          <span>
                           @switch (col.displayType) {
                             @case ('date')     { {{ row[col.key] | date }} }
                             @case ('datetime') { {{ row[col.key] | date:'medium' }} }
                             @case ('time')     { {{ row[col.key] | date:'shortTime' }} }
-                            @case ('customDateFormat')     { {{ row[col.key] | date:col.customDateFormat }} }
-
+                            @case ('customDateFormat') { {{ row[col.key] | date:col.customDateFormat }} }
                             @default           { {{ getCellValue(row, col) }} }
                           }
+                          </span>
                         </span>
                       </div>
                     }
                   </div>
-
                 </div>
-              </div>
+              }
+
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <!-- Card Paginator -->
+    @if (isPaginated && _cardTotal > 0) {
+      <div class="osl-grid-pagination">
+        <span class="osl-grid-pagination__info">
+          @if (loading) {
+            Loading...
+          } @else {
+            {{ cardStartRecord }}–{{ cardEndRecord }} of {{ _cardTotal }} records
+          }
+        </span>
+
+        <div class="osl-grid-pagination__controls">
+          <button class="osl-grid-page-btn osl-grid-page-btn--nav"
+                  (click)="cardGoToPage(1)"
+                  [disabled]="cardCurrentPage === 1 || loading" title="First page">«</button>
+          <button class="osl-grid-page-btn osl-grid-page-btn--nav"
+                  (click)="cardGoToPage(cardCurrentPage - 1)"
+                  [disabled]="cardCurrentPage === 1 || loading" title="Previous page">‹ Prev</button>
+
+          @for (page of cardPageNumbers; track $index) {
+            @if (page === -1) {
+              <span class="osl-grid-page-ellipsis">…</span>
+            } @else {
+              <button class="osl-grid-page-btn osl-grid-page-btn--num"
+                      [class.osl-grid-page-btn--active]="page === cardCurrentPage"
+                      [disabled]="loading"
+                      (click)="cardGoToPage(page)">{{ page }}</button>
             }
           }
+
+          <button class="osl-grid-page-btn osl-grid-page-btn--nav"
+                  (click)="cardGoToPage(cardCurrentPage + 1)"
+                  [disabled]="cardCurrentPage === cardTotalPages || loading" title="Next page">Next ›</button>
+          <button class="osl-grid-page-btn osl-grid-page-btn--nav"
+                  (click)="cardGoToPage(cardTotalPages)"
+                  [disabled]="cardCurrentPage === cardTotalPages || loading" title="Last page">»</button>
         </div>
 
-        <!-- Infinite scroll bottom loader -->
-        @if (loading) {
-          <div class="osl-card-loader">
-            <div class="osl-card-loader-track">
-              <div class="osl-card-loader-bar"></div>
-            </div>
-            <span class="osl-card-loader-text">Loading more…</span>
-          </div>
-        }
-
-        <!-- All loaded footer -->
-        @if (allCardsLoaded && !loading && cardDatasource.length > 0) {
-          <div class="osl-card-all-loaded">
-            <span class="osl-card-all-loaded-line"></span>
-            <span class="osl-card-all-loaded-text">All {{ totalRecords || cardDatasource.length }} records loaded</span>
-            <span class="osl-card-all-loaded-line"></span>
-          </div>
-        }
-      }
-    </div>
+        <div class="osl-grid-pagination__size">
+          <select class="osl-grid-page-size"
+                  [ngModel]="_effectiveCardPageSize"
+                  (ngModelChange)="cardOnPageSizeChange($event)"
+                  [disabled]="loading">
+            @for (opt of cardPageSizeOptions; track opt) {
+              <option [value]="opt">{{ opt }} per page</option>
+            }
+          </select>
+        </div>
+      </div>
+    }
   }
 
 </div>
@@ -264,7 +295,7 @@
   <ng-container *ngTemplateOutlet="customFormFooter!; context: { $implicit: { dialogModel: dialogModel, dialogMode: dialogMode, dialogRef: data.dialogRef } }"></ng-container>
 </ng-template>
 
-<!-- Floating card more-actions menu — rendered outside card DOM to avoid transform containment -->
+<!-- Floating card more-actions menu -->
 @if (viewMode === 'card' && cardOpenMenuIndex !== null && moreMenuActions.length > 0) {
   <div class="osl-card-menu"
        [style.top.px]="cardMenuPosition.top"
@@ -272,11 +303,11 @@
        (click)="$event.stopPropagation()">
     <div class="osl-card-menu-header">Actions</div>
     @for (action of moreMenuActions; track $index) {
-      @if (!action.hideIf || !action.hideIf(cardDatasource[cardOpenMenuIndex])) {
+      @if (!action.hideIf || !action.hideIf(cardPagedData[cardOpenMenuIndex])) {
         <button class="osl-card-menu-item"
-                (click)="action.click(cardDatasource[cardOpenMenuIndex]); cardOpenMenuIndex = null">
+                (click)="action.click(cardPagedData[cardOpenMenuIndex]); cardOpenMenuIndex = null">
           <span class="osl-card-menu-dot"></span>
-          {{ action.labelIf ? action.labelIf(cardDatasource[cardOpenMenuIndex]) : action.label }}
+          {{ action.labelIf ? action.labelIf(cardPagedData[cardOpenMenuIndex]) : action.label }}
         </button>
       }
     }

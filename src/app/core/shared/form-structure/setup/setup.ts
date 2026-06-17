@@ -14,12 +14,14 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
+import { OslSetupStateService, OslSetupState } from './setup-state.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { OslGrid, OslGridColumn, OslMenuAction, OslPageEvent, OslSortEvent } from '../grid/grid';
 import { elements } from '../dynamic-form/dynamic-form';
 import { DialogWrapper } from '../../../shared/components/dialog-wrapper/dialog-wrapper';
 import { DeleteConfirmation, DeleteConfirmationData } from '../../../shared/components/delete-confirmation/delete-confirmation';
 import { OslSearchbar } from '../searchbar/searchbar';
+import { ActivatedRoute } from '@angular/router';
 
 export interface OslSetupSaveEvent {
   model: any;
@@ -34,13 +36,21 @@ export interface OslSetupSaveEvent {
 })
 export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   private _injector = inject(Injector);
+  private _stateService = inject(OslSetupStateService);
+  formLoading: boolean = false;
+  saveLoading: boolean = false;
+  restoredRow: any = null;
+  private _pendingScrollTop: number | null = null;
+  private _pendingCardScrollTop: number | null = null;
+  private _isRestoring = false;
+  private _pendingAutoEditId: string | null = null;
 
   @ViewChild('formBodyTpl') formBodyTpl!: TemplateRef<any>;
   @ViewChild('formFooterTpl') formFooterTpl!: TemplateRef<any>;
   @ViewChild('customFooterWrapperTpl') customFooterWrapperTpl!: TemplateRef<any>;
   @ViewChild('searchbar') searchbar?: OslSearchbar;
   @ViewChild('gridRef') gridRef: OslGrid | undefined;
-  @ViewChild('cardContainerRef') cardContainerRef?: ElementRef<HTMLDivElement>;
+  @ViewChild('cardGridRef') cardGridRef?: ElementRef<HTMLDivElement>;
 
   // ── Inputs ────────────────────────────────────────────────────
   @Input('title') title: string | undefined = '';
@@ -67,10 +77,12 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   @Input('stateKey') stateKey: string = '';
   @Input('primaryKey') primaryKey: string = 'id';
   @Input('onSave') onSave: ((row?: any) => boolean | undefined) | undefined;
-  /** Fixed page size used for card view infinite scroll. Defaults to pageSize. */
+  /** Fixed page size used for card view pagination. Defaults to pageSize. */
   @Input('cardPageSize') cardPageSize?: number;
   /** Optional custom card template. Context: { $implicit: row, index: number } */
   @Input('cardTemplate') cardTemplate?: TemplateRef<any>;
+  /** Bootstrap col-* class number for each field in the card body. Default: 3 (4 per row). */
+  @Input('cardCol') cardCol: number = 3;
 
   // ── Outputs ───────────────────────────────────────────────────
   @Output() onSearch = new EventEmitter<string>();
@@ -81,25 +93,21 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   @Output() pageSizeChange = new EventEmitter<OslPageEvent>();
   @Output() sortChange = new EventEmitter<OslSortEvent>();
   @Output() onRowClick = new EventEmitter<any>();
+  @Output() onStateRestored = new EventEmitter<OslSetupState>();
 
   // ── Dialog state ──────────────────────────────────────────────
   dialogModel: any = {};
   dialogMode: 'add' | 'edit' = 'add';
-  saveLoading: boolean = false;
   public _dialogRef: MatDialogRef<any> | null = null;
-  formLoading: boolean = false;
 
   // ── View mode ─────────────────────────────────────────────────
   viewMode: 'table' | 'card' = 'table';
 
   // ── Card view state ───────────────────────────────────────────
-  cardDatasource: any[] = [];
-  cardPage = 0;
-  allCardsLoaded = false;
+  cardCurrentPage = 1;
+  cardPageSizeOptions = [10, 25, 50, 100];
   cardOpenMenuIndex: number | null = null;
   cardMenuPosition = { top: 0, left: 0 };
-  private _cardExpectedPage = 0;
-  private _needsInitialCardLoad = false;
 
   @HostListener('document:click')
   onDocumentClick(): void {
@@ -130,53 +138,101 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     return Array.from({ length: 6 });
   }
 
+  // ── Card pagination ───────────────────────────────────────────
+  get _cardTotal(): number {
+    return this.autoMode ? this.datasource.length : this.totalRecords;
+  }
+
+  get cardTotalPages(): number {
+    return Math.ceil(this._cardTotal / this._effectiveCardPageSize) || 1;
+  }
+
+  get cardPagedData(): any[] {
+    if (!this.autoMode) return this.datasource;
+    const ps = this._effectiveCardPageSize;
+    return this.datasource.slice((this.cardCurrentPage - 1) * ps, this.cardCurrentPage * ps);
+  }
+
+  get cardPageNumbers(): number[] {
+    const total = this.cardTotalPages;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const pages: number[] = [1];
+    if (this.cardCurrentPage > 3) pages.push(-1);
+    for (let i = Math.max(2, this.cardCurrentPage - 1); i <= Math.min(total - 1, this.cardCurrentPage + 1); i++) {
+      pages.push(i);
+    }
+    if (this.cardCurrentPage < total - 2) pages.push(-1);
+    pages.push(total);
+    return pages;
+  }
+
+  get cardStartRecord(): number {
+    if (this._cardTotal === 0) return 0;
+    return (this.cardCurrentPage - 1) * this._effectiveCardPageSize + 1;
+  }
+
+  get cardEndRecord(): number {
+    return Math.min(this.cardCurrentPage * this._effectiveCardPageSize, this._cardTotal);
+  }
+
+  cardGoToPage(page: number): void {
+    if (page < 1 || page > this.cardTotalPages) return;
+    this.cardCurrentPage = page;
+    if (!this.autoMode) {
+      this.pageChange.emit({ page, pageSize: this._effectiveCardPageSize, searchValue: this.searchbar?.searchControl?.value ?? '' });
+    }
+  }
+
+  cardOnPageSizeChange(size: number): void {
+    this.cardCurrentPage = 1;
+    this.cardPageSize = size
+    this.pageSizeChange.emit({ page: 1, pageSize: Number(size), searchValue: this.searchbar?.searchControl?.value ?? '' });
+  }
+
   // ── Lifecycle ─────────────────────────────────────────────────
   ngOnInit(): void {
     this._loadViewMode();
-    if (this.viewMode === 'card') {
-      this._needsInitialCardLoad = true;
+    const route = this._injector.get(ActivatedRoute, null);
+    if (route) {
+      const id = route.snapshot.queryParamMap.get('id');
+      if (id) this._pendingAutoEditId = id;
     }
   }
 
   ngAfterViewInit(): void {
-    if (this._needsInitialCardLoad) {
-      this._needsInitialCardLoad = false;
-      setTimeout(() => { this._startCardLoad(); });
+    this.statemainTain();
+    if (this._pendingAutoEditId !== null) {
+      const id = this._pendingAutoEditId;
+      this._pendingAutoEditId = null;
+      if (id === '0') {
+        setTimeout(() => this.openAddDialog());
+      } else {
+        setTimeout(() => this.openEditDialog({ [this.primaryKey]: id }));
+      }
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['datasource']) {
-      if (this.viewMode === 'card') {
-        if (this.autoMode) {
-          if (!changes['datasource'].firstChange) {
-            this._loadCardPageLocally(1);
-          }
-        } else if (this._cardExpectedPage !== 0) {
-          const newData: any[] = changes['datasource'].currentValue ?? [];
-          const isFirstPage = this._cardExpectedPage === 1;
-          this._cardExpectedPage = 0;
-
-          if (isFirstPage) {
-            this.cardDatasource = [...newData];
-            this.cardPage = 1;
-            this.allCardsLoaded = false;
-          } else if (newData.length > 0) {
-            this.cardDatasource = [...this.cardDatasource, ...newData];
-            this.cardPage++;
-          }
-
-          if (newData.length === 0 || (this.totalRecords > 0 && this.cardDatasource.length >= this.totalRecords)) {
-            this.allCardsLoaded = true;
-          }
-        } else if (!changes['datasource'].firstChange) {
-          // External refresh (e.g. after approve/delete via more-actions) — replace cards with fresh data
-          const newData: any[] = changes['datasource'].currentValue ?? [];
-          this.cardDatasource = [...newData];
-          this.cardPage = 1;
-          this.allCardsLoaded = newData.length === 0
-            || (this.totalRecords > 0 && newData.length >= this.totalRecords)
-            || newData.length < this._effectiveCardPageSize;
+      if (this.viewMode === 'card' && this.autoMode && !changes['datasource'].firstChange) {
+        this.cardCurrentPage = 1;
+      } else if (this.viewMode === 'card' && !this.autoMode && this._pendingCardScrollTop !== null) {
+        const ds = changes['datasource'].currentValue;
+        if (ds?.length > 0) {
+          const top = this._pendingCardScrollTop;
+          this._pendingCardScrollTop = null;
+          setTimeout(() => {
+            if (this.cardGridRef?.nativeElement) {
+              this.cardGridRef.nativeElement.scrollTop = top;
+            }
+          }, 50);
+        }
+      } else if (this.viewMode === 'table' && this._pendingScrollTop !== null) {
+        const ds = changes['datasource'].currentValue;
+        if (ds?.length > 0) {
+          const top = this._pendingScrollTop;
+          this._pendingScrollTop = null;
+          setTimeout(() => { this.gridRef?.scrollTo(top); }, 50);
         }
       }
     }
@@ -203,69 +259,17 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     if (key) localStorage.setItem(key, mode);
 
     if (mode === 'card') {
-      this._startCardLoad();
+      this.cardCurrentPage = 1;
+      if (!this.autoMode) {
+        this.pageChange.emit({ page: 1, pageSize: this._effectiveCardPageSize, searchValue: this.searchbar?.searchControl?.value ?? '' });
+      }
     } else {
-      this._cardExpectedPage = 0;
       if (this.gridRef) this.gridRef.currentPage = 1;
       this.pageChange.emit({ page: 1, pageSize: this.pageSize, searchValue: this.searchbar?.searchControl?.value ?? '' });
     }
   }
 
-  // ── Card view helpers ─────────────────────────────────────────
-  private _startCardLoad(): void {
-    this.cardDatasource = [];
-    this.cardPage = 0;
-    this.allCardsLoaded = false;
-
-    if (this.autoMode) {
-      this._loadCardPageLocally(1);
-    } else {
-      this._cardExpectedPage = 1;
-      this.pageChange.emit({ page: 1, pageSize: this._effectiveCardPageSize, searchValue: this.searchbar?.searchControl?.value ?? '' });
-    }
-  }
-
-  private _loadCardPageLocally(page: number): void {
-    const ps = this._effectiveCardPageSize;
-    const slice = this.datasource.slice((page - 1) * ps, page * ps);
-    if (page === 1) {
-      this.cardDatasource = [...slice];
-      this.allCardsLoaded = false;
-    } else {
-      this.cardDatasource = [...this.cardDatasource, ...slice];
-    }
-    this.cardPage = page;
-    if (this.datasource.length > 0 && (this.cardDatasource.length >= this.datasource.length || slice.length < ps)) {
-      this.allCardsLoaded = true;
-    }
-  }
-
-  loadMoreCards(): void {
-    if (this.loading || this.allCardsLoaded) return;
-
-    if (this.autoMode) {
-      if (this.cardDatasource.length >= this.datasource.length) { this.allCardsLoaded = true; return; }
-      this._loadCardPageLocally(this.cardPage + 1);
-      return;
-    }
-
-    if (this._cardExpectedPage !== 0) return;
-    if (this.totalRecords > 0 && this.cardDatasource.length >= this.totalRecords) {
-      this.allCardsLoaded = true;
-      return;
-    }
-    const nextPage = this.cardPage + 1;
-    this._cardExpectedPage = nextPage;
-    this.pageChange.emit({ page: nextPage, pageSize: this._effectiveCardPageSize, searchValue: this.searchbar?.searchControl?.value ?? '' });
-  }
-
-  onCardScroll(event: Event): void {
-    const el = event.target as HTMLElement;
-    if (el.scrollHeight - el.scrollTop - el.clientHeight < 150) {
-      this.loadMoreCards();
-    }
-  }
-
+  // ── Card helpers ──────────────────────────────────────────────
   toggleCardMenu(index: number, event: Event): void {
     event.stopPropagation();
     if (this.cardOpenMenuIndex === index) { this.cardOpenMenuIndex = null; return; }
@@ -274,6 +278,12 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     const left = Math.min(Math.max(rect.right - menuWidth, 8), window.innerWidth - menuWidth - 8);
     this.cardMenuPosition = { top: rect.bottom + 6, left };
     this.cardOpenMenuIndex = index;
+  }
+
+  isHighlightedCard(row: any): boolean {
+    if (!this.restoredRow || !this.primaryKey) return false;
+    const val = row[this.primaryKey];
+    return val !== undefined && val === this.restoredRow[this.primaryKey];
   }
 
   getCellValue(row: any, col: OslGridColumn): string {
@@ -296,21 +306,85 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     return this.moreMenuActions.some(a => !a.hideIf || !a.hideIf(row));
   }
 
+  // ── State maintenance ─────────────────────────────────────────
+  statemainTain() {
+    if (!this.stateKey) return;
+    const state = this._stateService.consume(this.stateKey);
+    if (!state) return;
+
+    this.restoredRow = state.highlightedRow;
+
+    if (this.viewMode === 'card') {
+      this.cardCurrentPage = state.page;
+      if (this.searchbar && state.searchValue) {
+        this._isRestoring = true;
+        this.searchbar.searchControl.setValue(state.searchValue, { emitEvent: false });
+      }
+      if (state.searchValue) {
+        this.onSearchSetup(state.searchValue);
+      } else if (!this.autoMode) {
+        this._pendingCardScrollTop = state.scrollTop;
+        this.pageChange.emit({ page: state.page, pageSize: state.pageSize, searchValue: '' });
+      } else if (state.scrollTop > 0) {
+        setTimeout(() => {
+          if (this.cardGridRef?.nativeElement) {
+            this.cardGridRef.nativeElement.scrollTop = state.scrollTop;
+          }
+        }, 50);
+      }
+      this.onStateRestored.emit(state);
+    } else {
+      this._pendingScrollTop = state.scrollTop;
+      if (this.gridRef) {
+        this.gridRef.currentPage = state.page;
+        this.gridRef.pageSize = state.pageSize;
+        this.gridRef.setRestorePage(state.page);
+      }
+      if (this.searchbar && state.searchValue) {
+        this._isRestoring = true;
+        this.searchbar.searchControl.setValue(state.searchValue, { emitEvent: false });
+      }
+      if (state.searchValue) {
+        this.onSearchSetup(state.searchValue);
+      } else {
+        this.pageChange.emit({ page: state.page, pageSize: state.pageSize, searchValue: '' });
+      }
+      this.onStateRestored.emit(state);
+    }
+
+    setTimeout(() => {
+      this.restoredRow = null;
+      this.gridRef?.clearRestorePage();
+    }, 3000);
+  }
+
   // ── Search ────────────────────────────────────────────────────
   onSearchSetup(event: any) {
     if (this.viewMode === 'card' && this.autoMode) {
-      // Local mode: parent filters datasource; ngOnChanges will repopulate cards
+      this.cardCurrentPage = 1;
+      this.onSearch.emit(event);
+      return;
+    }
+
+    if (this._isRestoring) {
+      const restoredPage = this.viewMode === 'card' ? this.cardCurrentPage : (this.gridRef?.currentPage ?? 1);
+      this._isRestoring = false;
+      this.pageChange.emit({
+        page: restoredPage,
+        pageSize: this.viewMode === 'card' ? this._effectiveCardPageSize : (this.gridRef?.pageSize ?? this.pageSize),
+        searchValue: event,
+      });
       this.onSearch.emit(event);
       return;
     }
 
     if (this.viewMode === 'card') {
-      this.cardDatasource = [];
-      this.cardPage = 0;
-      this.allCardsLoaded = false;
-      this._cardExpectedPage = 1;
+      this.cardCurrentPage = 1;
     }
-    if (this.gridRef) this.gridRef.currentPage = 1;
+    if (this.gridRef) {
+      this.gridRef.clearRestorePage();
+      this.gridRef.currentPage = 1;
+    }
     this.pageChange.emit({
       page: 1,
       pageSize: this.viewMode === 'card' ? this._effectiveCardPageSize : (this.gridRef?.pageSize || 10),
@@ -332,7 +406,7 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   }
 
   // ── Dialog actions ────────────────────────────────────────────
-  async openAddDialog(): Promise<void> {
+  openAddDialog(): void {
     this.dialogMode = 'add';
     if (this.beforeDisplay) {
       this.dialogModel = this.beforeDisplay(this.dialogModel);
@@ -346,6 +420,15 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
 
   async openEditDialog(row: any): Promise<void> {
     this.dialogMode = 'edit';
+    if (this.stateKey) {
+      this._stateService.save(this.stateKey, {
+        page: this.viewMode === 'card' ? this.cardCurrentPage : (this.gridRef?.currentPage ?? 1),
+        pageSize: this.viewMode === 'card' ? this._effectiveCardPageSize : (this.gridRef?.pageSize ?? this.pageSize),
+        searchValue: this.searchbar?.searchControl?.value ?? '',
+        scrollTop: this.viewMode === 'card' ? (this.cardGridRef?.nativeElement?.scrollTop ?? 0) : (this.gridRef?.getScrollTop() ?? 0),
+        highlightedRow: row,
+      });
+    }
     this.onEdit.emit(row);
     if (this.onAddEditFn) { this.onAddEditFn(row); return; }
     this._openDialog();
@@ -402,6 +485,9 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
         formBody: this.formBodyTpl,
         formFooter: this.customFormFooter ? this.customFooterWrapperTpl : this.formFooterTpl,
       },
+    });
+    this._dialogRef.afterClosed().subscribe(() => {
+      this.statemainTain();
     });
   }
 }
