@@ -29,7 +29,6 @@ import { OslChipsInput } from "./chips-input/chips-input";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatMenuModule } from "@angular/material/menu";
-import { ScrollingModule } from "@angular/cdk/scrolling";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { OslReportGrid } from "./report-grid/report-grid";
 import { OslReportForm } from "./report-form/report-form";
@@ -86,7 +85,6 @@ import { PortalModule } from "@angular/cdk/portal";
     MatDatepickerModule,
     MatNativeDateModule,
     MatMenuModule,
-    ScrollingModule,
     DragDropModule,
     MatTooltipModule,
     OverlayModule,

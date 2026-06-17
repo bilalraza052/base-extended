@@ -28,7 +28,6 @@ import { OslSkeletonModule } from "../directives/skeleton/skeleton.module";
 import { OslTooltipDirective } from "../directives/tooltip/tooltip.directive";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatMenuModule } from "@angular/material/menu";
-import { ScrollingModule } from "@angular/cdk/scrolling";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { OslReportGrid } from "./report-grid/report-grid";
 import { OslReportForm } from "./report-form/report-form";
@@ -85,7 +84,6 @@ import { NgxMatDatetimepicker, NgxMatDatepickerInput } from "@ngxmc/datetime-pic
     OslTooltipDirective,
     MatDatepickerModule,
     MatMenuModule,
-    ScrollingModule,
     DragDropModule,
     MatTooltipModule,
     OverlayModule,
