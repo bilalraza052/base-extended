@@ -233,7 +233,7 @@
   min-width: 80px;
   cursor: default;
   text-align: center;
-  position: sticky;
+  // position: sticky;
   left: 0;
   z-index: 3;
 
@@ -248,7 +248,7 @@
   text-align: center;
   padding: 6px 8px;
   white-space: nowrap;
-  position: sticky;
+  // position: sticky;
   left: 0;
   background: #ffffff;
 }
@@ -261,35 +261,52 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border: 1.5px solid var(--osl-border-color);
-  border-radius: var(--osl-border-radius);
-  background: transparent;
+  border-radius: 8px;
+  background: #fff;
   color: #6b7280;
   cursor: pointer;
   padding: 0;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: border-color 0.18s, color 0.18s, background 0.18s, box-shadow 0.18s;
   margin: 0 2px;
+  flex-shrink: 0;
 
-  mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
+  svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    pointer-events: none;
   }
 
   &:hover {
     border-color: var(--osl-primary);
     color: var(--osl-primary);
-    background: rgba(99, 102, 241, 0.06);
+    background: rgba(99, 102, 241, 0.07);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
+  &--edit:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.07);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &--more:hover {
+    border-color: #64748b;
+    color: #1e293b;
+    background: #f1f5f9;
+    box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.1);
   }
 
   &--danger {
     &:hover {
       border-color: #ef4444;
       color: #ef4444;
-      background: rgba(239, 68, 68, 0.06);
+      background: rgba(239, 68, 68, 0.07);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
     }
   }
 }
@@ -298,6 +315,7 @@
 .osl-menu-wrapper {
   position: relative;
   display: inline-flex;
+  // z-index: 1;
 }
 
 .osl-custom-menu {
