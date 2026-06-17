@@ -3,6 +3,7 @@ import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Ou
 export type OslDisplayType = 'date' | 'datetime' | 'time' | 'link' | 'customDateFormat' | 'boolean';
 
 export interface OslGridColumn {
+  col?:number;
   key: string;
   label: string;
   enums?: { value: any; label: string }[];

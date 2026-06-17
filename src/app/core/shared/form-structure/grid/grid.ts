@@ -1,8 +1,9 @@
-import { Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 
 export type OslDisplayType = 'date' | 'datetime' | 'time' | 'link' | 'boolean';
 
 export interface OslGridColumn {
+  col?:number;
   key: string;
   label: string;
   enums?: { value: any; label: string }[];
@@ -61,6 +62,10 @@ export class OslGrid implements OnChanges {
   @Input('moreMenuActions') moreMenuActions: OslMenuAction[] = [];
   @Input('canEdit') canEdit: boolean = true;
   @Input('canDelete') canDelete: boolean = true;
+  @Input('highlightedRow') highlightedRow: any = null;
+  @Input('primaryKey') primaryKey: string = 'id';
+
+  @ViewChild('tableContainer') private _tableContainerRef!: ElementRef<HTMLDivElement>;
 
   @Output() pageChange = new EventEmitter<OslPageEvent>();
   @Output() pageSizeChange = new EventEmitter<OslPageEvent>();
@@ -75,6 +80,7 @@ export class OslGrid implements OnChanges {
   pageSizeOptions = [10, 25, 50, 100];
   openMenuIndex: number | null = null;
   menuPosition = { top: 0, left: 0 };
+  private _restorePage: number | null = null;
 
   @HostListener('document:click')
   onDocumentClick(): void {
@@ -157,8 +163,32 @@ export class OslGrid implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['datasource'] && this.autoMode) {
-      this.currentPage = 1;
+      this.currentPage = this._restorePage ?? 1;
     }
+  }
+
+  setRestorePage(page: number): void {
+    this._restorePage = page;
+  }
+
+  clearRestorePage(): void {
+    this._restorePage = null;
+  }
+
+  scrollTo(top: number): void {
+    if (this._tableContainerRef) {
+      this._tableContainerRef.nativeElement.scrollTop = top;
+    }
+  }
+
+  getScrollTop(): number {
+    return this._tableContainerRef?.nativeElement?.scrollTop ?? 0;
+  }
+
+  isHighlightedRow(row: any): boolean {
+    if (!this.highlightedRow || !this.primaryKey) return false;
+    const val = row[this.primaryKey];
+    return val !== undefined && val === this.highlightedRow[this.primaryKey];
   }
 
   sort(key: string, isActions?: boolean): void {
@@ -174,11 +204,13 @@ export class OslGrid implements OnChanges {
 
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages) return;
+    this._restorePage = null;
     this.currentPage = page;
     this.pageChange.emit({ page: this.currentPage, pageSize: this.pageSize });
   }
 
   onPageSizeChange(size: number): void {
+    this._restorePage = null;
     this.pageSize = Number(size);
     this.currentPage = 1;
     this.pageSizeChange.emit({ page: this.currentPage, pageSize: this.pageSize });
