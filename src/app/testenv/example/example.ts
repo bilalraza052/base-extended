@@ -17,6 +17,7 @@ import { raceWith } from 'rxjs';
 import { OslDocumentUploader, OslSavedDocument } from '../../core/shared/form-structure/document-uploader/document-uploader';
 import { OslTooltipDirective } from '../../core/shared/directive/tooltip/tooltip.directive';
 import { DirtyStateService } from '../../core/services/dirty-state.service';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-example',
@@ -25,6 +26,7 @@ import { DirtyStateService } from '../../core/services/dirty-state.service';
   styleUrl: './example.scss',
 })
 export class Example extends baseComponent {
+  icon=`<svg fill="#000000" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><title>Google Ads icon</title><path d="M11.994 1.046h.022c.899.002 1.73.301 2.398.805l.003.001.001.001a4 4 0 011.116 1.299l4.467 7.769.025.065 3.419 5.927A3.98 3.98 0 0124 18.948c0 .565-.117 1.104-.329 1.592l.006.016a3.93 3.93 0 01-.634.993 3.97 3.97 0 01-1.045.868 3.984 3.984 0 01-1.946.537h-.068a3.984 3.984 0 01-2.398-.805l-.003-.001v-.001h-.001a4 4 0 01-1.116-1.299l-4.467-7.769-.025-.065-3.419-5.927-.005-.009-.011-.019A3.981 3.981 0 018 5.052c0-.424.066-.832.188-1.215v-.001l.008-.025.01-.03c.052-.157.117-.337.117-.337.158-.358.371-.689.626-.984l.063-.072.014-.015.002-.003.001-.001.002-.002.009-.01.006-.007c.27-.296.59-.557.956-.767a3.984 3.984 0 011.946-.537h.046zM4.006 22.954h-.058a3.984 3.984 0 01-1.946-.537 3.97 3.97 0 01-1.045-.868 3.93 3.93 0 01-.634-.993l.006-.016A3.988 3.988 0 010 18.948c0-.743.202-1.439.555-2.035l3.419-5.927.025-.065 3.039-5.286c.076.648.276 1.281.596 1.856l.057.1 3.377 5.854-.003-.01.067.142.291.507-3.889 6.764a4 4 0 01-1.116 1.299h-.001v.001l-.003.001a3.984 3.984 0 01-2.398.805h-.01z"></path></g></svg>`
   loading = false;
   private _dirtyState = inject(DirtyStateService);
   get isDirty(): boolean { return this._dirtyState.isDirty; }
@@ -67,6 +69,10 @@ export class Example extends baseComponent {
       accept: '.pdf,.doc,.docx',
     },
   ];
+
+  renderIcon(icon:string){
+    return this.sanitizer.bypassSecurityTrustHtml(icon)
+  }
 
   fileUploadEditElements: elements[] = [
     {
@@ -59039,13 +59045,16 @@ export class Example extends baseComponent {
       key: 'product',
       displayName: 'Product',
       formElem: {
-        elementType: 'select',
+        elementType: 'autocomplete',
         key: 'product',
         label: 'Product',
         columns: 12,
         datasource: this.productOptions,
         displayField: 'label',
         valueField: 'value',
+        disabledIf:()=>{
+          return true
+        },
         required: true,
       },
     },
@@ -59153,7 +59162,7 @@ export class Example extends baseComponent {
   beforeDisplay:((row: any) => any) | undefined;
   beforeSave:((row: any) => any) | undefined;
   loader: boolean =false;
-  constructor(public cd: ChangeDetectorRef, public service:ExampleService,public skeletonService:OslSkeletonThemeService) {
+  constructor(public sanitizer:DomSanitizer,public cd: ChangeDetectorRef, public service:ExampleService,public skeletonService:OslSkeletonThemeService) {
     super();
   }
   
