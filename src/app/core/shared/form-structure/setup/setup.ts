@@ -22,6 +22,7 @@ import { DialogWrapper } from '../../../shared/components/dialog-wrapper/dialog-
 import { DeleteConfirmation, DeleteConfirmationData } from '../../../shared/components/delete-confirmation/delete-confirmation';
 import { OslSearchbar } from '../searchbar/searchbar';
 import { ActivatedRoute } from '@angular/router';
+import { DomSanitizer } from '@angular/platform-browser';
 
 export interface OslSetupSaveEvent {
   model: any;
@@ -37,6 +38,7 @@ export interface OslSetupSaveEvent {
 export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   private _injector = inject(Injector);
   private _stateService = inject(OslSetupStateService);
+  private santizer = inject(DomSanitizer);
   formLoading: boolean = false;
   saveLoading: boolean = false;
   restoredRow: any = null;
@@ -54,6 +56,7 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
 
   // ── Inputs ────────────────────────────────────────────────────
   @Input('title') title: string | undefined = '';
+  @Input('titleIcon') titleIcon: string | undefined = '';
   @Input('columns') columns: OslGridColumn[] = [];
   @Input('datasource') datasource: any[] = [];
   @Input('isPaginated') isPaginated: boolean = true;
@@ -187,6 +190,9 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     this.cardCurrentPage = 1;
     this.cardPageSize = size
     this.pageSizeChange.emit({ page: 1, pageSize: Number(size), searchValue: this.searchbar?.searchControl?.value ?? '' });
+  }
+  renderIcon(icon:string){
+    return this.santizer.bypassSecurityTrustHtml(icon)
   }
 
   // ── Lifecycle ─────────────────────────────────────────────────
