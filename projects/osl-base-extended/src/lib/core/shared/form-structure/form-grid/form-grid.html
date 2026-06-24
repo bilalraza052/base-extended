@@ -239,6 +239,9 @@
                             (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
                           </osl-file-upload>
                         }
+                          @case ('templateRef') {
+                            <ng-container *ngTemplateOutlet="col.formElem.templateRef; context: { $implicit: row,index:i }"></ng-container>
+                          }
 
                       }
                     </div>
