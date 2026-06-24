@@ -16,7 +16,7 @@
                 (focus)="onFocus()"
                 (blur)="onBlur()"
                 (focusout)="onFocusOut()"
-                [disabled]="disabled || loading"
+                
                 [formControl]="inputControl"
                 [class.error]="isInvalid"
                 [placeholder]="loading ? 'Loading...' : placeholder"
@@ -26,12 +26,12 @@
             @if(loading) {
                 <span class="ac-spinner"></span>
             } @else {
-                @if(inputValue && !disabled) {
+                @if(inputValue && !this.inputControl.disabled) {
                     <button type="button" class="ac-clear" [class.ac-clear--shifted]="searchType == 'Api'" (mousedown)="clearValue($event)" title="Clear">
                         <mat-icon>close</mat-icon>
                     </button>
                 }
-                @if(searchType == 'Api' && isLister && !disabled) {
+                @if(searchType == 'Api' && isLister && !this.inputControl.disabled) {
                     <button type="button" class="ac-lister-btn" (mousedown)="$event.preventDefault(); openLister()" title="Browse list or press Enter">
                         <mat-icon>manage_search</mat-icon>
                     </button>

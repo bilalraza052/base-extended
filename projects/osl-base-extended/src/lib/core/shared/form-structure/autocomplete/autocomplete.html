@@ -20,7 +20,7 @@
             (input)="onInput($any($event.target).value)"
             (focus)="onFocus()"
             (focusout)="onFocusOut()"
-            [disabled]="disabled || loading"
+           
             [formControl]="inputControl"
             [class.error]="isInvalid"
             [placeholder]="loading ? 'Loading...' : placeholder"

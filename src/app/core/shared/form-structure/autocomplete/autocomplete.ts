@@ -190,6 +190,10 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
         this.datasource = [this.object];
       }
     }
+    if(this.disabled){
+      this.inputControl.disable()
+
+    }
     this.cdr.markForCheck();
     this.filteredItems = [...this.datasource];
     this.syncInputFromModel();
