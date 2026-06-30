@@ -9,6 +9,66 @@
   border-radius: var(--osl-border-radius, 8px);
   overflow: hidden;
   background: #ffffff;
+
+  // Builder mode: side-by-side layout
+  &--builder {
+    flex-direction: row;
+    overflow: visible; // let CDK drag preview escape the container
+    align-items: stretch;
+  }
+}
+
+// ── Builder: grid area ────────────────────────────────────────
+.osl-fg-grid-area {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: inherit;
+  position: relative; // anchor for the absolute drop-zone overlay
+}
+
+// ── Panel-to-grid drop overlay ────────────────────────────────
+// Covers the entire grid area. pointer-events: none so the table stays
+// interactive; CDK uses bounding-rect hit-testing (not pointer events)
+// so drops are still captured.
+.osl-fg-table-drop-zone {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: inherit;
+  transition: background 0.15s, border-color 0.15s;
+
+  &--active {
+    border: 2px dashed var(--osl-primary, #6366f1);
+    background: rgba(99, 102, 241, 0.03);
+
+    &.cdk-drop-list-receiving {
+      background: rgba(99, 102, 241, 0.08);
+      border-style: solid;
+    }
+  }
+}
+
+.osl-fg-drop-zone-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 13px;
+  background: var(--osl-primary, #6366f1);
+  color: #fff;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 
 // ── Scrollable table area ─────────────────────────────────────
@@ -16,6 +76,18 @@
   overflow-x: auto;
   overflow-y: auto;
   min-height: 120px;
+  flex: 1 1 auto;
+
+  // Dashed outline while dragging
+  &--drop-active {
+    outline: 2px dashed var(--osl-primary, #6366f1);
+    outline-offset: -2px;
+
+    .osl-fg-empty-inner {
+      color: var(--osl-primary, #6366f1);
+      svg { opacity: 0.7; }
+    }
+  }
 }
 
 // ── Table ─────────────────────────────────────────────────────
@@ -53,6 +125,12 @@
     min-width: 44px;
     text-align: center;
     padding: 6px;
+  }
+
+  &--drag {
+    width: 28px;
+    min-width: 28px;
+    padding: 0;
   }
 }
 
@@ -92,26 +170,23 @@
     text-align: center;
     padding: 4px 6px;
   }
+
+  &--drag {
+    width: 28px;
+    min-width: 28px;
+    padding: 0;
+    text-align: center;
+  }
 }
 
-// ── Cell form: suppress mat subscript so all rows share one height ─
+// ── Cell form: suppress mat subscript ─────────────────────────
 .osl-fg-cell-form {
   min-width: 100px;
 
   ::ng-deep {
-    // Remove the bottom gap that mat-form-field adds for hints/errors
-    .mat-mdc-form-field-subscript-wrapper {
-      display: none !important;
-    }
-    // Ensure the field stretches to fill the cell
-    .mat-mdc-form-field,
-    mat-form-field {
-      width: 100%;
-    }
-    // Compact the field infix vertically
-    .mat-mdc-text-field-wrapper {
-      padding-top: 0;
-    }
+    .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+    .mat-mdc-form-field, mat-form-field    { width: 100%; }
+    .mat-mdc-text-field-wrapper            { padding-top: 0; }
   }
 }
 
@@ -120,56 +195,21 @@
   font-size: var(--osl-text-font-size);
 }
 
-// ── Add button (solid primary in header) ──────────────────────
-.osl-fg-add-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: 6px;
-  background: var(--osl-primary, #6366f1);
-  color: #ffffff;
-  cursor: pointer;
-  padding: 0;
-  box-shadow: 0 1px 4px rgba(99, 102, 241, 0.35);
-  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-  }
-
-  &:hover:not(:disabled) {
-    background: var(--osl-primary-hover, #4f46e5);
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.45);
-    transform: scale(1.05);
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
-  }
-}
-
-// ── Delete button ─────────────────────────────────────────────
-.osl-fg-delete-btn {
+// ── Icon buttons (add / delete) ────────────────────────────────
+.osl-grid-icon-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: 1.5px solid transparent;
-  border-radius: 6px;
+  border: 1.5px solid var(--osl-border-color);
+  border-radius: var(--osl-border-radius);
   background: transparent;
-  color: #d1d5db;
+  color: #6b7280;
   cursor: pointer;
   padding: 0;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
+  margin: 0 2px;
 
   mat-icon {
     font-size: 16px;
@@ -179,13 +219,90 @@
   }
 
   &:hover {
-    border-color: #fca5a5;
-    color: #ef4444;
-    background: #fef2f2;
+    border-color: var(--osl-primary);
+    color: var(--osl-primary);
+    background: rgba(99, 102, 241, 0.06);
+  }
+
+  &--danger {
+    &:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.06);
+    }
   }
 }
 
-// ── Empty State ───────────────────────────────────────────────
+// ── Row drag handle ────────────────────────────────────────────
+.osl-fg-row-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  cursor: grab;
+  color: #d1d5db;
+  border-radius: 4px;
+  transition: color 0.12s, background 0.12s;
+
+  svg { width: 13px; height: 13px; }
+
+  &:hover { color: #9ca3af; background: #f3f4f6; }
+  &:active { cursor: grabbing; }
+}
+
+// ── Drop placeholder row ("Drop Here" across all columns) ──────
+.osl-fg-row-placeholder {
+  td {
+    padding: 4px 6px;
+    background: transparent;
+    border: none;
+  }
+}
+
+.osl-fg-drop-here {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  border: 2px dashed var(--osl-primary, #6366f1);
+  border-radius: 6px;
+  background: #eef2ff;
+  color: var(--osl-primary, #6366f1);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+
+  svg { width: 16px; height: 16px; flex-shrink: 0; }
+}
+
+// ── Row drag preview (under cursor while dragging a row) ───────
+.osl-fg-row-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 16px;
+  background: #fff;
+  border: 1.5px solid var(--osl-primary, #6366f1);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.18);
+  font-size: 12px;
+  color: #374151;
+  max-width: 420px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.osl-fg-row-preview__cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+
+  & + & { padding-left: 14px; border-left: 1px solid #e5e7eb; }
+}
+
+// ── Empty state ────────────────────────────────────────────────
 .osl-fg-empty {
   padding: 40px 16px;
   text-align: center;
@@ -202,7 +319,7 @@
   p { margin: 0; font-size: 13px; }
 }
 
-// ── Skeleton ──────────────────────────────────────────────────
+// ── Skeleton ───────────────────────────────────────────────────
 @keyframes osl-fg-pulse {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.4; }
@@ -222,7 +339,7 @@
   }
 }
 
-// ── Footer ────────────────────────────────────────────────────
+// ── Footer ─────────────────────────────────────────────────────
 .osl-fg-tfoot {
   position: sticky;
   bottom: 0;
@@ -246,7 +363,7 @@
   &:last-child { border-right: none; }
 }
 
-// ── Pagination ────────────────────────────────────────────────
+// ── Pagination ─────────────────────────────────────────────────
 .osl-fg-pagination {
   display: flex;
   align-items: center;
@@ -296,20 +413,10 @@
   transition: background 0.12s, border-color 0.12s, color 0.12s;
   white-space: nowrap;
 
-  &:hover:not(:disabled) {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-  }
+  &:hover:not(:disabled) { background: #f3f4f6; border-color: #9ca3af; }
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
 
-  &:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
-
-  &--nav {
-    font-size: 12px;
-    color: #6b7280;
-  }
+  &--nav { font-size: 12px; color: #6b7280; }
 
   &--num {
     min-width: 30px;
@@ -353,46 +460,293 @@
   cursor: pointer;
   outline: none;
 
-  &:focus { border-color: var(--osl-primary, #6366f1); }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
+  &:focus   { border-color: var(--osl-primary, #6366f1); }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
 }
-.osl-grid-icon-btn {
-  display: inline-flex;
+
+// ══════════════════════════════════════════════════════════════
+// Available Controls Panel
+// ══════════════════════════════════════════════════════════════
+
+.osl-fg-panel {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--osl-border-color, #e5e7eb);
+  background: #fafafa;
+  // Proper height: match the grid area height via align-items: stretch on parent
+  min-height: 200px;
+  overflow: hidden; // clip children; list scrolls independently
+}
+
+// ── Panel header ───────────────────────────────────────────────
+.osl-fg-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px 10px;
+  border-bottom: 1px solid var(--osl-border-color, #e5e7eb);
+  background: #f3f4f6;
+  flex-shrink: 0;
+}
+
+.osl-fg-panel__title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.osl-fg-panel__count {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  background: #e5e7eb;
+  border-radius: 10px;
+  padding: 1px 7px;
+  line-height: 18px;
+}
+
+// ── Search ─────────────────────────────────────────────────────
+.osl-fg-panel__search {
+  position: relative;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--osl-border-color, #e5e7eb);
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.osl-fg-search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  color: #d1d5db;
+  pointer-events: none;
+}
+
+.osl-fg-search-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 26px 0 30px;
+  border: 1px solid var(--osl-border-color, #e5e7eb);
+  border-radius: 6px;
+  background: #f9fafb;
+  font-size: 12px;
+  font-family: inherit;
+  color: #374151;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:focus {
+    border-color: var(--osl-primary, #6366f1);
+    background: #fff;
+  }
+
+  &::placeholder { color: #d1d5db; }
+}
+
+.osl-fg-search-clear {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1.5px solid var(--osl-border-color);
-  border-radius: var(--osl-border-radius);
-  background: transparent;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-  margin: 0 2px;
+  border-radius: 3px;
 
-  mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
-  }
+  svg { width: 11px; height: 11px; }
+  &:hover { color: #374151; }
+}
+
+// ── Scrollable item list ───────────────────────────────────────
+.osl-fg-panel__list {
+  flex: 1 1 auto;
+  min-height: 0;    // critical: lets flex child shrink & scroll
+  overflow-y: auto;
+  padding: 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+// ── Empty state ─────────────────────────────────────────────────
+.osl-fg-panel__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 12px;
+  color: #c4c9d4;
+  font-size: 12px;
+  text-align: center;
+
+  svg { width: 26px; height: 26px; opacity: 0.5; }
+}
+
+// ── Drag item row ───────────────────────────────────────────────
+.osl-fg-drag-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px 8px 8px;
+  border-radius: 6px;
+  cursor: grab;
+  user-select: none;
+  transition: background 0.12s;
+  background: transparent;
+  position: relative;
 
   &:hover {
-    border-color: var(--osl-primary);
-    color: var(--osl-primary);
-    background: rgba(99, 102, 241, 0.06);
+    background: #f0f4ff;
+
+    .osl-fg-drag-item__grip { opacity: 1; }
+    .osl-fg-drag-item__arrow { opacity: 0.5; }
   }
 
-  &--danger {
-    &:hover {
-      border-color: #ef4444;
-      color: #ef4444;
-      background: rgba(239, 68, 68, 0.06);
+  &:active { cursor: grabbing; }
+}
+
+.osl-fg-drag-item__grip {
+  flex-shrink: 0;
+  width: 16px;
+  opacity: 0.2;
+  color: #6b7280;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+
+  svg { width: 13px; height: 13px; }
+}
+
+.osl-fg-drag-item__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.osl-fg-drag-item__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+.osl-fg-drag-item__desc {
+  font-size: 11px;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.osl-fg-drag-item__arrow {
+  flex-shrink: 0;
+  opacity: 0;
+  color: var(--osl-primary, #6366f1);
+  transition: opacity 0.15s;
+
+  svg { width: 13px; height: 13px; }
+}
+
+// ── Item drag placeholder (in panel while dragging) ────────────
+.osl-fg-item-placeholder {
+  height: 36px;
+  border: 1.5px dashed #d1d5db;
+  border-radius: 6px;
+  background: #f9fafb;
+}
+
+// ── Item drag preview (under cursor) ──────────────────────────
+.osl-fg-drag-preview {
+  padding: 8px 16px;
+  background: var(--osl-primary, #6366f1);
+  color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+// ── Item loading skeleton ──────────────────────────────────────
+.osl-fg-item-skeleton {
+  height: 36px;
+  border-radius: 6px;
+  background: #e5e7eb;
+  animation: osl-fg-pulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+// ── Load More button ───────────────────────────────────────────
+.osl-fg-load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 32px;
+  margin-top: 4px;
+  border: 1px dashed var(--osl-border-color, #e5e7eb);
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    border-color: var(--osl-primary, #6366f1);
+    color: var(--osl-primary, #6366f1);
+    background: #f5f3ff;
+  }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.osl-fg-load-more__spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: osl-fg-spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes osl-fg-spin {
+  to { transform: rotate(360deg); }
+}
+
+// ── CDK animation overrides ────────────────────────────────────
+:host {
+  ::ng-deep {
+    .cdk-drag-animating {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    }
+    .cdk-drop-list-dragging .osl-fg-drag-item:not(.cdk-drag-placeholder) {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
     }
   }
 }
