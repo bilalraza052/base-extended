@@ -27,7 +27,19 @@ import { HttpResponse } from '../../../http/httpbase';
 export class OslAutocomplete extends baseComponent implements OnInit, OnChanges, OnDestroy {
   @Input('label') label: string = '';
   @Input('required') required: boolean = false;
-  @Input('disabled') disabled: boolean = false;
+  private _isDisabled: any;
+  @Input('disabled') set disabled(val: any) {
+    this._isDisabled = val;
+    if (val) {
+      this.inputControl.disable();
+    } else {
+      this.inputControl.enable();
+    }
+  }
+
+  get disabled(){
+    return this._isDisabled
+  }
 
   private _model: any = null;
   private _object: any;
@@ -131,6 +143,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
       methodName: this.methodName,
       configMethodName: this.configMethodName,
       service: this.service,
+      apiBody :this.apiBody
     };
     const dialogRef = this.openDialog(
       undefined,
@@ -163,7 +176,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
         .pipe(debounceTime(500), distinctUntilChanged())
         .subscribe(async (value) => {
           if (!value) return;
-          const res: HttpResponse = await this.service[this.methodName](value, this.apiBody);
+          const res: HttpResponse = await this.service[this.methodName]({searchValue:value,apiBody:this.apiBody});
           if (!res.isSuccessful) return;
           this.datasource = res?.result && Array.isArray(res?.result) ? res.result : res?.result?.data;
           this.datasourceChange.emit(this.datasource);
@@ -177,10 +190,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
         this.filteredItems = [...this.datasource];
       }
     }
-     if(this.disabled){
-      this.inputControl.disable()
-
-    }
+    
     this.syncInputFromModel();
     this.cdr.markForCheck();
   }
