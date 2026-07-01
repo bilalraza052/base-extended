@@ -107,7 +107,7 @@ export abstract class Httpbase {
   private mapError(error: HttpErrorResponse): string | string[] {
     switch (error.status) {
       case 0:   return 'Connection Error! Please Contact Administration';
-      case 400: return error.error?.errors? this.flatObject(error.error?.errors) :error.error?.error || error.error?.message || 'Bad Request';
+      case 400: return error.error?.errors? this.flatObject(error.error?.errors) :error.error?.error ||  error.error?.message || 'Bad Request';
       case 401: return 'Unauthorized Access';
       case 403: return "You don't have rights to perform this action";
       case 404: return 'Resource not found';
@@ -214,6 +214,32 @@ export abstract class Httpbase {
       );
       return this.handleSuccess(res.status, res.body, res.headers);
     } catch (error: any) {
+      return this.handleError(error);
+    }
+  }
+
+  protected async download(methodName: string, params?: myParams[]): Promise<HttpResponse<Blob>> {
+    try {
+      const res = await firstValueFrom(
+        this.http
+          .get(this.getEndPoint(methodName), {
+            observe: 'response',
+            headers: this.getHeaders(),
+            params: this.buildParams(params || []),
+            responseType: 'blob',
+          })
+          .pipe(timeout(30000)),
+      );
+      return this.handleSuccess(res.status, res.body, res.headers);
+    } catch (error: any) {
+      // responseType:'blob' causes Angular to wrap the error body as a Blob too,
+      // so we must read it back to JSON before handleError can parse the message.
+      if (error.error instanceof Blob) {
+        try {
+          const text = await error.error.text();
+          error = { ...error, error: JSON.parse(text) };
+        } catch {}
+      }
       return this.handleError(error);
     }
   }
