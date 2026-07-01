@@ -239,6 +239,14 @@ export abstract class Httpbase {
       URL.revokeObjectURL(url);
       return this.handleSuccess<void>(res.status, null as any, res.headers);
     } catch (error: any) {
+      // responseType:'blob' causes Angular to wrap the error body as a Blob too,
+      // so we must read it back to JSON before handleError can parse the message.
+      if (error.error instanceof Blob) {
+        try {
+          const text = await error.error.text();
+          error = { ...error, error: JSON.parse(text) };
+        } catch {}
+      }
       return this.handleError(error);
     }
   }
