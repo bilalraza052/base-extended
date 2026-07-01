@@ -138,7 +138,7 @@
                         [searchType]="elem.searchType"
                         [configMethodName]="elem.apiConfigMethod"
                         [isLister]="elem.isListerAutocomplete"
-                        [apiBody]="elem.apiBody"
+                        [apiBody]="elem.apiBody ? elem.apiBody(model):null"
                         [displayFn]="elem.displayFn || null"
                     ></osl-autocomplete>
                 </div>
