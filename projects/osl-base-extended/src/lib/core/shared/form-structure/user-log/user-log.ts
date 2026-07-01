@@ -57,7 +57,11 @@ export class OslUserLog {
       .toUpperCase()
       .slice(0, 2);
   }
+  getcleanLog(log:string){
+    const raw = log.split('#');
+    return raw && raw?.length > 0 ? raw[0] : ""
 
+  }
   get hasData(): boolean {
     return !!(this.meta?.addLog || this.meta?.addOn || this.meta?.editLog || this.meta?.editOn);
   }

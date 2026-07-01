@@ -17,7 +17,7 @@
           @if (meta.addLog) {
             <div class="osl-ul-entry__user">
               <span class="osl-ul-avatar osl-ul-avatar--add">{{ getInitials(meta.addLog) }}</span>
-              <span class="osl-ul-entry__name">{{ meta.addLog }}</span>
+              <span class="osl-ul-entry__name">{{ getcleanLog(meta.addLog) }}</span>
             </div>
           }
           @if (meta.addOn) {
@@ -50,7 +50,7 @@
           @if (meta.editLog) {
             <div class="osl-ul-entry__user">
               <span class="osl-ul-avatar osl-ul-avatar--edit">{{ getInitials(meta.editLog) }}</span>
-              <span class="osl-ul-entry__name">{{ meta.editLog }}</span>
+              <span class="osl-ul-entry__name">{{ getcleanLog(meta.editLog) }}</span>
             </div>
           }
           @if (meta.editOn) {
@@ -135,7 +135,7 @@
               @if (meta.addLog) {
                 <div class="osl-ul-tl-entry__user">
                   <span class="osl-ul-avatar osl-ul-avatar--add">{{ getInitials(meta.addLog) }}</span>
-                  <span class="osl-ul-tl-entry__name">{{ meta.addLog }}</span>
+                  <span class="osl-ul-tl-entry__name">{{ getcleanLog(meta.addLog) }}</span>
                 </div>
               }
               @if (meta.addOn) {
@@ -158,7 +158,7 @@
               @if (meta.editLog) {
                 <div class="osl-ul-tl-entry__user">
                   <span class="osl-ul-avatar osl-ul-avatar--edit">{{ getInitials(meta.editLog) }}</span>
-                  <span class="osl-ul-tl-entry__name">{{ meta.editLog }}</span>
+                  <span class="osl-ul-tl-entry__name">{{ getcleanLog(meta.editLog) }}</span>
                 </div>
               }
               @if (meta.editOn) {
