@@ -7,4 +7,5 @@ export interface oslListerData {
   methodName: string;
   service: any;
   configMethodName: string;
+  apiBody:any;
 }
