@@ -45,7 +45,8 @@ export class OslAutocompleteLister {
       pageSize:pageSize,
       searchValue,
       sortColumn:sortKey,
-      sortColumnDirection:sortColumnDirection
+      sortColumnDirection:sortColumnDirection,
+      apiBody:this.autocompleteData.apiBody
     });
    
       this.cd.markForCheck()
