@@ -29,6 +29,7 @@
                         [maxLength]="elem.maxLength ?? null"
                         [prefixIcon]="elem.prefixIcon || ''"
                         [suffixIcon]="elem.suffixIcon || ''"
+                        [suffixRef]="elem.suffixRef || null"
                         [onlyChars]="!!elem.onlyChars"
                         [decimalPortion]="elem.decimalPortion ?? null"
                         (changeEv)="elem.change ? elem.change(model) : null"

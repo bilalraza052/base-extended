@@ -36,6 +36,10 @@
                 <mat-icon>{{showPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
             </button>
         }
+        @if(suffixRef){
+          <ng-container *ngTemplateOutlet="suffixRef; context: { $implicit: this }"></ng-container>
+            
+        }
         @if(suffixIcon && type !== 'password') {
             <mat-icon class="input-icon suffix-icon">{{suffixIcon}}</mat-icon>
         }

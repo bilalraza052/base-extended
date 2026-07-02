@@ -187,6 +187,7 @@ export interface elements {
   maxLength?: number;
   prefixIcon?: string;
   suffixIcon?: string;
+  suffixRef?:TemplateRef<any>
   onlyChars?: boolean;
   /** Enforce N decimal places on osl-input. Shows 0.00 when blank; auto-pads on blur. */
   decimalPortion?: number;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
 
 export type InputType = 'text' | 'password' | 'email' | 'number' | 'tel' | 'url' | 'int';
 
@@ -23,6 +23,7 @@ export class Oslinput implements OnInit, OnChanges {
   @Input('maxLength') maxLength: number | null = null;
   @Input('prefixIcon') prefixIcon: string = '';
   @Input('suffixIcon') suffixIcon: string = '';
+  @Input('suffixRef') suffixRef!: TemplateRef<any>
   @Input('skeletonLoading') skeletonLoading: boolean = false;
   @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
   @Input('onlyChars') onlyChars: boolean = false;
