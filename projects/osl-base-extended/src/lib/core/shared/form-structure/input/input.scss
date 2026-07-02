@@ -39,7 +39,7 @@
     &.input-disabled {
         background: #f5f5f5;
         opacity: 0.7;
-        cursor: not-allowed;
+        // cursor: not-allowed;
     }
 
     &.plain {
@@ -76,7 +76,7 @@
     width: 100%;
 
     &:disabled {
-        cursor: not-allowed;
+        // cursor: not-allowed;
         background: transparent;
     }
 
