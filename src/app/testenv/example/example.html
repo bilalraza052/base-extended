@@ -41,4 +41,24 @@
 
 </div>
 
-  
+  <!-- ── Draggable Dialog ──────────────────────────────────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Draggable Dialog</span>
+      <span class="ex-card__desc">openDialog(..., isDraggable: true) — drag by the header, bounded to the viewport</span>
+    </div>
+    <div class="ex-card__body">
+      <button type="button" class="tip-btn tip-btn--indigo" (click)="openDraggableDialogDemo()">
+        Open Draggable Dialog
+      </button>
+    </div>
+  </div>
+
+  <ng-template #draggableDialogBody>
+    <p>Grab the header — anywhere, or the drag icon in the middle — and move this dialog around the screen. It's clamped to the browser viewport so it can never be dragged out of view.</p>
+  </ng-template>
+
+  <ng-template #draggableDialogFooter let-dialogData>
+    <button type="button" class="tip-btn tip-btn--default" (click)="dialogData.dialogRef.close()">Close</button>
+  </ng-template>
+

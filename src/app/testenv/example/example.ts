@@ -56,6 +56,21 @@ export class Example extends baseComponent {
   ]
   @ViewChild('mainEngineConsumptionGrid', { static: true }) mainEngineConsumptionGrid: TemplateRef<any> | undefined
   @ViewChild('docUploader') docUploader!: OslDocumentUploader;
+  @ViewChild('draggableDialogBody') draggableDialogBody: TemplateRef<any> | undefined;
+  @ViewChild('draggableDialogFooter') draggableDialogFooter: TemplateRef<any> | undefined;
+
+  // ── Draggable Dialog Demo ─────────────────────────────────────────────────
+  openDraggableDialogDemo() {
+    this.openDialog(
+      'Draggable Dialog Demo',
+      this.draggableDialogBody,
+      this.draggableDialogFooter,
+      '30vw',
+      undefined,
+      undefined,
+      true,
+    );
+  }
 
   // ── File Upload Base64 Demo ───────────────────────────────────────────────
   fileUploadNewModel: any = {};
