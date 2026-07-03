@@ -15,6 +15,9 @@
     flex-direction: row;
     overflow: visible; // let CDK drag preview escape the container
     align-items: stretch;
+    gap: 14px;
+    border: none;
+    background: transparent;
   }
 }
 
@@ -27,6 +30,14 @@
   overflow: hidden;
   border-radius: inherit;
   position: relative; // anchor for the absolute drop-zone overlay
+}
+
+// In builder mode the grid area becomes its own card since the wrapper
+// no longer draws a single shared border around both panes.
+.osl-fg-wrapper--builder .osl-fg-grid-area {
+  border: 1px solid var(--osl-border-color, #e5e7eb);
+  border-radius: var(--osl-border-radius, 8px);
+  background: #ffffff;
 }
 
 // ── Panel-to-grid drop overlay ────────────────────────────────
@@ -472,8 +483,10 @@
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid var(--osl-border-color, #e5e7eb);
-  background: #fafafa;
+  border: 1px solid var(--osl-border-color, #e5e7eb);
+  border-radius: var(--osl-border-radius, 8px);
+  background: linear-gradient(180deg, #eceafb 0%, #e2defa 100%);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06), 0 8px 20px -6px rgba(99, 102, 241, 0.16);
   // Proper height: match the grid area height via align-items: stretch on parent
   min-height: 200px;
   overflow: hidden; // clip children; list scrolls independently
@@ -485,8 +498,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 11px 14px 10px;
-  border-bottom: 1px solid var(--osl-border-color, #e5e7eb);
-  background: #f3f4f6;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.18);
+  background: rgba(99, 102, 241, 0.1);
   flex-shrink: 0;
 }
 
@@ -512,9 +525,9 @@
 .osl-fg-panel__search {
   position: relative;
   padding: 8px 10px;
-  border-bottom: 1px solid var(--osl-border-color, #e5e7eb);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.14);
   flex-shrink: 0;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.55);
 }
 
 .osl-fg-search-icon {
@@ -612,7 +625,11 @@
   &:hover {
     background: #f0f4ff;
 
-    .osl-fg-drag-item__grip { opacity: 1; }
+    .osl-fg-drag-item__grip {
+      opacity: 1;
+      background: rgba(99, 102, 241, 0.18);
+      color: var(--osl-primary, #6366f1);
+    }
     .osl-fg-drag-item__arrow { opacity: 0.5; }
   }
 
@@ -621,12 +638,16 @@
 
 .osl-fg-drag-item__grip {
   flex-shrink: 0;
-  width: 16px;
-  opacity: 0.2;
-  color: #6b7280;
-  transition: opacity 0.15s;
+  width: 20px;
+  height: 20px;
+  opacity: 0.85;
+  color: var(--osl-primary, #6366f1);
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 4px;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
   display: flex;
   align-items: center;
+  justify-content: center;
 
   svg { width: 13px; height: 13px; }
 }
