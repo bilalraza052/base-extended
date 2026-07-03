@@ -21,7 +21,7 @@
             [disabled]="disabled || loading"
             #myField="ngModel"
         >
-            <option value="" [disabled]="required" [hidden]="required" selected>{{placeholder}}</option>
+            <option value="" [disabled]="required" [hidden]="required" selected>Select..</option>
             @for(item of datasource; track item) {
                 <option [value]="getValue(item)">{{getDisplay(item)}}</option>
             }
