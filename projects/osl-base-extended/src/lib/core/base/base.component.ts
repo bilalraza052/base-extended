@@ -46,19 +46,21 @@ export class baseComponent{
     }
 
     protected openDialog(
-        header?:string|TemplateRef<any>, 
+        header?:string|TemplateRef<any>,
         formBody?:TemplateRef<any>,
         formFooter?:TemplateRef<any>,
         width:string = '40vw',
         data?:any,
-        component?:any
+        component?:any,
+        isDraggable:boolean = false
     ):MatDialogRef<any>{
         const dialogData:Dialog= {
             header:header,
             formBody:formBody,
             formFooter:formFooter,
             data:data,
-            component:component
+            component:component,
+            isDraggable:isDraggable
         }
         const dialogRef = this._injector.get(MatDialog)?.open(DialogWrapper,{
             width:width,

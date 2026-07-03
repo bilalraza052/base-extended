@@ -3,11 +3,16 @@
     <ng-container [ngComponentOutlet]="dialogData.component"  [ngComponentOutletInputs]="{ data: dialogData }"></ng-container>
 }
 @else{
-  <div class="dialog-container">
-  
+  <div
+    class="dialog-container"
+    cdkDrag
+    cdkDragRootElement=".cdk-overlay-pane"
+    [cdkDragConstrainPosition]="dragConstrainPosition"
+    [cdkDragDisabled]="!dialogData.isDraggable">
+
     <!-- Header -->
     @if(typeof dialogData.header == 'string') {
-      <div class="dialog-header" mat-dialog-title>
+      <div class="dialog-header" [class.draggable]="dialogData.isDraggable" cdkDragHandle [cdkDragHandleDisabled]="!dialogData.isDraggable" mat-dialog-title>
         <div class="dialog-header-left">
           <div class="dialog-icon-ring">
             <mat-icon class="dialog-icon">
@@ -21,16 +26,24 @@
             <span class="dialog-heading"> {{ dialogData.header.startsWith('Add') ? dialogData.header.replace('Add','') : dialogData.header.startsWith('Edit') ? dialogData.header.replace('Edit','') : '' }}</span>
           </div>
         </div>
-        
+        @if(dialogData.isDraggable) {
+          <div class="dialog-drag-handle" title="Drag to move">
+            <mat-icon>drag_indicator</mat-icon>
+          </div>
+        }
         @if(dialogData.partialHeader) {
+
           <ng-container *ngTemplateOutlet="dialogData.partialHeader; context: { $implicit: dialogData }"></ng-container>
         }
         <button mat-icon-button class="dialog-close-btn" mat-dialog-close>
           <mat-icon>close</mat-icon>
         </button>
+
       </div>
     } @else {
-      <ng-container *ngTemplateOutlet="dialogData.header; context: { $implicit: dialogData }"></ng-container>
+      <div class="dialog-header-custom" [class.draggable]="dialogData.isDraggable" cdkDragHandle [cdkDragHandleDisabled]="!dialogData.isDraggable">
+        <ng-container *ngTemplateOutlet="dialogData.header; context: { $implicit: dialogData }"></ng-container>
+      </div>
     }
   
     <!-- Body -->
@@ -44,7 +57,7 @@
   
     <!-- Footer -->
     @if(dialogData.formFooter) {
-      <mat-dialog-actions class="dialog-actions">
+      <mat-dialog-actions class="dialog-actions" [class.draggable]="dialogData.isDraggable" cdkDragHandle [cdkDragHandleDisabled]="!dialogData.isDraggable">
         <div class="dialog-footer">
           <ng-container *ngTemplateOutlet="dialogData.formFooter; context: { $implicit: dialogData }"></ng-container>
         </div>

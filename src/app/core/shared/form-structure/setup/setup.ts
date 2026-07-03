@@ -66,6 +66,7 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   @Input('totalRecords') totalRecords: number = 0;
   @Input('loading') loading: boolean = false;
   @Input('dialogWidth') dialogWidth: string = '50vw';
+  @Input('isDraggable') isDraggable: boolean = false;
   @Input('formElements') formElements: elements[] = [];
   @Input('beforeDisplay') beforeDisplay: ((model: any) => any | undefined) | undefined;
   @Input('onAddEditFn') onAddEditFn: ((row?: any) => void | undefined) | undefined;
@@ -490,6 +491,7 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
         partialHeader: this.partialCustomHeaderTemp,
         formBody: this.formBodyTpl,
         formFooter: this.customFormFooter ? this.customFooterWrapperTpl : this.formFooterTpl,
+        isDraggable: this.isDraggable,
       },
     });
     this._dialogRef.afterClosed().subscribe(() => {

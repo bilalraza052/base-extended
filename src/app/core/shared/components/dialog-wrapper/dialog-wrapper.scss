@@ -5,7 +5,18 @@
 }
 
 // ── Header ──────────────────────────────────────────────────────
+// Transparent wrapper so a custom header template's own layout is untouched;
+// it exists only to give cdkDragHandle a real DOM node to bind to.
+.dialog-header-custom {
+  display: contents;
+
+  &.draggable {
+    cursor: move;
+  }
+}
+
 .dialog-header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -16,6 +27,29 @@
 
   &::before {
     display: none; // override mat-dialog-title pseudo-element
+  }
+
+  &.draggable {
+    cursor: move;
+  }
+}
+
+.dialog-drag-handle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  cursor: move;
+  pointer-events: none;
+
+  .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
   }
 }
 
@@ -117,6 +151,10 @@
   min-height: unset !important;
   border-top: 1px solid #e5e7eb;
   background: #fafafa;
+
+  &.draggable {
+    cursor: move;
+  }
 }
 
 .dialog-footer {
