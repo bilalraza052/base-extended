@@ -11,7 +11,14 @@ export type InputType = 'text' | 'password' | 'email' | 'number' | 'tel' | 'url'
 export class Oslinput implements OnInit, OnChanges {
   @Input('label') label: string = '';
   @Input('required') required: boolean = false;
-  @Input('disabled') disabled: boolean = false;
+  private _isDisabled: any;
+  @Input('disabled') set disabled(val: any) {
+    this._isDisabled = val
+  }
+
+  get disabled(){
+    return this._isDisabled
+  }
   @Input('model') model: any = '';
   @Input('type') type: InputType = 'text';
   @Input('placeholder') placeholder: string = '';
