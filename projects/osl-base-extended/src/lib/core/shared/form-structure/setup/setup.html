@@ -40,6 +40,16 @@
       @if (!isLister && canAdd) {
         <osl-button variant="secondary" size="sm" [label]="'Add ' + title" (clickEv)="openAddDialog()"></osl-button>
       }
+
+      @if (moreMenuHeaderActions.length > 0 && hasVisibleHeaderActions) {
+        <button class="osl-card-action-btn osl-card-action-btn--more" (click)="toggleHeaderMenu($event)" title="More actions">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="5" r="2.2"/>
+            <circle cx="12" cy="12" r="2.2"/>
+            <circle cx="12" cy="19" r="2.2"/>
+          </svg>
+        </button>
+      }
     </div>
   </div>
 
@@ -301,6 +311,24 @@
 <ng-template #customFooterWrapperTpl let-data>
   <ng-container *ngTemplateOutlet="customFormFooter!; context: { $implicit: { dialogModel: dialogModel, dialogMode: dialogMode, dialogRef: data.dialogRef } }"></ng-container>
 </ng-template>
+
+<!-- Floating header more-actions menu -->
+@if (headerMenuOpen && moreMenuHeaderActions.length > 0) {
+  <div class="osl-card-menu"
+       [style.top.px]="headerMenuPosition.top"
+       [style.left.px]="headerMenuPosition.left"
+       (click)="$event.stopPropagation()">
+    <div class="osl-card-menu-header">Actions</div>
+    @for (action of moreMenuHeaderActions; track $index) {
+      @if (!action.hideIf || !action.hideIf(undefined)) {
+        <button class="osl-card-menu-item" (click)="action.click(undefined); headerMenuOpen = false">
+          <span class="osl-card-menu-dot"></span>
+          {{ action.labelIf ? action.labelIf(undefined) : action.label }}
+        </button>
+      }
+    }
+  </div>
+}
 
 <!-- Floating card more-actions menu -->
 @if (viewMode === 'card' && cardOpenMenuIndex !== null && moreMenuActions.length > 0) {

@@ -76,6 +76,7 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   @Input('canEdit') canEdit: boolean = true;
   @Input('canDelete') canDelete: boolean = true;
   @Input('moreMenuActions') moreMenuActions: OslMenuAction[] = [];
+  @Input('moreMenuHeaderActions') moreMenuHeaderActions: OslMenuAction[] = [];
   @Input('customFormFooter') customFormFooter: TemplateRef<any> | undefined;
   @Input('customHeaderTemp') customHeaderTemp: TemplateRef<any> | undefined;
   @Input('partialCustomHeaderTemp') partialCustomHeaderTemp: TemplateRef<any> | undefined;
@@ -114,9 +115,14 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   cardOpenMenuIndex: number | null = null;
   cardMenuPosition = { top: 0, left: 0 };
 
+  // ── Header more-actions menu state ─────────────────────────────
+  headerMenuOpen: boolean = false;
+  headerMenuPosition = { top: 0, left: 0 };
+
   @HostListener('document:click')
   onDocumentClick(): void {
     this.cardOpenMenuIndex = null;
+    this.headerMenuOpen = false;
   }
 
   get hasForm(): boolean {
@@ -285,6 +291,23 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     const left = Math.min(Math.max(rect.right - menuWidth, 8), window.innerWidth - menuWidth - 8);
     this.cardMenuPosition = { top: rect.bottom + 6, left };
     this.cardOpenMenuIndex = index;
+  }
+
+  get hasVisibleHeaderActions(): boolean {
+    return this.moreMenuHeaderActions.some(a => !a.hideIf || !a.hideIf(undefined));
+  }
+
+  toggleHeaderMenu(event: Event): void {
+    event.stopPropagation();
+    if (this.headerMenuOpen) {
+      this.headerMenuOpen = false;
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const menuWidth = 196;
+    const left = Math.min(Math.max(rect.right - menuWidth, 8), window.innerWidth - menuWidth - 8);
+    this.headerMenuPosition = { top: rect.bottom + 6, left };
+    this.headerMenuOpen = true;
   }
 
   isHighlightedCard(row: any): boolean {
