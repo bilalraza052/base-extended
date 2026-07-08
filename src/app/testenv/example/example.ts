@@ -143,6 +143,12 @@ export class Example extends baseComponent {
   // ─────────────────────────────────────────────────────────────────────────
 
   leads: any[] = [
+    { id: 1, name: 'Ali Raza', email: 'ali.raza@example.com', phone: '0300-1234567', status: 1, source: 'website' },
+    { id: 2, name: 'Sara Khan', email: 'sara.khan@example.com', phone: '0321-9876543', status: 2, source: 'referral' },
+    { id: 3, name: 'Ahmed Bhatti', email: 'ahmed.b@example.com', phone: '0333-4567890', status: 3, source: 'social' },
+    { id: 4, name: 'Fatima Noor', email: 'fatima.noor@example.com', phone: '0345-1122334', status: 4, source: 'email' },
+    { id: 5, name: 'Bilal Iqbal', email: 'bilal.iqbal@example.com', phone: '0301-2233445', status: 1, source: 'referral' },
+    { id: 6, name: 'Mariam Sheikh', email: 'mariam.sheikh@example.com', phone: '0312-5566778', status: 2, source: 'website' },
   
    
   
@@ -211,6 +217,20 @@ export class Example extends baseComponent {
     { label: 'Contacted', value: 2 },
     { label: 'Qualified', value: 3 },
     { label: 'Closed', value: 4 },
+  ];
+
+  leadsFormElements: elements[] = [
+    { columns: 6, elementType: 'textbox', key: 'name', label: 'Name', required: true },
+    { columns: 6, elementType: 'textbox', key: 'email', label: 'Email', inputType: 'email' },
+    { columns: 6, elementType: 'textbox', key: 'phone', label: 'Phone' },
+    {
+      columns: 6, elementType: 'select', key: 'status', label: 'Status',
+      datasource: this.statusOptions, displayField: 'label', valueField: 'value',
+    },
+    {
+      columns: 12, elementType: 'select', key: 'source', label: 'Source',
+      datasource: this.sourceOptions, displayField: 'label', valueField: 'value',
+    },
   ];
 
   formElements: elements[] = [];
@@ -460,9 +480,29 @@ export class Example extends baseComponent {
     this.leads = this.leads.filter(l => l !== row);
   }
 
-  onSearchLeads(value: string) {
-    console.log('search', value);
+  leadsSearchTerm = '';
+  get filteredLeads(): any[] {
+    const q = this.leadsSearchTerm.trim().toLowerCase();
+    if (!q) return this.leads;
+    return this.leads.filter(l =>
+      l.name.toLowerCase().includes(q) ||
+      l.email.toLowerCase().includes(q) ||
+      l.phone.toLowerCase().includes(q)
+    );
   }
+
+  onSearchLeads(value: string) {
+    this.leadsSearchTerm = value || '';
+  }
+
+  onSaveLead = (event: OslSetupSaveEvent): boolean => {
+    if (event.mode === 'add') {
+      this.leads = [...this.leads, { id: Date.now(), ...event.model }];
+    } else {
+      this.leads = this.leads.map(l => l.id === event.model.id ? { ...l, ...event.model } : l);
+    }
+    return true;
+  };
 
   onSearch() {
 

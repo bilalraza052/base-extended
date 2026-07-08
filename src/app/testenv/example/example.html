@@ -1,5 +1,27 @@
 
 
+  <!-- ── Setup (Searchbar demo) ───────────────────────────────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Setup</span>
+      <span class="ex-card__desc">osl-setup's header embeds osl-searchbar — type to filter leads client-side</span>
+    </div>
+    <div class="ex-card__body">
+      <osl-setup
+        title="Leads"
+        [columns]="columns"
+        [datasource]="filteredLeads"
+        [formElements]="leadsFormElements"
+        [pageSize]="5"
+        tableHeight="320px"
+        (onSearch)="onSearchLeads($event)"
+        (onEdit)="onEdit($event)"
+        (onDelete)="onDeleteLead($event)"
+        [onSave]="onSaveLead"
+      ></osl-setup>
+    </div>
+  </div>
+
   <!-- ── Form Grid ─────────────────────────────────────────────── -->
   <div class="ex-card mb-4">
     <div class="ex-card__head">
