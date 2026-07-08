@@ -274,6 +274,102 @@
   }
 }
 
+// ── Footer more-actions button ─────────────────────────────────────────────────
+.orf-more-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+
+  svg { width: 15px; height: 15px; fill: #9ca3af; transition: fill 0.15s; }
+
+  &:hover {
+    background: #f5f3ff;
+    border-color: #6366f1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    svg { fill: #6366f1; }
+  }
+}
+
+// ── Footer more-actions dropdown ───────────────────────────────────────────────
+.orf-more-menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 196px;
+  background: #ffffff;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.14), 0 4px 12px rgba(16, 24, 40, 0.06);
+  overflow: hidden;
+  animation: orf-menu-pop 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &__header {
+    padding: 10px 14px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    border-bottom: 1px solid #f2f4f7;
+    user-select: none;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid #f9fafb;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    color: #374151;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.12s, color 0.12s, border-left-color 0.12s;
+
+    &:last-child { border-bottom: none; }
+
+    &:hover {
+      background: #f5f3ff;
+      color: #6366f1;
+      border-left-color: #6366f1;
+
+      .orf-more-menu__dot {
+        background: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16);
+      }
+    }
+  }
+
+  &__dot {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d1d5db;
+    transition: background 0.12s, box-shadow 0.12s;
+  }
+}
+
+@keyframes orf-menu-pop {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 // ── Full-screen results view ──────────────────────────────────────────────────
 .orf-results-view {
   position: fixed;

@@ -87,6 +87,15 @@
 
     <!-- Footer -->
     <div class="orf-footer">
+      @if (moreMenuActions.length > 0 && hasVisibleMoreMenuActions) {
+        <button class="orf-more-btn" (click)="toggleMoreMenu($event)" type="button" title="More actions">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="5" r="2.2"/>
+            <circle cx="12" cy="12" r="2.2"/>
+            <circle cx="12" cy="19" r="2.2"/>
+          </svg>
+        </button>
+      }
       <button
         class="orf-generate-btn"
         (click)="generate()"
@@ -201,4 +210,22 @@
       ></osl-report-grid>
     </div>
 
+}
+
+<!-- Floating footer more-actions menu -->
+@if (moreMenuOpen && moreMenuActions.length > 0) {
+  <div class="orf-more-menu"
+       [style.top.px]="moreMenuPosition.top"
+       [style.left.px]="moreMenuPosition.left"
+       (click)="$event.stopPropagation()">
+    <div class="orf-more-menu__header">Actions</div>
+    @for (action of moreMenuActions; track $index) {
+      @if (!action.hideIf || !action.hideIf(undefined)) {
+        <button class="orf-more-menu__item" (click)="action.click(undefined); moreMenuOpen = false">
+          <span class="orf-more-menu__dot"></span>
+          {{ action.labelIf ? action.labelIf(undefined) : action.label }}
+        </button>
+      }
+    }
+  </div>
 }

@@ -1,6 +1,7 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { elements } from '../dynamic-form/dynamic-form';
 import { OslPdfConfig, OslReportColumn, OslReportGrid } from '../report-grid/report-grid';
+import { OslMenuAction } from '../grid/grid';
 
 export type ReportGenerateType = 'pdf' | 'grid' | 'excel';
 
@@ -26,6 +27,7 @@ export class OslReportForm implements OnInit {
   @Input() skeletonTheme: 'light' | 'dark' = 'light';
   @Input() pageSize: number = 50;
   @Input() pdfConfig: OslPdfConfig = {};
+  @Input('moreMenuActions') moreMenuActions: OslMenuAction[] = [];
 
   @ViewChild(OslReportGrid) private _grid?: OslReportGrid;
 
@@ -39,6 +41,32 @@ export class OslReportForm implements OnInit {
   generating: boolean = false;
   resultDatasource: any[] = [];
   showResultView: boolean = false;
+
+  // ── Footer more-actions menu state ─────────────────────────────
+  moreMenuOpen: boolean = false;
+  moreMenuPosition = { top: 0, left: 0 };
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.moreMenuOpen = false;
+  }
+
+  get hasVisibleMoreMenuActions(): boolean {
+    return this.moreMenuActions.some(a => !a.hideIf || !a.hideIf(undefined));
+  }
+
+  toggleMoreMenu(event: Event): void {
+    event.stopPropagation();
+    if (this.moreMenuOpen) {
+      this.moreMenuOpen = false;
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const menuWidth = 196;
+    const left = Math.min(Math.max(rect.right - menuWidth, 8), window.innerWidth - menuWidth - 8);
+    this.moreMenuPosition = { top: rect.bottom + 6, left };
+    this.moreMenuOpen = true;
+  }
 
   ngOnInit(): void {
     if (this.generateOptions.length > 0 && !this.generateOptions.includes(this.selectedType)) {
