@@ -37,6 +37,8 @@ export class Oslinput implements OnInit, OnChanges {
   @Input('isCapitalize') isCapitalize: boolean = false;
   /** Enforce N decimal places. Shows 0.00 when blank; auto-pads on blur. */
   @Input('decimalPortion') decimalPortion: number | null = null;
+  /** Allow a leading minus sign for 'int' type and decimal inputs. Default false. */
+  @Input('allowNegative') allowNegative: boolean = true;
 
   @Output() modelChange = new EventEmitter<any>();
   @Output() changeEv = new EventEmitter<any>();
@@ -98,13 +100,16 @@ export class Oslinput implements OnInit, OnChanges {
   }
 
   private formatDecimal(value: string): string {
+    const isNegative = this.allowNegative && value.trim().startsWith('-');
     const cleaned = value.replace(/[^\d.]/g, '');
     const num = parseFloat(cleaned);
     if (isNaN(num)) return (0).toFixed(this.decimalPortion!);
-    return num.toFixed(this.decimalPortion!);
+    const formatted = num.toFixed(this.decimalPortion!);
+    return isNegative && num !== 0 ? '-' + formatted : formatted;
   }
 
   private cleanDecimalInput(value: string): string {
+    const isNegative = this.allowNegative && value.trim().startsWith('-');
     let cleaned = value.replace(/[^\d.]/g, '');
     const parts = cleaned.split('.');
     if (parts.length > 2) {
@@ -113,7 +118,7 @@ export class Oslinput implements OnInit, OnChanges {
     if (parts.length >= 2 && parts[1].length > this.decimalPortion!) {
       cleaned = parts[0] + '.' + parts[1].substring(0, this.decimalPortion!);
     }
-    return cleaned;
+    return (isNegative ? '-' : '') + cleaned;
   }
 
   onKeyDown(event: KeyboardEvent) {
@@ -126,6 +131,12 @@ export class Oslinput implements OnInit, OnChanges {
     }
 
     if (this.type === 'int') {
+      if (event.key === '-') {
+        if (!this.allowNegativeAt(event.target as HTMLInputElement)) {
+          event.preventDefault();
+        }
+        return;
+      }
       if (!/\d/.test(event.key)) {
         event.preventDefault();
       }
@@ -134,6 +145,12 @@ export class Oslinput implements OnInit, OnChanges {
 
     if (this.decimalPortion !== null) {
       const key = event.key;
+      if (key === '-') {
+        if (!this.allowNegativeAt(event.target as HTMLInputElement)) {
+          event.preventDefault();
+        }
+        return;
+      }
       if (!/[\d.]/.test(key)) {
         event.preventDefault();
         return;
@@ -171,6 +188,11 @@ export class Oslinput implements OnInit, OnChanges {
     }
   }
 
+  private allowNegativeAt(input: HTMLInputElement): boolean {
+    if (!this.allowNegative) return false;
+    return (input.selectionStart ?? 0) === 0 && !input.value.includes('-');
+  }
+
   private isKeyAllowedByMask(key: string): boolean {
     const maskSlots = new Set<string>();
     for (const c of this.mask) {
@@ -194,8 +216,9 @@ export class Oslinput implements OnInit, OnChanges {
     if (this.type === 'int') {
       const dotIndex = value.indexOf('.');
       const truncated = dotIndex !== -1 ? value.substring(0, dotIndex) : value;
+      const isNegative = this.allowNegative && truncated.trim().startsWith('-');
       const digits = truncated.replace(/[^\d]/g, '');
-      this.model = digits === '' ? null : parseInt(digits, 10);
+      this.model = digits === '' ? (isNegative ? '-' : null) : parseInt((isNegative ? '-' : '') + digits, 10);
       this.modelChange.emit(this.model);
       return;
     }

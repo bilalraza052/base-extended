@@ -31,6 +31,7 @@
                         [suffixIcon]="elem.suffixIcon || ''"
                         [onlyChars]="!!elem.onlyChars"
                         [decimalPortion]="elem.decimalPortion ?? null"
+                        [allowNegative]="!!elem.allowNegative"
                         (changeEv)="elem.change ? elem.change(model) : null"
                         [model]="model[elem.key]"
                         (modelChange)="onModelChange($event, elem.key)"
