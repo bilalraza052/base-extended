@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { elements } from '../dynamic-form/dynamic-form';
 import {
   CdkDragDrop,
@@ -77,8 +78,11 @@ export interface PanelPageEvent {
   standalone: false,
   templateUrl: './form-grid.html',
   styleUrl: './form-grid.scss',
+  providers: [DatePipe],
 })
 export class OslFormGrid {
+  constructor(private datePipe: DatePipe) {}
+
   // ── Existing inputs ────────────────────────────────────────────────────────
   @Input('columns') columns: OslFormGridColumn[] = [];
   @Input('datasource') datasource: any[] = [];
@@ -102,8 +106,10 @@ export class OslFormGrid {
   @Input() leftPanelWidth = 320;
   @Input() dragTitle = 'Available Controls';
   @Input() showSearch = true;
-  @Input() allowReorder = true;
+  @Input() allowReorder = false;
   @Input() allowRemove = true;
+  /** Per-row override to disable reordering for specific rows, e.g. (row) => row.locked. */
+  @Input('reorderDisabledIf') reorderDisabledIf?: (row: any) => boolean;
 
   /** 'Local' filters draggingList in the component. 'Api' emits (panelSearch) for the parent to handle. */
   @Input() panelSearchType: 'Local' | 'Api' = 'Local';
@@ -252,6 +258,54 @@ export class OslFormGrid {
     return !!col.formElem?.required || !!col.formElem?.requiredIf;
   }
 
+  /** Resolves the human-readable value for a cell — same value the grid control represents,
+   *  not the raw model value (e.g. displayField label instead of an id, formatted date, etc). */
+  getPreviewValue(col: OslFormGridColumn, row: any): any {
+    const elem = col.formElem;
+    const raw = row[col.key];
+    if (!elem) return raw ?? '—';
+
+    switch (elem.elementType) {
+      case 'select':
+      case 'autocomplete':
+      case 'radio': {
+        if (!elem.datasource?.length || raw === null || raw === undefined) return raw ?? '—';
+        const resolve = (v: any) => {
+          const item = elem.datasource!.find(d => (elem.valueField ? d[elem.valueField] : d) === v);
+          if (!item) return v;
+          if (elem.displayFn) return elem.displayFn(item);
+          return elem.displayField ? item[elem.displayField] : item;
+        };
+        return Array.isArray(raw) ? raw.map(resolve).join(', ') || '—' : resolve(raw);
+      }
+
+      case 'datepicker':
+        return this.formatDate(
+          raw,
+          elem.dateType === 'month' ? 'MMM y' : elem.dateType === 'time' ? 'shortTime' : 'mediumDate',
+        );
+
+      case 'datetimepicker':
+        return this.formatDate(raw, 'medium');
+
+      case 'checkbox':
+      case 'slide-toggle':
+        return raw ? (elem.trueLabel || 'Yes') : (elem.falseLabel || 'No');
+
+      default:
+        return raw ?? '—';
+    }
+  }
+
+  private formatDate(raw: any, format: string): any {
+    if (!raw) return '—';
+    try {
+      return this.datePipe.transform(raw, format) ?? raw;
+    } catch {
+      return raw;
+    }
+  }
+
   onSelectChange(col: OslFormGridColumn, row: any, i: number, value: any): void {
     if (!col.formElem?.change) return;
     const elem = col.formElem;
@@ -330,6 +384,7 @@ export class OslFormGrid {
     const baseIndex = this.isPaginated ? (this.currentPage - 1) * this.pageSize : 0;
     const prevActual = baseIndex + event.previousIndex;
     const currActual = baseIndex + event.currentIndex;
+    if (this.isReorderDisabled(this.datasource[prevActual])) return;
     moveItemInArray(this.datasource, prevActual, currActual);
     this.datasource = [...this.datasource];
     this.datasourceChange.emit(this.datasource);
@@ -342,6 +397,10 @@ export class OslFormGrid {
       row: this.datasource[currActual],
     });
     this.gridChanged.emit(this.datasource);
+  }
+
+  isReorderDisabled(row: any): boolean {
+    return this.reorderDisabledIf ? this.reorderDisabledIf(row) : false;
   }
 
   removeGridRow(pagedIndex: number): void {

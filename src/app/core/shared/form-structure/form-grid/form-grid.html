@@ -41,7 +41,7 @@
         <!-- ── Header ─────────────────────────────────────────────── -->
         <thead class="osl-fg-thead">
           <tr>
-            @if (enableDragDrop && allowReorder) {
+            @if (allowReorder) {
               <th class="osl-fg-th osl-fg-th--drag"></th>
             }
             @if (hasActions) {
@@ -69,14 +69,14 @@
           cdkDropList
           #gridList="cdkDropList"
           [cdkDropListData]="pagedData"
-          [cdkDropListDisabled]="!enableDragDrop"
+          [cdkDropListDisabled]="!allowReorder"
           (cdkDropListDropped)="onGridReorder($event)">
 
           <!-- Loading state -->
           @if (loading) {
             @for (sk of skeletonRows; track $index) {
               <tr class="osl-fg-row osl-fg-row--skeleton">
-                @if (enableDragDrop && allowReorder) {
+                @if (allowReorder) {
                   <td class="osl-fg-td osl-fg-td--drag"></td>
                 }
                 @if (hasActions) {
@@ -93,7 +93,7 @@
           <!-- Empty state -->
           } @else if (pagedData.length === 0) {
             <tr>
-              <td [attr.colspan]="columns.length + (hasActions ? 1 : 0) + (enableDragDrop && allowReorder ? 1 : 0)"
+              <td [attr.colspan]="columns.length + (hasActions ? 1 : 0) + (allowReorder ? 1 : 0)"
                   class="osl-fg-empty">
                 <div class="osl-fg-empty-inner">
                   @if (enableDragDrop && isDragging) {
@@ -118,15 +118,19 @@
               <tr class="osl-fg-row"
                   cdkDrag
                   [cdkDragData]="row"
-                  [cdkDragDisabled]="!enableDragDrop"
+                  [cdkDragDisabled]="!allowReorder || isReorderDisabled(row)"
                   (cdkDragStarted)="onDragStartedEvent($event, row, 'grid')"
                   (cdkDragEnded)="onDragEndedEvent($event, row, 'grid')"
                   (click)="enableDragDrop ? selectGridItem(row, i) : null">
 
                 <!-- Drag handle -->
-                @if (enableDragDrop && allowReorder) {
+                @if (allowReorder) {
                   <td class="osl-fg-td osl-fg-td--drag">
-                    <span class="osl-fg-row-handle" cdkDragHandle title="Drag to reorder">
+                    <span class="osl-fg-row-handle"
+                          [class.osl-fg-row-handle--disabled]="isReorderDisabled(row)"
+                          cdkDragHandle
+                          [cdkDragHandleDisabled]="isReorderDisabled(row)"
+                          [title]="isReorderDisabled(row) ? 'Reorder disabled' : 'Drag to reorder'">
                       <svg viewBox="0 0 24 24" fill="currentColor">
                         <circle cx="9"  cy="5"  r="1.3"/><circle cx="9"  cy="12" r="1.3"/><circle cx="9"  cy="19" r="1.3"/>
                         <circle cx="15" cy="5"  r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="15" cy="19" r="1.3"/>
@@ -338,7 +342,7 @@
                 <ng-template cdkDragPreview>
                   <div class="osl-fg-row-preview">
                     @for (col of columns; track col.key) {
-                      <span class="osl-fg-row-preview__cell">{{ row[col.key] ?? '—' }}</span>
+                      <span class="osl-fg-row-preview__cell">{{ getPreviewValue(col, row) }}</span>
                     }
                   </div>
                 </ng-template>
@@ -346,7 +350,7 @@
                 <!-- Drop placeholder: spans full row width with "Drop Here" -->
                 <ng-template cdkDragPlaceholder>
                   <tr class="osl-fg-row-placeholder">
-                    <td [attr.colspan]="columns.length + (hasActions ? 1 : 0) + (enableDragDrop && allowReorder ? 1 : 0)">
+                    <td [attr.colspan]="columns.length + (hasActions ? 1 : 0) + (allowReorder ? 1 : 0)">
                       <div class="osl-fg-drop-here">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <path d="M12 5v14M5 12l7 7 7-7"/>
