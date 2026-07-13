@@ -30,7 +30,7 @@ export class Oslinput implements OnInit, OnChanges {
   @Input('decimalPortion') decimalPortion: number | null = null;
   @Input('isCapitalize') isCapitalize: boolean | null = null;
   /** Allow a leading minus sign for 'int' type and decimal inputs. Default false. */
-  @Input('allowNegative') allowNegative: boolean = false;
+  @Input('allowNegative') allowNegative: boolean = true;
 
   @Output() modelChange = new EventEmitter<any>();
   @Output() changeEv = new EventEmitter<any>();

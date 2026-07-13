@@ -190,7 +190,7 @@ export interface elements {
   /** Enforce N decimal places on osl-input. Shows 0.00 when blank; auto-pads on blur. */
   decimalPortion?: number;
   /** Allow a leading minus sign for 'int' type and decimal inputs. Default false. */
-  allowNegative?: boolean;
+  restrictNegative?: boolean;
 
   // ── osl-textarea ──────────────────────────────────
   textareaRows?: number;
