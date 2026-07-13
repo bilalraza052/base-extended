@@ -228,8 +228,16 @@ export class Example extends baseComponent {
       datasource: this.statusOptions, displayField: 'label', valueField: 'value',
     },
     {
-      columns: 12, elementType: 'select', key: 'source', label: 'Source',
+      columns: 6, elementType: 'select', key: 'source', label: 'Source',
       datasource: this.sourceOptions, displayField: 'label', valueField: 'value',
+    },
+    {
+      columns: 6, elementType: 'textbox', key: 'creditAdjustment', label: 'Credit Adjustment',
+      inputType: 'int', restrictNegative:true
+    },
+    {
+      columns: 6, elementType: 'textbox', key: 'dealValue', label: 'Deal Value',
+      inputType: 'number', decimalPortion: 2, 
     },
   ];
 
