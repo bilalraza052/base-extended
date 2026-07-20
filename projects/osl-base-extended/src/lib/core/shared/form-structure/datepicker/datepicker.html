@@ -17,14 +17,18 @@
             [disabled]="disabled"
             [min]="minDateObj"
             [max]="maxDateObj"
-            [placeholder]="placeholder || 'DD/MMM/YYYY'"
+            [placeholder]="placeholder || (dateType === 'year' ? 'YYYY' : 'DD/MMM/YYYY')"
             [class.error]="myField.touched && myField.invalid"
             #myField="ngModel"
         >
         <mat-datepicker-toggle class="picker-toggle" [for]="picker" [disabled]="disabled">
             <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
         </mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
+        <mat-datepicker
+            #picker
+            [startView]="dateType === 'year' ? 'multi-year' : 'month'"
+            (yearSelected)="dateType === 'year' && onYearSelected($event, picker)"
+        ></mat-datepicker>
     </div>
     @if (myField.touched && myField.invalid && required) {
         <mat-hint class="hint">{{label}} is Required!</mat-hint>

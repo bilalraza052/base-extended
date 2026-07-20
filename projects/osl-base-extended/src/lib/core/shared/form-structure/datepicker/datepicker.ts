@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatDatepicker } from '@angular/material/datepicker';
 
-export type DateInputType = 'date' | 'datetime-local' | 'time' | 'month' | 'week';
+export type DateInputType = 'date' | 'datetime-local' | 'time' | 'month' | 'week' | 'year';
 
 @Component({
   selector: 'osl-datepicker',
@@ -16,12 +17,8 @@ export class OslDatepicker {
   dateValue: Date | null = null;
 
   private _model: string = '';
-  @Input('model') set model(val: string) {
-    this._model = val
-    // const clean = val?.includes('T') ? val.split('T')[0] : (val ?? '');
-    // if (clean === this._model) return;
-    // this._model = clean;
-    // this.dateValue = clean ? this._toDate(clean) : null;
+  @Input('model') set model(val: string | Date | null | undefined) {
+    this._model = val instanceof Date ? this._toString(val) : (val ?? '');
   }
   get model(): string { return this._model; }
 
@@ -56,6 +53,14 @@ export class OslDatepicker {
     if(newModel)this._model = newModel;
     this.modelChange.emit(this._model);
     this.changeEv.emit(this._model);
+  }
+
+  onYearSelected(normalizedYear: Date, datepicker: MatDatepicker<Date>) {
+    const current = this._model ? this._toDate(this._model.split('T')[0]) : null;
+    const updated = current ?? new Date();
+    updated.setFullYear(new Date(normalizedYear)?.getFullYear());
+    datepicker.close();
+    this.onDateChange(updated);
   }
 
   private _toDate(str: string): Date | null {

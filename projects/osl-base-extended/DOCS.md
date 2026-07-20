@@ -642,7 +642,7 @@ interface elements {
   clearable?:         boolean;
 
   // ── datepicker options ────────────────────────────
-  dateType?:  DateInputType; // 'date' | 'datetime-local' | 'time' | 'month' | 'week'
+  dateType?:  DateInputType; // 'date' | 'datetime-local' | 'time' | 'month' | 'week' | 'year'
   minDate?:   string;
   maxDate?:   string;
   inline?:    boolean;
@@ -951,7 +951,9 @@ All form components use the same two-way binding pattern:
 />
 ```
 
-**Date types:** `date` | `datetime-local` | `time` | `month` | `week`
+**Date types:** `date` | `datetime-local` | `time` | `month` | `week` | `year`
+
+`dateType="year"` opens the picker directly on the multi-year view and closes it as soon as a year is chosen, so users can only select a year (day/month are preserved from the current value, defaulting to today).
 
 ### OslFileUpload
 
@@ -1424,7 +1426,7 @@ type ElementType =
   | 'slide-toggle' | 'fieldset' | 'templateRef';
 
 type InputType      = 'text' | 'password' | 'email' | 'number' | 'tel' | 'url';
-type DateInputType  = 'date' | 'datetime-local' | 'time' | 'month' | 'week';
+type DateInputType  = 'date' | 'datetime-local' | 'time' | 'month' | 'week' | 'year';
 type TextareaResize = 'none' | 'both' | 'horizontal' | 'vertical';
 
 interface elements {
