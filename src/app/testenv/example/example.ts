@@ -237,7 +237,15 @@ export class Example extends baseComponent {
     },
     {
       columns: 6, elementType: 'textbox', key: 'dealValue', label: 'Deal Value',
-      inputType: 'number', decimalPortion: 2, 
+      inputType: 'number', decimalPortion: 2,
+    },
+    {
+      columns: 6, elementType: 'datepicker', key: 'dealYear', label: 'Deal Year',
+      dateType: 'year', change: (model) => {
+        const year = new Date(model.dealYear).getFullYear();
+        model.dealYear = `${year}-12-31T00:00:00`;
+        console.log(model.dealYear);
+      }
     },
   ];
 
