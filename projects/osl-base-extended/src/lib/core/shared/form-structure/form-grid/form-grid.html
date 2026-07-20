@@ -114,7 +114,7 @@
 
           <!-- Data rows -->
           } @else {
-            @for (row of pagedData; track $index; let i = $index) {
+            @for (row of pagedData; track row; let i = $index) {
               <tr class="osl-fg-row"
                   cdkDrag
                   [cdkDragData]="row"
@@ -224,6 +224,7 @@
                               [required]="false"
                               [disabled]="isDisabled(col.formElem,row,i)"
                               [datasource]="col.formElem.datasource || []"
+                              (datasourceChange)="col.formElem.datasource = $event" 
                               [displayField]="col.formElem.displayField || ''"
                               [valueField]="col.formElem.valueField || ''"
                               [placeholder]="col.formElem.autocompletePlaceholder || col.displayName"

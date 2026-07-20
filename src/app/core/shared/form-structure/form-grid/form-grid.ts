@@ -267,14 +267,25 @@ export class OslFormGrid {
 
     switch (elem.elementType) {
       case 'select':
-      case 'autocomplete':
       case 'radio': {
         if (!elem.datasource?.length || raw === null || raw === undefined) return raw ?? '—';
+        const resolve = (v: any) =>
+          this.resolveDisplayFromList(elem.datasource!, elem, v);
+        return Array.isArray(raw) ? raw.map(resolve).join(', ') || '—' : resolve(raw);
+      }
+
+      case 'autocomplete': {
+        if (raw === null || raw === undefined) return raw ?? '—';
+        // Autocomplete rows carry their selected object on row[objectName] (populated by
+        // the [object] binding / API search) — elem.datasource is often empty/stale since
+        // OslAutocomplete doesn't propagate its internally fetched results back up.
         const resolve = (v: any) => {
-          const item = elem.datasource!.find(d => (elem.valueField ? d[elem.valueField] : d) === v);
-          if (!item) return v;
-          if (elem.displayFn) return elem.displayFn(item);
-          return elem.displayField ? item[elem.displayField] : item;
+          const rowObj = elem.objectName ? row[elem.objectName] : null;
+          if (rowObj && (elem.valueField ? rowObj[elem.valueField] : rowObj) === v) {
+            return elem.displayFn ? elem.displayFn(rowObj) : (elem.displayField ? rowObj[elem.displayField] : rowObj);
+          }
+          if (elem.datasource?.length) return this.resolveDisplayFromList(elem.datasource, elem, v);
+          return v;
         };
         return Array.isArray(raw) ? raw.map(resolve).join(', ') || '—' : resolve(raw);
       }
@@ -295,6 +306,13 @@ export class OslFormGrid {
       default:
         return raw ?? '—';
     }
+  }
+
+  private resolveDisplayFromList(list: any[], elem: elements, v: any): any {
+    const item = list.find(d => (elem.valueField ? d[elem.valueField] : d) === v);
+    if (!item) return v;
+    if (elem.displayFn) return elem.displayFn(item);
+    return elem.displayField ? item[elem.displayField] : item;
   }
 
   private formatDate(raw: any, format: string): any {
