@@ -37,16 +37,18 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
         this.datasource = [this.object]
         this.filteredItems = [...this.datasource]
         this.syncInputFromModel()
+        this.datasourceChange.emit(this.datasource)
 
       }
     }
-    
+
   }
 
   get model(){
     return this._model
   }
   @Input('datasource') datasource: any[] = [];
+  @Output() datasourceChange = new EventEmitter<any[]>();
   @Input('displayField') displayField: string = '';
   @Input('valueField') valueField: string = '';
   @Input('placeholder') placeholder: string = 'Type to search...';
@@ -60,6 +62,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
         this._object = val;
         this.datasource = [val]
         this.filteredItems = [...this.datasource]
+        this.datasourceChange.emit(this.datasource)
       }
       if(this.model){
         this.syncInputFromModel()
@@ -155,6 +158,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
       if (selectedRow && selectedRow[this.valueField]) {
         this.datasource = [selectedRow];
         this.filteredItems = [...this.datasource];
+        this.datasourceChange.emit(this.datasource);
         this.selectItem(selectedRow);
       }
     });
@@ -183,11 +187,13 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges 
                  this.datasource = res?.result && Array.isArray(res?.result) ? res?.result : res?.result?.data;
 
           this.filteredItems = this.datasource
+          this.datasourceChange.emit(this.datasource);
           this.cdr.markForCheck();
         });
 
       if (this.object) {
         this.datasource = [this.object];
+        this.datasourceChange.emit(this.datasource);
       }
     }
     if(this.disabled){
