@@ -78,7 +78,7 @@
     <div class="orf-body">
       <osl-dynamic-form
         [elements]="formElements"
-        [model]="model"
+        [(model)]="model"
         (modelChange)="onModelChange($event)"
         [skeletonLoading]="skeletonLoading"
         [skeletonTheme]="skeletonTheme"
