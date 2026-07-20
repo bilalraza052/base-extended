@@ -6,7 +6,8 @@
       "Bash(git commit *)",
       "Bash(cp \"d:/Bilal Raza/base-extended/projects/osl-base-extended/src/lib/core/shared/form-structure/setup/setup.ts\" \"d:/Bilal Raza/base-extended/src/app/core/shared/form-structure/setup/setup.ts\")",
       "Bash(cp \"d:/Bilal Raza/base-extended/projects/osl-base-extended/src/lib/core/base/base.component.ts\" \"d:/Bilal Raza/base-extended/src/app/core/base/base.component.ts\")",
-      "Bash(npx ng *)"
+      "Bash(npx ng *)",
+      "Bash(git commit -m 'feat\\(dynamic-form\\): add datetimepicker elementType *)"
     ]
   }
 }
