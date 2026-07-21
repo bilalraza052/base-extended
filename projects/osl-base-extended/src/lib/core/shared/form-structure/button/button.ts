@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 export type ButtonVariant =
   | 'primary'
@@ -22,6 +22,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
   standalone: false,
   templateUrl: './button.html',
   styleUrl: './button.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslButton {
   @Input('label') label: string = 'Button';

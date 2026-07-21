@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
 import { DatasourceCacheService } from '../datasource-cache/datasource-cache.service';
 import { InputType } from '../input/input';
 import { DateInputType } from '../datepicker/datepicker';
@@ -9,6 +9,7 @@ import { TextareaResize } from '../textarea/textarea';
   standalone: false,
   templateUrl: './dynamic-form.html',
   styleUrl: './dynamic-form.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class DynamicForm implements OnInit, OnChanges {
   @Input('elements') elements: elements[] = [];

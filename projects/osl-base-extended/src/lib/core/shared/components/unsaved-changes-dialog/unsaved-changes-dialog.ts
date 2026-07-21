@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
@@ -12,6 +12,7 @@ export interface UnsavedChangesDialogData {
     imports: [MatDialogModule, MatButtonModule],
     templateUrl: './unsaved-changes-dialog.html',
     styleUrl: './unsaved-changes-dialog.scss',
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class UnsavedChangesDialog {
     constructor(

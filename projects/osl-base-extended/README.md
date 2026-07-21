@@ -3,7 +3,7 @@
 > **Enterprise Angular UI toolkit** — HTTP layer, CRUD UI, dynamic forms, skeleton loading, and 200+ utilities. Build data-driven pages in minutes, not days.
 
 [![npm version](https://img.shields.io/npm/v/osl-base-extended)](https://www.npmjs.com/package/osl-base-extended)
-[![Angular](https://img.shields.io/badge/Angular-21%2B-red)](https://angular.dev)
+[![Angular](https://img.shields.io/badge/Angular-22%2B-red)](https://angular.dev)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 [![Author](https://img.shields.io/badge/author-Bilal%20Raza-informational)](https://github.com/bilalraza052)
 

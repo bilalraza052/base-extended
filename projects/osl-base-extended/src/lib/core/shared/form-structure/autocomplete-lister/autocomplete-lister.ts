@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
 import { OslGridColumn, OslPageEvent, OslSortEvent } from '../grid/grid';
 import { MatDialogRef } from '@angular/material/dialog';
 import { HttpResponse } from '../../../http/httpbase';
@@ -9,6 +9,7 @@ import { OslSetup } from '../setup/setup';
   standalone:false,
   templateUrl: './autocomplete-lister.html',
   styleUrl: './autocomplete-lister.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslAutocompleteLister {
   @Input('data') data:any;

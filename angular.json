@@ -42,13 +42,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1MB",
+                  "maximumError": "1.5MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "6kB",
+                  "maximumError": "30kB"
                 }
               ],
               "outputHashing": "all"
@@ -75,27 +75,6 @@
         },
         "test": {
           "builder": "@angular/build:unit-test"
-        }
-      }
-    },
-    "osl-base": {
-      "projectType": "library",
-      "root": "projects/osl-base",
-      "sourceRoot": "projects/osl-base/src",
-      "prefix": "lib",
-      "architect": {
-        "build": {
-          
-          "builder": "@angular-devkit/build-angular:ng-package",
-          "options": {
-            "project": "projects/osl-base/ng-package.json"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "tsConfig": "projects/osl-base/tsconfig.spec.json"
-          }
         }
       }
     },

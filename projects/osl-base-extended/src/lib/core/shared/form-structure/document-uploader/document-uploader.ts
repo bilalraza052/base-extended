@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 export interface OslSavedDocument {
   id: any;
@@ -13,6 +13,7 @@ export interface OslSavedDocument {
   standalone: false,
   templateUrl: './document-uploader.html',
   styleUrl: './document-uploader.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslDocumentUploader {
   @Input('label') label: string = '';

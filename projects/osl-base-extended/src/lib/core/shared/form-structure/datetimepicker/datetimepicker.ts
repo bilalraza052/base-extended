@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { formatDate } from '../../../util/date.util';
 import { MAT_DATE_FORMATS } from '@angular/material/core'
 
@@ -23,7 +23,8 @@ import { MAT_DATE_FORMATS } from '@angular/material/core'
       }
 
     }
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslDatetimepicker implements AfterViewInit {
   @ViewChild('dtNativeInput') private dtNativeInput!: ElementRef<HTMLInputElement>;

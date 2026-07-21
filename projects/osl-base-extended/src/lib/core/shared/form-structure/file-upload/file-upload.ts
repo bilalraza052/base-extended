@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 export interface OslFileValue {
   fileName: string;
@@ -11,6 +11,7 @@ export interface OslFileValue {
   standalone: false,
   templateUrl: './file-upload.html',
   styleUrl: './file-upload.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslFileUpload {
   @Input('label') label: string = '';

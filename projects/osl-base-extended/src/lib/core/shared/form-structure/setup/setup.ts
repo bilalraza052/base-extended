@@ -1,5 +1,7 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -35,6 +37,7 @@ export interface OslSetupSaveEvent {
   standalone: false,
   templateUrl: './setup.html',
   styleUrl: './setup.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   private _injector = inject(Injector);
@@ -118,6 +121,9 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   // ── Header more-actions menu state ─────────────────────────────
   headerMenuOpen: boolean = false;
   headerMenuPosition = { top: 0, left: 0 };
+
+
+  constructor(public cd:ChangeDetectorRef){}
 
   @HostListener('document:click')
   onDocumentClick(): void {
@@ -471,7 +477,10 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     if (this.beforeDisplay) {
       this.formLoading = true;
       this.dialogModel = await this.beforeDisplay(row);
+
       this.formLoading = false;
+      this.cd.markForCheck()
+      this.cd.detectChanges()
     } else {
       this.dialogModel = { ...row };
     }

@@ -1,5 +1,5 @@
 import {
-  Component, Directive, ElementRef, HostListener, Input,
+  ChangeDetectionStrategy, Component, Directive, ElementRef, HostListener, Input,
   OnDestroy, TemplateRef, ViewChild, ViewContainerRef, ViewEncapsulation,
 } from '@angular/core';
 import { Overlay, OverlayRef, ConnectedPosition } from '@angular/cdk/overlay';
@@ -15,6 +15,7 @@ export type OslMenuPosition = 'auto' | 'above' | 'below' | 'before' | 'after';
   styleUrl: './menu.scss',
   encapsulation: ViewEncapsulation.None,
   host: { style: 'display: none' },
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslMenu {
   @Input() position: OslMenuPosition = 'auto';

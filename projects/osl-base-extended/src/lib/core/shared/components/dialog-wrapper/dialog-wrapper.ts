@@ -1,5 +1,5 @@
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
-import { Component, Inject, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, TemplateRef } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +13,7 @@ const DRAG_MIN_VISIBLE = 60;
   imports: [MatDialogModule, MatIconModule, NgTemplateOutlet, MatIconButton,NgComponentOutlet, DragDropModule],
   templateUrl: './dialog-wrapper.html',
   styleUrl: './dialog-wrapper.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class DialogWrapper {
   dialogData:Dialog= new Dialog()

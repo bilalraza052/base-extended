@@ -1,10 +1,11 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'osl-checkbox',
   standalone: false,
   templateUrl: './checkbox.html',
   styleUrl: './checkbox.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslCheckbox implements OnChanges {
   @ViewChild('checkboxEl') checkboxEl!: ElementRef<HTMLInputElement>;

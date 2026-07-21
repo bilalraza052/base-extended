@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'osl-select',
   standalone: false,
   templateUrl: './select.html',
   styleUrl: './select.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslSelect {
   @Input('label') label: string = '';

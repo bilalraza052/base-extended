@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { elements } from '../dynamic-form/dynamic-form';
 import { OslPdfConfig, OslReportColumn, OslReportGrid } from '../report-grid/report-grid';
 import { OslMenuAction } from '../grid/grid';
@@ -10,6 +10,7 @@ export type ReportGenerateType = 'pdf' | 'grid' | 'excel';
   standalone: false,
   templateUrl: './report-form.html',
   styleUrl: './report-form.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslReportForm implements OnInit {
   @Input() title: string = 'Report';

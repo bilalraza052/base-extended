@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -23,6 +24,7 @@ import { HttpResponse } from '../../../http/httpbase';
   standalone: false,
   templateUrl: './autocomplete.html',
   styleUrl: './autocomplete.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslAutocomplete extends baseComponent implements OnInit, OnChanges, OnDestroy {
   @Input('label') label: string = '';

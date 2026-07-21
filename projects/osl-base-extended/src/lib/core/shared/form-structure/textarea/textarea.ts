@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 export type TextareaResize = 'none' | 'both' | 'horizontal' | 'vertical';
 
@@ -7,6 +7,7 @@ export type TextareaResize = 'none' | 'both' | 'horizontal' | 'vertical';
   standalone: false,
   templateUrl: './textarea.html',
   styleUrl: './textarea.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class Osltextarea {
   @Input('label') label: string = '';

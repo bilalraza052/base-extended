@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, Input } from '@angular/core';
 
 export interface UserLogMeta {
   addLog?: string | null;
@@ -12,6 +12,7 @@ export interface UserLogMeta {
   standalone: false,
   templateUrl: './user-log.html',
   styleUrl: './user-log.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslUserLog {
   @Input() meta: UserLogMeta = {};

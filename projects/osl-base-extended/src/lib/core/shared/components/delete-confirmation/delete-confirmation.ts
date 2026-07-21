@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
@@ -7,6 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
   imports: [MatDialogModule, MatButtonModule],
   templateUrl: './delete-confirmation.html',
   styleUrl: './delete-confirmation.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class DeleteConfirmation {
   constructor(

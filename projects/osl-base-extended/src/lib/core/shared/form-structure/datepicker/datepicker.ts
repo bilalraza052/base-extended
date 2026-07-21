@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDatepicker } from '@angular/material/datepicker';
 
 export type DateInputType = 'date' | 'datetime-local' | 'time' | 'month' | 'week' | 'year';
@@ -8,6 +8,7 @@ export type DateInputType = 'date' | 'datetime-local' | 'time' | 'month' | 'week
   standalone: false,
   templateUrl: './datepicker.html',
   styleUrl: './datepicker.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslDatepicker {
   @Input('label') label: string = '';

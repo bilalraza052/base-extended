@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -7,6 +7,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   standalone:false,
   templateUrl: './searchbar.html',
   styleUrl: './searchbar.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslSearchbar implements OnInit {
   @Input('label') label:string="Type to Search..."

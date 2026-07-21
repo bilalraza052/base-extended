@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'osl-slide-toggle',
   standalone: false,
   templateUrl: './slide-toggle.html',
   styleUrl: './slide-toggle.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslSlideToggle {
   @Input('label') label: string = '';

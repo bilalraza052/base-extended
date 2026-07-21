@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'osl-radio',
   standalone: false,
   templateUrl: './radio.html',
   styleUrl: './radio.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslRadio {
   @Input('label') label: string = '';

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { elements } from '../dynamic-form/dynamic-form';
 import {
@@ -79,6 +79,7 @@ export interface PanelPageEvent {
   templateUrl: './form-grid.html',
   styleUrl: './form-grid.scss',
   providers: [DatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslFormGrid {
   constructor(private datePipe: DatePipe) {}

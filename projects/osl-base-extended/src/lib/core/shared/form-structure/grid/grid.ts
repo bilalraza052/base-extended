@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 
 export type OslDisplayType = 'date' | 'datetime' | 'time' | 'link' | 'customDateFormat' | 'boolean';
 
@@ -41,6 +41,7 @@ export interface OslPageEvent {
   standalone: false,
   templateUrl: './grid.html',
   styleUrl: './grid.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class OslGrid implements OnChanges {
   @Input('columns') columns: OslGridColumn[] = [];

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
 
 export type InputType = 'text' | 'password' | 'email' | 'number' | 'tel' | 'url' | 'int';
 
@@ -7,6 +7,7 @@ export type InputType = 'text' | 'password' | 'email' | 'number' | 'tel' | 'url'
   standalone: false,
   templateUrl: './input.html',
   styleUrl: './input.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class Oslinput implements OnInit, OnChanges {
   @Input('label') label: string = '';
