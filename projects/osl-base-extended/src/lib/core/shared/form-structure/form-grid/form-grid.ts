@@ -237,6 +237,29 @@ export class OslFormGrid {
     this.datasourceChange.emit(this.datasource);
   }
 
+  // ── Per-row autocomplete datasource cache ──────────────────────────────────
+  // col.formElem is shared by every row in the column, so datasourceChange must
+  // NOT write back into it (that would leak one row's search results/selection
+  // into every other row). Instead each row's live datasource is tracked here,
+  // keyed by row instance, falling back to the column's static datasource
+  // (full list for 'Local', usually empty for 'Api') for rows with no entry yet.
+  private autocompleteDatasources = new WeakMap<any, Map<string, any[]>>();
+
+  getAutocompleteDatasource(row: any, col: OslFormGridColumn): any[] {
+    const rowMap = this.autocompleteDatasources.get(row);
+    if (rowMap?.has(col.key)) return rowMap.get(col.key)!;
+    return col.formElem?.datasource || [];
+  }
+
+  onAutocompleteDatasourceChange(row: any, col: OslFormGridColumn, value: any[]): void {
+    let rowMap = this.autocompleteDatasources.get(row);
+    if (!rowMap) {
+      rowMap = new Map<string, any[]>();
+      this.autocompleteDatasources.set(row, rowMap);
+    }
+    rowMap.set(col.key, value);
+  }
+
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
@@ -278,14 +301,16 @@ export class OslFormGrid {
       case 'autocomplete': {
         if (raw === null || raw === undefined) return raw ?? '—';
         // Autocomplete rows carry their selected object on row[objectName] (populated by
-        // the [object] binding / API search) — elem.datasource is often empty/stale since
-        // OslAutocomplete's internally fetched results aren't guaranteed to be in sync yet.
+        // the [object] binding / API search) — fall back to this row's cached datasource
+        // (see getAutocompleteDatasource) rather than the shared elem.datasource, which is
+        // never written to per-row and would resolve against the wrong row's results.
         const resolve = (v: any) => {
           const rowObj = elem.objectName ? row[elem.objectName] : null;
           if (rowObj && (elem.valueField ? rowObj[elem.valueField] : rowObj) === v) {
             return elem.displayFn ? elem.displayFn(rowObj) : (elem.displayField ? rowObj[elem.displayField] : rowObj);
           }
-          if (elem.datasource?.length) return this.resolveDisplayFromList(elem.datasource, elem, v);
+          const rowDatasource = this.getAutocompleteDatasource(row, col);
+          if (rowDatasource.length) return this.resolveDisplayFromList(rowDatasource, elem, v);
           return v;
         };
         return Array.isArray(raw) ? raw.map(resolve).join(', ') || '—' : resolve(raw);
@@ -328,15 +353,19 @@ export class OslFormGrid {
   onSelectChange(col: OslFormGridColumn, row: any, i: number, value: any): void {
     if (!col.formElem?.change) return;
     const elem = col.formElem;
+    // Autocomplete's live options live in the per-row cache (see getAutocompleteDatasource),
+    // not elem.datasource — that field is only ever the static config list and is never
+    // written to per-row, so API search results would never be found there.
+    const list = elem.elementType === 'autocomplete' ? this.getAutocompleteDatasource(row, col) : elem.datasource;
     let selectedObj: any = undefined;
-    if (elem.datasource) {
+    if (list) {
       if (Array.isArray(value)) {
         selectedObj = value.map(v =>
-          elem.datasource!.find(item => (elem.valueField ? item[elem.valueField] : item) === v) ?? null,
+          list.find(item => (elem.valueField ? item[elem.valueField] : item) === v) ?? null,
         );
       } else if (value !== null && value !== undefined) {
         selectedObj =
-          elem.datasource.find(item =>
+          list.find(item =>
             (elem.valueField ? item[elem.valueField] : item) === value,
           ) ?? null;
       } else {
