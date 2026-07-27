@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { firstValueFrom, timeout } from 'rxjs';
 
@@ -60,14 +60,40 @@ export abstract class Httpbase {
     return this.get('getConfig');
   }
 
+  // Bare HttpClient bypassing app-registered interceptors — ipify.org only
+  // supports plain, unauthenticated CORS requests, so any interceptor that
+  // attaches Authorization/credentials to every request would break this call.
+  private plainHttp = new HttpClient(inject(HttpBackend));
+
+  getPublicIP() {
+    return this.plainHttp.get<{ ip: string }>(
+      'https://api.ipify.org?format=json'
+    );
+  }
+
   // ─── Internals ────────────────────────────────────────────────────────────────
 
-  private getHeaders() {
+  private async getHeaders() {
     const token = localStorage.getItem('token');
+    const userIp = await this.getCachedPublicIP();
     return new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: token ? `Bearer ${token}` : '',
+      'ip-address': userIp
     });
+  }
+
+  private cachedIp: string | null = null;
+
+  private async getCachedPublicIP(): Promise<string> {
+    if (this.cachedIp) return this.cachedIp;
+    try {
+      const res = await firstValueFrom(this.getPublicIP());
+      this.cachedIp = res?.ip ?? '';
+    } catch {
+      this.cachedIp = '';
+    }
+    return this.cachedIp;
   }
 
   private getUploadHeaders() {
@@ -140,7 +166,7 @@ export abstract class Httpbase {
         this.http
           .post(this.getEndPoint(methodName), body, {
             observe: 'response',
-            headers: this.getHeaders(),
+            headers: await this.getHeaders(),
             params: this.buildParams(params || []),
           })
           .pipe(timeout(30000)),
@@ -157,7 +183,7 @@ export abstract class Httpbase {
         this.http
           .get(this.getEndPoint(methodName), {
             observe: 'response',
-            headers: this.getHeaders(),
+            headers: await this.getHeaders(),
             params: this.buildParams(params || []),
           })
           .pipe(timeout(30000)),
@@ -174,7 +200,7 @@ export abstract class Httpbase {
         this.http
           .put(this.getEndPoint(methodName), body, {
             observe: 'response',
-            headers: this.getHeaders(),
+            headers: await this.getHeaders(),
             params: this.buildParams(params || []),
           })
           .pipe(timeout(30000)),
@@ -191,7 +217,7 @@ export abstract class Httpbase {
         this.http
           .patch(this.getEndPoint(methodName), body, {
             observe: 'response',
-            headers: this.getHeaders(),
+            headers: await this.getHeaders(),
           })
           .pipe(timeout(30000)),
       );
@@ -207,7 +233,7 @@ export abstract class Httpbase {
         this.http
           .delete(this.getEndPoint(methodName), {
             observe: 'response',
-            headers: this.getHeaders(),
+            headers: await this.getHeaders(),
             params: this.buildParams(params || []),
           })
           .pipe(timeout(30000)),
@@ -224,7 +250,7 @@ export abstract class Httpbase {
         this.http
           .get(this.getEndPoint(methodName), {
             observe: 'response',
-            headers: this.getHeaders(),
+            headers: await this.getHeaders(),
             params: this.buildParams(params || []),
             responseType: 'blob',
           })
