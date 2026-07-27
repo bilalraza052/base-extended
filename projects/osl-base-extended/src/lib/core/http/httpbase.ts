@@ -15,7 +15,7 @@ export interface myParams {
 }
 export abstract class Httpbase {
   private controllerName: string = '';
-  constructor(private controller: string,public baseUrl:string= '/api/') {
+  constructor(private controller: string, public baseUrl: string = '/api/') {
     this.controllerName = controller;
   }
 
@@ -97,24 +97,24 @@ export abstract class Httpbase {
       isSuccessful: false,
       error: this.mapError(error),
       statusCode: error.status,
-      result:  null as any,
+      result: null as any,
     };
   }
-  flatObject(object:any){
-    return Object.values(object)?.flat()?.map((x:any)=>x.toString());
+  flatObject(object: any) {
+    return Object.values(object)?.flat()?.map((x: any) => x.toString());
   }
 
   private mapError(error: HttpErrorResponse): string | string[] {
     switch (error.status) {
-      case 0:   return 'An error has occurred, Please contact support';
-      case 400: return error.error?.errors? this.flatObject(error.error?.errors) :error.error?.error || error.error?.message || 'Bad Request';
+      case 0: return 'An error has occurred, Please contact support';
+      case 400: return error.error?.errors ? this.flatObject(error.error?.errors) : error.error?.error || error.error?.message || 'Bad Request';
       case 401: return 'Unauthorized Access';
       case 403: return "You don't have rights to perform this action";
       case 404: return 'Resource not found';
       case 409: return error.error?.message || 'Conflict';
       case 422: return error.error?.message || 'Validation failed';
       case 500: return 'An error has occurred, Please contact support';
-      default:  return 'Something went wrong';
+      default: return 'Something went wrong';
     }
   }
 
@@ -134,7 +134,7 @@ export abstract class Httpbase {
   // private baseUrl = '/api/';
 
   // ─── HTTP verb wrappers ───────────────────────────────────────────────────────
-  protected async post<T>(methodName: string, body: any,params?:myParams[]): Promise<HttpResponse<T>> {
+  protected async post<T>(methodName: string, body: any, params?: myParams[]): Promise<HttpResponse<T>> {
     try {
       const res = await firstValueFrom(
         this.http
@@ -168,14 +168,14 @@ export abstract class Httpbase {
     }
   }
 
-  protected async put<T>(methodName: string, body: any,params?: myParams[]): Promise<HttpResponse<T>> {
+  protected async put<T>(methodName: string, body: any, params?: myParams[]): Promise<HttpResponse<T>> {
     try {
       const res = await firstValueFrom(
         this.http
           .put(this.getEndPoint(methodName), body, {
             observe: 'response',
             headers: this.getHeaders(),
-            params:this.buildParams(params || []),
+            params: this.buildParams(params || []),
           })
           .pipe(timeout(30000)),
       );
@@ -245,21 +245,21 @@ export abstract class Httpbase {
         try {
           const text = await error.error.text();
           error = { ...error, error: JSON.parse(text) };
-        } catch {}
+        } catch { }
       }
       return this.handleError(error);
     }
   }
 
   /** Multipart file upload — do NOT pass Content-Type; browser sets the boundary */
-  protected async upload<T>(methodName: string, formData: FormData,params:myParams[]): Promise<HttpResponse<T>> {
+  protected async upload<T>(methodName: string, formData: FormData, params: myParams[]): Promise<HttpResponse<T>> {
     try {
       const res = await firstValueFrom(
         this.http
           .post(this.getEndPoint(methodName), formData, {
             observe: 'response',
             headers: this.getUploadHeaders(),
-            params:this.buildParams(params || [])
+            params: this.buildParams(params || [])
           })
           .pipe(timeout(60000)),
       );
