@@ -6,6 +6,7 @@ import { Router } from "@angular/router";
 import { Dialog, DialogWrapper } from "../shared/components/dialog-wrapper/dialog-wrapper";
 import { DeleteConfirmation, DeleteConfirmationData } from "../shared/components/delete-confirmation/delete-confirmation";
 import { ErrorDialog, ErrorDialogData } from "../shared/components/error-dialog/error-dialog";
+import { WarningDialog, WarningDialogData } from "../shared/components/warning-dialog/warning-dialog";
 import { DirtyStateService } from "../services/dirty-state.service";
 @Injectable()
 
@@ -85,6 +86,31 @@ export class baseComponent{
             data: dialogData,
             disableClose: true,
         });
+    }
+
+    protected openWarningDialog(
+        title: string,
+        message: string,
+        onYesClick?: () => void,
+        onClose?: () => void,
+        yesText: string = 'Yes',
+        noText: string = 'No',
+        data?: any,
+    ): MatDialogRef<WarningDialog> {
+        const dialogData: WarningDialogData = { title, message, yesText, noText, data };
+        const dialogRef = this._injector.get(MatDialog).open(WarningDialog, {
+            width: '380px',
+            data: dialogData,
+            disableClose: true,
+        });
+        dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+            if (confirmed) {
+                onYesClick?.();
+            } else {
+                onClose?.();
+            }
+        });
+        return dialogRef;
     }
        protected isValidBeforeSave<T>(formElements: T[], model: any): string[] {
         const errors: string[] = [];

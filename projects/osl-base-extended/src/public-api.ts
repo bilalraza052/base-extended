@@ -7,6 +7,7 @@ export * from './lib/core/base/base.component';
 export * from './lib/core/http/httpbase';
 export * from './lib/core/shared/components/dialog-wrapper/dialog-wrapper';
 export * from './lib/core/shared/components/delete-confirmation/delete-confirmation';
+export * from './lib/core/shared/components/warning-dialog/warning-dialog';
 export * from './lib/core/shared/form-structure/form-structure.module'
 export * from './lib/core/shared/form-structure/dynamic-form/dynamic-form'
 export * from './lib/core/shared/form-structure/setup/setup'
