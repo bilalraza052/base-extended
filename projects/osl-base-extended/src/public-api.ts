@@ -5,6 +5,7 @@
 export * from './lib/osl-base-extended';
 export * from './lib/core/base/base.component';
 export * from './lib/core/http/httpbase';
+export * from './lib/core/http/http-config';
 export * from './lib/core/shared/components/dialog-wrapper/dialog-wrapper';
 export * from './lib/core/shared/components/delete-confirmation/delete-confirmation';
 export * from './lib/core/shared/components/warning-dialog/warning-dialog';

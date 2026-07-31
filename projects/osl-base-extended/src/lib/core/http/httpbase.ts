@@ -1,6 +1,7 @@
 import { HttpBackend, HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { firstValueFrom, timeout } from 'rxjs';
+import { OSL_ATTACH_CALLER_IP } from './http-config';
 
 export interface HttpResponse<T = any> {
   isSuccessful: boolean;
@@ -65,6 +66,10 @@ export abstract class Httpbase {
   // attaches Authorization/credentials to every request would break this call.
   private plainHttp = new HttpClient(inject(HttpBackend));
 
+  // Opt-in via provideCallerIpHeader() in app.config.ts; defaults to off so
+  // existing consumers of this library are unaffected until they enable it.
+  private attachCallerIp = inject(OSL_ATTACH_CALLER_IP, { optional: true }) ?? false;
+
   getPublicIP() {
     return this.plainHttp.get<{ ip: string }>(
       'https://api.ipify.org?format=json'
@@ -75,12 +80,14 @@ export abstract class Httpbase {
 
   private async getHeaders() {
     const token = localStorage.getItem('token');
-    const userIp = await this.getCachedPublicIP();
-    return new HttpHeaders({
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       Authorization: token ? `Bearer ${token}` : '',
-      'ip-address': userIp
-    });
+    };
+    if (this.attachCallerIp) {
+      headers['ip-address'] = await this.getCachedPublicIP();
+    }
+    return new HttpHeaders(headers);
   }
 
   private cachedIp: string | null = null;
