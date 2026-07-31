@@ -8,7 +8,9 @@
       "Bash(cp \"d:/Bilal Raza/base-extended/projects/osl-base-extended/src/lib/core/base/base.component.ts\" \"d:/Bilal Raza/base-extended/src/app/core/base/base.component.ts\")",
       "Bash(npx ng *)",
       "Bash(git commit -m 'feat\\(dynamic-form\\): add datetimepicker elementType *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(git apply *)"
     ]
   }
 }
