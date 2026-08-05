@@ -27,6 +27,7 @@
 }
 
 .osl-menu-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -58,6 +59,33 @@
     cursor: not-allowed;
     pointer-events: none;
   }
+
+  // Overrides the generic :disabled dimming above with a spinner in place of the content.
+  &.osl-menu-item--loading:disabled {
+    opacity: 1;
+
+    > * {
+      visibility: hidden;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      width: 14px;
+      height: 14px;
+      margin-top: -7px;
+      border: 2px solid rgba(99, 102, 241, 0.25);
+      border-top-color: var(--osl-menu-accent, var(--osl-primary, #6366f1));
+      border-radius: 50%;
+      animation: osl-menu-item-spin 0.6s linear infinite;
+    }
+  }
+}
+
+@keyframes osl-menu-item-spin {
+  to { transform: rotate(360deg); }
 }
 
 .osl-menu-divider {

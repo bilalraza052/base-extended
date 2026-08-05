@@ -353,6 +353,11 @@
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16);
       }
     }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
   }
 
   &__dot {
@@ -363,6 +368,20 @@
     background: #d1d5db;
     transition: background 0.12s, box-shadow 0.12s;
   }
+
+  &__spinner {
+    flex-shrink: 0;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(99, 102, 241, 0.25);
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: orf-more-menu-spin 0.6s linear infinite;
+  }
+}
+
+@keyframes orf-more-menu-spin {
+  to { transform: rotate(360deg); }
 }
 
 @keyframes orf-menu-pop {

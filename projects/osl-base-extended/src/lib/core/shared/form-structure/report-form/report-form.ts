@@ -45,10 +45,11 @@ export class OslReportForm implements OnInit {
   // ── Footer more-actions menu state ─────────────────────────────
   moreMenuOpen: boolean = false;
   moreMenuPosition = { top: 0, left: 0 };
+  moreMenuLoadingActionIndex: number | null = null;
 
   @HostListener('document:click')
   onDocumentClick(): void {
-    this.moreMenuOpen = false;
+    if (this.moreMenuLoadingActionIndex === null) this.moreMenuOpen = false;
   }
 
   get hasVisibleMoreMenuActions(): boolean {
@@ -57,6 +58,7 @@ export class OslReportForm implements OnInit {
 
   toggleMoreMenu(event: Event): void {
     event.stopPropagation();
+    if (this.moreMenuLoadingActionIndex !== null) return;
     if (this.moreMenuOpen) {
       this.moreMenuOpen = false;
       return;
@@ -66,6 +68,18 @@ export class OslReportForm implements OnInit {
     const left = Math.min(Math.max(rect.right - menuWidth, 8), window.innerWidth - menuWidth - 8);
     this.moreMenuPosition = { top: rect.bottom + 6, left };
     this.moreMenuOpen = true;
+  }
+
+  async onMoreMenuActionClick(action: OslMenuAction, index: number): Promise<void> {
+    if (this.moreMenuLoadingActionIndex !== null) return;
+    this.moreMenuLoadingActionIndex = index;
+    try {
+      await Promise.resolve(action.click(undefined));
+    } finally {
+      this.moreMenuLoadingActionIndex = null;
+      this.moreMenuOpen = false;
+      this.cd.markForCheck();
+    }
   }
 
   ngOnInit(): void {

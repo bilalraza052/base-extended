@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -40,6 +41,7 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   private _injector = inject(Injector);
   private _stateService = inject(OslSetupStateService);
     private santizer = inject(DomSanitizer);
+  private _cd = inject(ChangeDetectorRef);
   formLoading: boolean = false;
   saveLoading: boolean = false;
   restoredRow: any = null;
@@ -114,15 +116,17 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   cardPageSizeOptions = [10, 25, 50, 100];
   cardOpenMenuIndex: number | null = null;
   cardMenuPosition = { top: 0, left: 0 };
+  cardLoadingActionIndex: number | null = null;
 
   // ── Header more-actions menu state ─────────────────────────────
   headerMenuOpen: boolean = false;
   headerMenuPosition = { top: 0, left: 0 };
+  headerLoadingActionIndex: number | null = null;
 
   @HostListener('document:click')
   onDocumentClick(): void {
-    this.cardOpenMenuIndex = null;
-    this.headerMenuOpen = false;
+    if (this.cardLoadingActionIndex === null) this.cardOpenMenuIndex = null;
+    if (this.headerLoadingActionIndex === null) this.headerMenuOpen = false;
   }
 
   get hasForm(): boolean {
@@ -285,6 +289,7 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   // ── Card helpers ──────────────────────────────────────────────
   toggleCardMenu(index: number, event: Event): void {
     event.stopPropagation();
+    if (this.cardLoadingActionIndex !== null) return;
     if (this.cardOpenMenuIndex === index) { this.cardOpenMenuIndex = null; return; }
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const menuWidth = 190;
@@ -293,12 +298,25 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     this.cardOpenMenuIndex = index;
   }
 
+  async onCardActionClick(action: OslMenuAction, row: any, index: number): Promise<void> {
+    if (this.cardLoadingActionIndex !== null) return;
+    this.cardLoadingActionIndex = index;
+    try {
+      await Promise.resolve(action.click(row));
+    } finally {
+      this.cardLoadingActionIndex = null;
+      this.cardOpenMenuIndex = null;
+      this._cd.markForCheck();
+    }
+  }
+
   get hasVisibleHeaderActions(): boolean {
     return this.moreMenuHeaderActions.some(a => !a.hideIf || !a.hideIf(undefined));
   }
 
   toggleHeaderMenu(event: Event): void {
     event.stopPropagation();
+    if (this.headerLoadingActionIndex !== null) return;
     if (this.headerMenuOpen) {
       this.headerMenuOpen = false;
       return;
@@ -308,6 +326,18 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
     const left = Math.min(Math.max(rect.right - menuWidth, 8), window.innerWidth - menuWidth - 8);
     this.headerMenuPosition = { top: rect.bottom + 6, left };
     this.headerMenuOpen = true;
+  }
+
+  async onHeaderActionClick(action: OslMenuAction, index: number): Promise<void> {
+    if (this.headerLoadingActionIndex !== null) return;
+    this.headerLoadingActionIndex = index;
+    try {
+      await Promise.resolve(action.click(undefined));
+    } finally {
+      this.headerLoadingActionIndex = null;
+      this.headerMenuOpen = false;
+      this._cd.markForCheck();
+    }
   }
 
   isHighlightedCard(row: any): boolean {

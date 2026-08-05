@@ -321,8 +321,14 @@
     <div class="osl-card-menu-header">Actions</div>
     @for (action of moreMenuHeaderActions; track $index) {
       @if (!action.hideIf || !action.hideIf(undefined)) {
-        <button class="osl-card-menu-item" (click)="action.click(undefined); headerMenuOpen = false">
-          <span class="osl-card-menu-dot"></span>
+        <button class="osl-card-menu-item"
+                [disabled]="headerLoadingActionIndex !== null"
+                (click)="$event.stopPropagation(); onHeaderActionClick(action, $index)">
+          @if (headerLoadingActionIndex === $index) {
+            <span class="osl-card-menu-spinner"></span>
+          } @else {
+            <span class="osl-card-menu-dot"></span>
+          }
           {{ action.labelIf ? action.labelIf(undefined) : action.label }}
         </button>
       }
@@ -340,8 +346,13 @@
     @for (action of moreMenuActions; track $index) {
       @if (!action.hideIf || !action.hideIf(cardPagedData[cardOpenMenuIndex])) {
         <button class="osl-card-menu-item"
-                (click)="action.click(cardPagedData[cardOpenMenuIndex]); cardOpenMenuIndex = null">
-          <span class="osl-card-menu-dot"></span>
+                [disabled]="cardLoadingActionIndex !== null"
+                (click)="$event.stopPropagation(); onCardActionClick(action, cardPagedData[cardOpenMenuIndex], $index)">
+          @if (cardLoadingActionIndex === $index) {
+            <span class="osl-card-menu-spinner"></span>
+          } @else {
+            <span class="osl-card-menu-dot"></span>
+          }
           {{ action.labelIf ? action.labelIf(cardPagedData[cardOpenMenuIndex]) : action.label }}
         </button>
       }

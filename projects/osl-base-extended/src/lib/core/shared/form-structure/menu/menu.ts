@@ -1,5 +1,5 @@
 import {
-  Component, Directive, ElementRef, HostListener, Input,
+  Component, Directive, ElementRef, HostBinding, HostListener, Input,
   OnDestroy, TemplateRef, ViewChild, ViewContainerRef, ViewEncapsulation,
 } from '@angular/core';
 import { Overlay, OverlayRef, ConnectedPosition } from '@angular/cdk/overlay';
@@ -24,6 +24,7 @@ export class OslMenu {
 @Directive({
   selector: '[oslMenuTriggerFor]',
   standalone: false,
+  exportAs: 'oslMenuTriggerFor',
 })
 export class OslMenuTriggerFor implements OnDestroy {
   @Input('oslMenuTriggerFor') menu!: OslMenu;
@@ -65,7 +66,13 @@ export class OslMenuTriggerFor implements OnDestroy {
       this._ref.keydownEvents().subscribe(e => { if (e.key === 'Escape') this._close(); }),
     ];
 
-    this._ref.overlayElement.addEventListener('click', () => this._close());
+    // Items marked [osl-menu-item] own their own click lifecycle (e.g. async
+    // work behind a loading state) and are responsible for calling close()
+    // themselves when done. Anything else inside the panel still auto-closes.
+    this._ref.overlayElement.addEventListener('click', (e) => {
+      const isManagedItem = (e.target as HTMLElement).closest?.('[osl-menu-item]');
+      if (!isManagedItem) this._close();
+    });
   }
 
   private _close(): void {
@@ -74,6 +81,11 @@ export class OslMenuTriggerFor implements OnDestroy {
     const ref = this._ref;
     this._ref = null;
     ref?.dispose();
+  }
+
+  /** Programmatically closes the menu. Call this from an `[osl-menu-item]` click handler once its work is done. */
+  close(): void {
+    this._close();
   }
 
   ngOnDestroy(): void {
@@ -97,5 +109,29 @@ export class OslMenuTriggerFor implements OnDestroy {
       case 'before': return [before, after];
       default:       return [below,  belowE, above, aboveE];
     }
+  }
+}
+
+/**
+ * Apply to a `.osl-menu-item` button to give it a built-in loading state:
+ * `<button class="osl-menu-item" osl-menu-item [loading]="isSaving" (click)="save()">…</button>`
+ * While `loading` is true the button is disabled and its content is replaced with a spinner,
+ * regardless of what was projected inside it.
+ */
+@Directive({
+  selector: '[osl-menu-item]',
+  standalone: false,
+})
+export class OslMenuItem {
+  @Input() loading: boolean = false;
+
+  @HostBinding('class.osl-menu-item--loading')
+  get isLoading(): boolean {
+    return this.loading;
+  }
+
+  @HostBinding('disabled')
+  get isDisabled(): boolean {
+    return this.loading;
   }
 }

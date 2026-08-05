@@ -221,8 +221,14 @@
     <div class="orf-more-menu__header">Actions</div>
     @for (action of moreMenuActions; track $index) {
       @if (!action.hideIf || !action.hideIf(undefined)) {
-        <button class="orf-more-menu__item" (click)="action.click(undefined); moreMenuOpen = false">
-          <span class="orf-more-menu__dot"></span>
+        <button class="orf-more-menu__item"
+                [disabled]="moreMenuLoadingActionIndex !== null"
+                (click)="$event.stopPropagation(); onMoreMenuActionClick(action, $index)">
+          @if (moreMenuLoadingActionIndex === $index) {
+            <span class="orf-more-menu__spinner"></span>
+          } @else {
+            <span class="orf-more-menu__dot"></span>
+          }
           {{ action.labelIf ? action.labelIf(undefined) : action.label }}
         </button>
       }
