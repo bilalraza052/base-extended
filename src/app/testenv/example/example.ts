@@ -13,11 +13,11 @@ import { UserLogMeta } from '../../core/shared/form-structure/user-log/user-log'
 import { OslSkeletonModule } from '../../core/shared/directive/skeleton/skeleton.module';
 import { SkeletonTheme } from '../../core/shared/directive/skeleton/skeleton.directive';
 import { OslSkeletonThemeService } from '../../core/shared/directive/skeleton/skeleton-theme.service';
-import { raceWith } from 'rxjs';
 import { OslDocumentUploader, OslSavedDocument } from '../../core/shared/form-structure/document-uploader/document-uploader';
 import { OslTooltipDirective } from '../../core/shared/directive/tooltip/tooltip.directive';
 import { DirtyStateService } from '../../core/services/dirty-state.service';
 import { DomSanitizer } from '@angular/platform-browser';
+import { OslMenuTriggerFor } from '../../core/shared/form-structure/menu/menu';
 
 @Component({
   selector: 'app-example',
@@ -45,15 +45,42 @@ export class Example extends baseComponent {
   listData: any[] = []
   colList: OslFormGridColumn[] = []
   model: any = {}
+  // Each click can return a Promise — the "more actions" menu (setup/grid/
+  // report-form) shows a spinner on the clicked item and keeps the menu open
+  // until it resolves, then closes it.
   moreMenu: OslMenuAction[] = [
     {
       label: 'Approve',
-      click(row) {
-        console.log(raceWith)
-
+      click: async (row) => {
+        await new Promise(r => setTimeout(r, 1200));
+        this.showSuccess(`Approved ${row?.name ?? 'lead'}`);
       },
-    }
+    },
+    {
+      label: 'Send Reminder',
+      click: async (row) => {
+        await new Promise(r => setTimeout(r, 900));
+        this.showSuccess(`Reminder sent to ${row?.name ?? 'lead'}`);
+      },
+    },
   ]
+
+  // ── osl-menu (generic CDK overlay menu) + OslMenuItem loading demo ────────
+  @ViewChild('demoTrigger') demoTrigger!: OslMenuTriggerFor;
+  demoMenuLoadingKey: string | null = null;
+
+  async onDemoMenuAction(key: string, label: string): Promise<void> {
+    if (this.demoMenuLoadingKey) return;
+    this.demoMenuLoadingKey = key;
+    try {
+      await new Promise(r => setTimeout(r, 1200));
+      this.showSuccess(`${label} complete`);
+    } finally {
+      this.demoMenuLoadingKey = null;
+      this.demoTrigger.close();
+      this.cd.markForCheck();
+    }
+  }
   @ViewChild('mainEngineConsumptionGrid', { static: true }) mainEngineConsumptionGrid: TemplateRef<any> | undefined
   @ViewChild('docUploader') docUploader!: OslDocumentUploader;
   @ViewChild('draggableDialogBody') draggableDialogBody: TemplateRef<any> | undefined;

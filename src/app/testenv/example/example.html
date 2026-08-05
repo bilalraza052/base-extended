@@ -4,7 +4,7 @@
   <div class="ex-card mb-4">
     <div class="ex-card__head">
       <span class="ex-badge ex-badge--blue">Setup</span>
-      <span class="ex-card__desc">osl-setup's header embeds osl-searchbar — type to filter leads client-side</span>
+      <span class="ex-card__desc">osl-setup's header embeds osl-searchbar — type to filter leads client-side. Open a row's "more actions" menu and click Approve / Send Reminder to see the loader.</span>
     </div>
     <div class="ex-card__body">
       <osl-setup
@@ -14,11 +14,45 @@
         [formElements]="leadsFormElements"
         [pageSize]="5"
         tableHeight="320px"
+        [moreMenuActions]="moreMenu"
         (onSearch)="onSearchLeads($event)"
         (onEdit)="onEdit($event)"
         (onDelete)="onDeleteLead($event)"
         [onSave]="onSaveLead"
       ></osl-setup>
+    </div>
+  </div>
+
+  <!-- ── osl-menu (generic overlay menu) + loading item demo ────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Menu</span>
+      <span class="ex-card__desc">osl-menu + oslMenuTriggerFor with [osl-menu-item] loading items — click Export or Publish to see the spinner replace the item while it awaits</span>
+    </div>
+    <div class="ex-card__body">
+      <button type="button" class="tip-btn tip-btn--indigo"
+              #demoTrigger="oslMenuTriggerFor"
+              [oslMenuTriggerFor]="demoMenu">
+        More Actions
+      </button>
+
+      <osl-menu #demoMenu position="below">
+        <button class="osl-menu-item" osl-menu-item
+                [loading]="demoMenuLoadingKey === 'export'"
+                (click)="onDemoMenuAction('export', 'Export')">
+          Export
+        </button>
+        <button class="osl-menu-item" osl-menu-item
+                [loading]="demoMenuLoadingKey === 'publish'"
+                (click)="onDemoMenuAction('publish', 'Publish')">
+          Publish
+        </button>
+        <button class="osl-menu-item" osl-menu-item
+                [loading]="demoMenuLoadingKey === 'archive'"
+                (click)="onDemoMenuAction('archive', 'Archive')">
+          Archive
+        </button>
+      </osl-menu>
     </div>
   </div>
 
