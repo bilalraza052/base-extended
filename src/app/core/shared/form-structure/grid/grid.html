@@ -96,8 +96,14 @@
                             <div class="osl-custom-menu-header">Actions</div>
                             @for (action of moreMenuActions; track $index) {
                               @if (!action.hideIf || !action.hideIf(row)) {
-                                <button class="osl-custom-menu-item" (click)="action.click(row); closeMenu(); $event.stopPropagation()">
-                                  <span class="osl-custom-menu-dot"></span>
+                                <button class="osl-custom-menu-item"
+                                        [disabled]="loadingActionIndex !== null"
+                                        (click)="$event.stopPropagation(); onActionClick(action, row, $index)">
+                                  @if (loadingActionIndex === $index) {
+                                    <span class="osl-custom-menu-spinner"></span>
+                                  } @else {
+                                    <span class="osl-custom-menu-dot"></span>
+                                  }
                                   {{ getActionLabel(action, row) }}
                                 </button>
                               }

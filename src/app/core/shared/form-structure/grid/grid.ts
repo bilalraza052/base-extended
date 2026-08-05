@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 
 export type OslDisplayType = 'date' | 'datetime' | 'time' | 'link' | 'boolean';
 
@@ -18,7 +18,7 @@ export interface OslMenuAction {
   label: string;
   labelIf?: (row: any) => string;
   hideIf?: (row: any) => boolean;
-  click: (row: any) => void;
+  click: (row: any) => void | Promise<any>;
 }
 
 export interface OslSortEvent {
@@ -67,6 +67,8 @@ export class OslGrid implements OnChanges {
 
   @ViewChild('tableContainer') private _tableContainerRef!: ElementRef<HTMLDivElement>;
 
+  constructor(private cd: ChangeDetectorRef) {}
+
   @Output() pageChange = new EventEmitter<OslPageEvent>();
   @Output() pageSizeChange = new EventEmitter<OslPageEvent>();
   @Output() sortChange = new EventEmitter<OslSortEvent>();
@@ -80,15 +82,18 @@ export class OslGrid implements OnChanges {
   pageSizeOptions = [10, 25, 50, 100];
   openMenuIndex: number | null = null;
   menuPosition = { top: 0, left: 0 };
+  loadingActionIndex: number | null = null;
   private _restorePage: number | null = null;
 
   @HostListener('document:click')
   onDocumentClick(): void {
+    if (this.loadingActionIndex !== null) return;
     this.openMenuIndex = null;
   }
 
   toggleMenu(index: number, event: Event): void {
     event.stopPropagation();
+    if (this.loadingActionIndex !== null) return;
     if (this.openMenuIndex === index) {
       this.openMenuIndex = null;
       return;
@@ -105,6 +110,18 @@ export class OslGrid implements OnChanges {
 
   closeMenu(): void {
     this.openMenuIndex = null;
+  }
+
+  async onActionClick(action: OslMenuAction, row: any, index: number): Promise<void> {
+    if (this.loadingActionIndex !== null) return;
+    this.loadingActionIndex = index;
+    try {
+      await Promise.resolve(action.click(row));
+    } finally {
+      this.loadingActionIndex = null;
+      this.closeMenu();
+      this.cd.markForCheck();
+    }
   }
 
   get skeletonRows(): number[] {

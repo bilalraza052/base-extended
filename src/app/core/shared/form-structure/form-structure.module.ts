@@ -33,7 +33,7 @@ import { DragDropModule } from "@angular/cdk/drag-drop";
 import { OslReportGrid } from "./report-grid/report-grid";
 import { OslReportForm } from "./report-form/report-form";
 import { OslUserLog } from "./user-log/user-log";
-import { OslMenu, OslMenuTriggerFor } from "./menu/menu";
+import { OslMenu, OslMenuTriggerFor, OslMenuItem } from "./menu/menu";
 import { OslDocumentUploader } from "./document-uploader/document-uploader";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { OverlayModule } from "@angular/cdk/overlay";
@@ -63,6 +63,7 @@ import { PortalModule } from "@angular/cdk/portal";
     OslUserLog,
     OslMenu,
     OslMenuTriggerFor,
+    OslMenuItem,
     OslDocumentUploader,
   ],
   imports: [
@@ -102,7 +103,7 @@ import { PortalModule } from "@angular/cdk/portal";
     OslButton,
     OslSetup,
     OslSearchbar, OslAutocompleteLister, OslChipsInput, OslReportGrid, OslReportForm, OslUserLog,
-    OslMenu, OslMenuTriggerFor, OslDocumentUploader, OslTooltipDirective],
+    OslMenu, OslMenuTriggerFor, OslMenuItem, OslDocumentUploader, OslTooltipDirective],
   providers: [
     DatePipe,
     DecimalPipe,
