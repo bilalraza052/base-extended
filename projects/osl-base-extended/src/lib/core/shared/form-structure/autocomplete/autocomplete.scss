@@ -22,7 +22,9 @@
     display: flex;
     align-items: center;
 
-    input {
+    // Direct child only — the dropdown (with its own checkbox inputs in chips mode)
+    // is also nested inside this wrapper and must not inherit these text-input styles.
+    > input {
         height: var(--osl-control-height);
         width: 100%;
         border-radius: var(--osl-border-radius);
@@ -50,6 +52,54 @@
 
         &.error {
             border-color: var(--osl-error-color);
+        }
+    }
+
+    // ── Chips (multi-select) variant — chips render inline with the search
+    // input inside one bordered control, Material chip-grid style.
+    &--chips {
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        min-height: var(--osl-control-height);
+        height: auto;
+        padding: 4px 30px 4px 8px;
+        border-radius: var(--osl-border-radius);
+        border: 1px solid var(--osl-border-color);
+        background: #fff;
+        transition: border-color 0.2s;
+
+        &:focus-within {
+            border-color: var(--osl-focus-border-color);
+        }
+
+        &.error {
+            border-color: var(--osl-error-color);
+        }
+
+        &.autocomplete-wrapper--disabled {
+            background: var(--osl-disabled-bg);
+            opacity: var(--osl-disabled-opacity);
+            cursor: not-allowed;
+
+            > input {
+                cursor: not-allowed;
+            }
+        }
+
+        > input {
+            flex: 1 1 80px;
+            min-width: 80px;
+            width: auto;
+            height: 24px;
+            border: none;
+            padding: 0;
+            background: transparent;
+            transition: none;
+
+            &:focus {
+                border-color: transparent;
+            }
         }
     }
 }
@@ -131,7 +181,7 @@
 }
 
 .autocomplete-wrapper--api {
-    input {
+    > input {
         padding-right: 64px;
     }
 }
@@ -154,6 +204,81 @@
 
     &:hover {
         background: #f5f5f5;
+    }
+
+    &--checkbox {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            flex: 0 0 15px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: var(--osl-primary);
+            pointer-events: none;
+        }
+
+        span {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}
+
+// ── Chips (multi-select) — Material chip-grid style, rendered inline inside
+// .autocomplete-wrapper--chips ────────────────────────────────────────────
+.ac-chip {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    max-width: 220px;
+    gap: 4px;
+    background: var(--osl-dropdown-hover-bg);
+    color: #374151;
+    border: 1px solid var(--osl-border-color);
+    border-radius: var(--osl-border-radius);
+    padding: 0 4px 0 8px;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.ac-chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ac-chip-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    border-radius: 3px;
+    padding: 0;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: background 0.12s, color 0.12s;
+
+    mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+    }
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.08);
+        color: #374151;
     }
 }
 

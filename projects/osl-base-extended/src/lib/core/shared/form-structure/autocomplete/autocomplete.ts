@@ -6,6 +6,7 @@ import {
   HostListener,
   inject,
   Input,
+  NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -47,6 +48,13 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   // Fix: removed if(val) guard — _model must be settable to null/0/false
   @Input('model') set model(val: any) {
     this._model = val;
+    if (this.autocompleteType === 'chips') {
+      // Keep selectedItems (the chip render source) in lockstep with an externally
+      // reassigned model array — otherwise chips linger after e.g. `model.x = []`,
+      // and toggleItem() misreads a stale _model and re-adds a "removed" chip.
+      this.syncSelectedItemsFromModel();
+      return;
+    }
     if (val !== null && val !== undefined && this._object) {
       this.datasource = [this._object];
       this.filteredItems = [...this.datasource];
@@ -71,6 +79,12 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   @Input('service') service: any;
 
   @Input('object') set object(val: any) {
+    if (this.autocompleteType === 'chips') {
+      if (Array.isArray(val)) {
+        this.selectedItems = val;
+      }
+      return;
+    }
     if (val) {
       this._object = val;
       this.datasource = [val];
@@ -87,9 +101,14 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   @Input('isLister') isLister: boolean = false;
   @Input('apiBody') apiBody: any;
   @Input('displayFn') displayFn: ((item: any) => string) | null = null;
+  /** 'chips' enables multi-select: model becomes an array of valueField values, rendered as removable chips. */
+  @Input('autocompleteType') autocompleteType: 'default' | 'chips' = 'default';
 
   @Output() modelChange = new EventEmitter<any>();
   @Output() changeEv = new EventEmitter<any>();
+
+  /** Full objects behind the current chip selection (chips mode only). */
+  selectedItems: any[] = [];
 
   private listerComponent = inject(AUTOCOMPLETE_LISTER_COMPONENT);
   inputControl = new FormControl('');
@@ -116,6 +135,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   constructor(
     private elRef: ElementRef,
     public cdr: ChangeDetectorRef,
+    private zone: NgZone,
   ) {
     super();
   }
@@ -138,12 +158,14 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   }
 
   openLister() {
+    const isChips = this.autocompleteType === 'chips';
     const inputLister: oslListerData = {
       title: this.label,
       methodName: this.methodName,
       configMethodName: this.configMethodName,
       service: this.service,
-      apiBody :this.apiBody
+      apiBody :this.apiBody,
+      ...(isChips ? { multiple: true, valueField: this.valueField, selected: this.selectedItems } : {}),
     };
     const dialogRef = this.openDialog(
       undefined,
@@ -153,13 +175,30 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
       inputLister,
       this.listerComponent,
     );
-    dialogRef.afterClosed().subscribe((selectedRow: any) => {
-      if (selectedRow && selectedRow[this.valueField]) {
-        this.datasource = [selectedRow];
-        this.datasourceChange.emit(this.datasource);
-        this.filteredItems = [...this.datasource];
-        this.selectItem(selectedRow);
-      }
+    dialogRef.afterClosed().subscribe((result: any) => {
+      // MatDialog finalizes the close (and emits afterClosed) once its closing
+      // animation ends, which runs outside Angular's zone — markForCheck/detectChanges
+      // alone update this component's own view, but nothing re-enters the zone, so
+      // nothing else in the app re-renders until an unrelated event happens to. Running
+      // the whole callback back inside the zone fixes that at the source.
+      this.zone.run(() => {
+        if (isChips) {
+          if (!Array.isArray(result)) return;
+          this.selectedItems = result;
+          this._model = result.map((item) => this.getValue(item));
+          this.modelChange.emit(this._model);
+          this.changeEv.emit(this._model);
+          this.cdr.markForCheck();
+          return;
+        }
+        const selectedRow = result;
+        if (selectedRow && selectedRow[this.valueField]) {
+          this.datasource = [selectedRow];
+          this.datasourceChange.emit(this.datasource);
+          this.filteredItems = [...this.datasource];
+          this.selectItem(selectedRow);
+        }
+      });
     });
   }
 
@@ -208,7 +247,22 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
     }
   }
 
+  private syncSelectedItemsFromModel() {
+    const values: any[] = Array.isArray(this._model) ? this._model : [];
+    if (!values.length) {
+      this.selectedItems = [];
+      return;
+    }
+    // Preserve display data for chips that are still selected (existing selectedItems
+    // may hold richer objects than a freshly-loaded datasource page would).
+    const pool = [...this.selectedItems, ...this.datasource];
+    this.selectedItems = values
+      .map((value) => pool.find((item) => this.getValue(item) === value))
+      .filter((item): item is any => item !== undefined);
+  }
+
   private syncInputFromModel() {
+    if (this.autocompleteType === 'chips') return;
     if (this._model !== null && this._model !== undefined) {
       const found = this.datasource?.find((item) => this.getValue(item) === this._model);
       if (found) {
@@ -233,21 +287,27 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   }
 
   get isInvalid(): boolean {
+    if (this.autocompleteType === 'chips') {
+      return this.touched && this.required && (!Array.isArray(this._model) || this._model.length === 0);
+    }
     return this.touched && this.required && !this._model;
   }
 
   onInput(val: string) {
-    // Fix: set _model directly so null is always stored, bypassing the setter's
-    // datasource-refresh side effect which should only run on external model changes
-    this._model = null;
     this.inputValue = val;
+    const isChips = this.autocompleteType === 'chips';
+    if (!isChips) {
+      // Fix: set _model directly so null is always stored, bypassing the setter's
+      // datasource-refresh side effect which should only run on external model changes
+      this._model = null;
+    }
 
     if (this.searchType === 'Local') {
       this.showDropdown = true;
       this.filteredItems = this.datasource.filter((item) =>
         this.getDisplay(item)?.toLowerCase()?.includes(val?.toLowerCase()),
       );
-      if (!val) {
+      if (!val && !isChips) {
         this.modelChange.emit(null);
         this.changeEv.emit(null);
       }
@@ -256,8 +316,10 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
       if (!val) {
         this.filteredItems = [];
         this.showDropdown = false;
-        this.modelChange.emit(null);
-        this.changeEv.emit(null);
+        if (!isChips) {
+          this.modelChange.emit(null);
+          this.changeEv.emit(null);
+        }
       } else {
         this.showDropdown = true;
       }
@@ -277,6 +339,13 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   onFocusOut() {
     this.touched = true;
     this.showDropdown = false;
+    if (this.autocompleteType === 'chips') {
+      // The input text is only a filter in chips mode — never a pending selection.
+      this.inputValue = '';
+      this.inputControl.setValue('', { emitEvent: false });
+      this.cdr.markForCheck();
+      return;
+    }
     // Fix: removed auto-select-on-single-match — it caused refill when user
     // cleared text and datasource had only 1 item.
     // If no selection was made, clear the typed text.
@@ -289,12 +358,17 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
 
   clearValue(event?: Event) {
     event?.stopPropagation();
-    // Fix: set _model directly to null — using the setter would trigger the
-    // datasource-refresh side effect unnecessarily
-    this._model = null;
     this.inputValue = '';
     this.inputControl.setValue('', { emitEvent: false });
     this.showDropdown = false;
+    if (this.autocompleteType === 'chips') {
+      // The clear (x) button only clears the typed search text — chip selections stay intact.
+      this.cdr.markForCheck();
+      return;
+    }
+    // Fix: set _model directly to null — using the setter would trigger the
+    // datasource-refresh side effect unnecessarily
+    this._model = null;
     this.modelChange.emit(null);
     this.changeEv.emit(null);
     this.cdr.markForCheck();
@@ -309,6 +383,40 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
     this.modelChange.emit(value);
     this.changeEv.emit(value);
     this.showDropdown = false;
+  }
+
+  isChecked(item: any): boolean {
+    return Array.isArray(this._model) && this._model.includes(this.getValue(item));
+  }
+
+  toggleItem(item: any) {
+    const value = this.getValue(item);
+    const current: any[] = Array.isArray(this._model) ? this._model : [];
+    const idx = current.indexOf(value);
+    if (idx === -1) {
+      this._model = [...current, value];
+      this.selectedItems = [...this.selectedItems, item];
+    } else {
+      this._model = current.filter((v) => v !== value);
+      this.selectedItems = this.selectedItems.filter((it) => this.getValue(it) !== value);
+    }
+    this.modelChange.emit(this._model);
+    this.changeEv.emit(this._model);
+
+    // Reset the search text so the full option list (last loaded datasource) is visible again for the next pick.
+    this.inputValue = '';
+    this.inputControl.setValue('', { emitEvent: false });
+    this.filteredItems = [...this.datasource];
+    this.cdr.markForCheck();
+  }
+
+  // preventDefault on the mousedown event keeps focus on the text input,
+  // preventing blur → onFocusOut from closing the dropdown / clearing the search text.
+  removeChip(item: any, event?: Event) {
+    event?.preventDefault();
+    event?.stopPropagation();
+    if (this.disabled) return;
+    this.toggleItem(item);
   }
 
   onHintClick(event: MouseEvent) {

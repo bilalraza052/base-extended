@@ -15,15 +15,27 @@
             </label>
         </div>
     }
-    <div class="autocomplete-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme" [class.error]="isInvalid" [class.autocomplete-wrapper--api]="searchType == 'Api'">
+    <div class="autocomplete-wrapper" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme" [class.error]="isInvalid" [class.autocomplete-wrapper--api]="searchType == 'Api'" [class.autocomplete-wrapper--chips]="autocompleteType === 'chips'" [class.autocomplete-wrapper--disabled]="disabled">
+        @if(autocompleteType === 'chips') {
+            @for(item of selectedItems; track item) {
+                <span class="ac-chip">
+                    <span class="ac-chip-label">{{getDisplay(item)}}</span>
+                    @if(!disabled) {
+                        <button type="button" class="ac-chip-remove" (mousedown)="removeChip(item, $event)" tabindex="-1" title="Remove">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    }
+                </span>
+            }
+        }
         <input
             (input)="onInput($any($event.target).value)"
             (focus)="onFocus()"
             (focusout)="onFocusOut()"
-           
+
             [formControl]="inputControl"
             [class.error]="isInvalid"
-            [placeholder]="loading ? 'Loading...' : placeholder"
+            [placeholder]="loading ? 'Loading...' : (autocompleteType === 'chips' && selectedItems.length > 0 ? '' : placeholder)"
             autocomplete="off"
             (keyup.enter)="isLister ? openLister() : null"
         >
@@ -45,7 +57,14 @@
             <div class="dropdown" [ngStyle]="dropdownStyle">
                 @if(filteredItems.length > 0) {
                     @for(item of filteredItems; track item) {
-                        <div class="dropdown-item" (mousedown)="selectItem(item)">{{getDisplay(item)}}</div>
+                        @if(autocompleteType === 'chips') {
+                            <div class="dropdown-item dropdown-item--checkbox" (mousedown)="$event.preventDefault(); toggleItem(item)">
+                                <input type="checkbox" [checked]="isChecked(item)">
+                                <span>{{getDisplay(item)}}</span>
+                            </div>
+                        } @else {
+                            <div class="dropdown-item" (mousedown)="selectItem(item)">{{getDisplay(item)}}</div>
+                        }
                     }
                 } @else {
                     @if(searchType == 'Local'){
