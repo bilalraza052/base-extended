@@ -1,268 +1,190 @@
 @if(elements && elements.length > 0) {
-    <div class="row align-items-center w-100">
-        @for(elem of elements; track elem) {
-            @if(!(elem.hideIf ? elem.hideIf(model) : elem.hide)) {
-                <ng-container *ngTemplateOutlet="formField; context: { $implicit: elem }"></ng-container>
-            }
-        }
-    </div>
+<div class="row align-items-center w-100">
+    @for(elem of elements; track elem) {
+    @if(!(elem.hideIf ? elem.hideIf(model) : elem.hide)) {
+    <ng-container *ngTemplateOutlet="formField; context: { $implicit: elem }"></ng-container>
+    }
+    }
+</div>
 }
 
 <ng-template #formField let-elem>
     @if(elem.hideIf ? !elem.hideIf(model) : true) {
-        @switch (elem.elementType) {
+    @switch (elem.elementType) {
 
-            @case ("textbox") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                    <osl-input
-                    [skeletonLoading]="skeletonLoading"
-                    [skeletonTheme]="skeletonTheme"
-                        [label]="elem.label"
-                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
-                        [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
-                        [type]="elem.inputType || 'text'"
-                        [placeholder]="elem.placeholder || ''"
-                        [mask]="elem.mask || ''"
-                        [min]="elem.min ?? ''"
-                        [max]="elem.max ?? ''"
-                        [minLength]="elem.minLength ?? null"
-                        [maxLength]="elem.maxLength ?? null"
-                        [prefixIcon]="elem.prefixIcon || ''"
-                        [suffixIcon]="elem.suffixIcon || ''"
-                        [suffixRef]="elem.suffixRef || null"
-                        [onlyChars]="!!elem.onlyChars"
-                        [decimalPortion]="elem.decimalPortion ?? null"
-                        [allowNegative]="!elem.restrictNegative"
-                        (changeEv)="elem.change ? elem.change(model) : null"
-                        [model]="model[elem.key]"
-                        (modelChange)="onModelChange($event, elem.key)"
-                        [isCapitalize]="elem.isCapitalize"
-                    ></osl-input>
-                </div>
+    @case ("textbox") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-input [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme" [label]="elem.label"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [type]="elem.inputType || 'text'"
+            [placeholder]="elem.placeholder || ''" [mask]="elem.mask || ''" [min]="elem.min ?? ''"
+            [max]="elem.max ?? ''" [minLength]="elem.minLength ?? null" [maxLength]="elem.maxLength ?? null"
+            [prefixIcon]="elem.prefixIcon || ''" [suffixIcon]="elem.suffixIcon || ''"
+            [suffixRef]="elem.suffixRef || null" [onlyChars]="!!elem.onlyChars"
+            [decimalPortion]="elem.decimalPortion ?? null" [allowNegative]="!elem.restrictNegative"
+            (changeEv)="elem.change ? elem.change(model) : null" [model]="model[elem.key]"
+            (modelChange)="onModelChange($event, elem.key)" [isCapitalize]="elem.isCapitalize"></osl-input>
+    </div>
+    }
+
+    @case ("textarea") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-textarea [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [rows]="elem.textareaRows || 3"
+            [placeholder]="elem.placeholder || ''" [maxLength]="elem.maxLength ?? null"
+            [minLength]="elem.minLength ?? null" [characterCounter]="!!elem.characterCounter"
+            [resize]="elem.resize || 'none'" (changeEv)="elem.change ? elem.change(model) : null"
+            [model]="model[elem.key]" (modelChange)="onModelChange($event, elem.key)"></osl-textarea>
+    </div>
+    }
+
+    @case ("select") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-select [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [datasource]="elem.datasource || []"
+            [displayField]="elem.displayField || ''" [valueField]="elem.valueField || ''"
+            [placeholder]="elem.selectPlaceholder || 'Select...'"
+            [loading]="elem.loadingIf ? elem.loadingIf(model) : false" [clearable]="!!elem.clearable"
+            (changeEv)="elem.change ? onSelectChange(elem, $event) : null" [model]="model[elem.key]"
+            (modelChange)="onModelChange($event, elem.key)"></osl-select>
+    </div>
+    }
+
+    @case ("radio") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-radio [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [datasource]="elem.datasource || []"
+            [displayField]="elem.displayField || ''" [valueField]="elem.valueField || ''" [inline]="!!elem.inline"
+            (changeEv)="elem.change ? elem.change(model) : null" [model]="model[elem.key]"
+            (modelChange)="onModelChange($event, elem.key)"></osl-radio>
+    </div>
+    }
+
+    @case ("slide-toggle") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-slide-toggle [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [labelPosition]="elem.labelPosition || 'after'" [trueLabel]="elem.trueLabel || ''"
+            [falseLabel]="elem.falseLabel || ''" (changeEv)="elem.change ? elem.change(model) : null"
+            [model]="model[elem.key]" (modelChange)="onModelChange($event, elem.key)"></osl-slide-toggle>
+    </div>
+    }
+
+    @case ("autocomplete") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-autocomplete [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [(datasource)]="elem.datasource"
+            [displayField]="elem.displayField || ''" [valueField]="elem.valueField || ''"
+            [placeholder]="elem.autocompletePlaceholder || 'Type to search...'"
+            [loading]="elem.loadingIf ? elem.loadingIf(model) : false" (changeEv)="onFieldChange(elem, $event)"
+            [(model)]="model[elem.key]" [methodName]="elem.apiMethod" [service]="elem.apiService"
+            [object]="model[elem.objectName]" [searchType]="elem.searchType" [configMethodName]="elem.apiConfigMethod"
+            [isLister]="elem.isListerAutocomplete" [apiBody]="elem.apiBody ? elem.apiBody(model):null"
+            [displayFn]="elem.displayFn || null" [autocompleteType]="elem.autocompleteType || 'default'"></osl-autocomplete>
+    </div>
+    }
+
+    @case ("file-uploader") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-file-upload [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme" [label]="elem.label"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [accept]="elem.accept || ''"
+            [multiple]="!!elem.multiple" [maxSize]="elem.maxFileSize || 0" [fileMode]="elem.fileMode || 'raw'"
+            [downloadFn]="elem.fileDownloadFn ? elem.fileDownloadFn.bind(null, model) : null"
+            (changeEv)="elem.change ? elem.change(model) : null" [model]="model[elem.key]"
+            (modelChange)="onModelChange($event, elem.key)"></osl-file-upload>
+    </div>
+    }
+
+    @case ("datepicker") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-datepicker [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme" [label]="elem.label"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [dateType]="elem.dateType || 'date'"
+            [placeholder]="elem.placeholder || ''"
+            [minDate]="elem.minDateIf ? elem.minDateIf(model) : elem.minDate || ''"
+            [maxDate]="elem.maxDateIf ? elem.maxDateIf(model) : elem.maxDate || ''"
+            (changeEv)="elem.change ? elem.change(model) : null" [model]="model[elem.key]"
+            (modelChange)="onModelChange($event, elem.key)"></osl-datepicker>
+    </div>
+    }
+
+    @case ("datetimepicker") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-datetimepicker [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme" [label]="elem.label"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
+            [placeholder]="elem.placeholder || ''"
+            [minDatetime]="elem.minDatetimeIf ? elem.minDatetimeIf(model) : elem.minDatetime || ''"
+            [maxDatetime]="elem.maxDatetimeIf ? elem.maxDatetimeIf(model) : elem.maxDatetime || ''"
+            [format]="elem.datetimepickerFormat || 'YYYY-MM-DDTHH:mm'" [showSeconds]="!!elem.datetimepickerShowSeconds"
+            [enableMeridian]="!!elem.datetimepickerEnableMeridian" (changeEv)="elem.change ? elem.change(model) : null"
+            [model]="model[elem.key]" (modelChange)="onModelChange($event, elem.key)"></osl-datetimepicker>
+    </div>
+    }
+
+    @case ("checkbox") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-checkbox [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme" [label]="elem.label"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
+            [indeterminate]="!!elem.indeterminate" (changeEv)="elem.change ? elem.change(model) : null"
+            [model]="model[elem.key]" (modelChange)="onModelChange($event, elem.key)"></osl-checkbox>
+    </div>
+    }
+
+    @case ("button") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-button [label]="elem.label" [loading]="elem.loadingIf ? elem.loadingIf(model) : false" variant="secondary"
+            (clickEv)="elem.change ? elem.change(model) : null"></osl-button>
+    </div>
+    }
+
+    @case ("fieldset") {
+    <div [class]="'col-md-'+elem.columns+' mt-3'">
+        <fieldset class="osl-fieldset">
+            @if(elem.label) {
+            <legend class="osl-fieldset-legend" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
+                <span class="osl-fieldset-legend__text">{{ elem.label }}</span>
+            </legend>
             }
+            <div class="row w-100 osl-fieldset-body">
+                @for(innerElem of elem.rows; track innerElem) {
+                @if(!(innerElem.hideIf ? innerElem.hideIf(model) : innerElem.hide)) {
+                <ng-container *ngTemplateOutlet="formField; context: { $implicit: innerElem }"></ng-container>
+                }
+                }
+            </div>
+        </fieldset>
+    </div>
+    }
 
-            @case ("textarea") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                    <osl-textarea
-                        [label]="elem.label"
-                    [skeletonLoading]="skeletonLoading"
-                    [skeletonTheme]="skeletonTheme"
-                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
-                        [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
-                        [rows]="elem.textareaRows || 3"
-                        [placeholder]="elem.placeholder || ''"
-                        [maxLength]="elem.maxLength ?? null"
-                        [minLength]="elem.minLength ?? null"
-                        [characterCounter]="!!elem.characterCounter"
-                        [resize]="elem.resize || 'none'"
-                        (changeEv)="elem.change ? elem.change(model) : null"
-                        [model]="model[elem.key]"
-                        (modelChange)="onModelChange($event, elem.key)"
-                    ></osl-textarea>
-                </div>
-            }
+    @case ("templateRef"){
+    <div [class]="'col-md-'+elem.columns+' mt-3'">
+        <ng-container *ngTemplateOutlet="elem.templateRef; context: { $implicit: elem}"></ng-container>
+    </div>
+    }
 
-            @case ("select") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                    <osl-select
-                        [label]="elem.label"
-                    [skeletonLoading]="skeletonLoading"
-                    [skeletonTheme]="skeletonTheme"
-                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
-                        [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
-                        [datasource]="elem.datasource || []"
-                        [displayField]="elem.displayField || ''"
-                        [valueField]="elem.valueField || ''"
-                        [placeholder]="elem.selectPlaceholder || 'Select...'"
-                        [loading]="elem.loadingIf ? elem.loadingIf(model) : false"
-                        [clearable]="!!elem.clearable"
-                        (changeEv)="elem.change ? onSelectChange(elem, $event) : null"
-                        [model]="model[elem.key]"
-                        (modelChange)="onModelChange($event, elem.key)"
-                    ></osl-select>
-                </div>
-            }
+    @case ("spacer") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+    </div>
+    }
 
-            @case ("radio") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                    <osl-radio
-                        [label]="elem.label"
-                    [skeletonLoading]="skeletonLoading"
-                    [skeletonTheme]="skeletonTheme"
-                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
-                        [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
-                        [datasource]="elem.datasource || []"
-                        [displayField]="elem.displayField || ''"
-                        [valueField]="elem.valueField || ''"
-                        [inline]="!!elem.inline"
-                        (changeEv)="elem.change ? elem.change(model) : null"
-                        [model]="model[elem.key]"
-                        (modelChange)="onModelChange($event, elem.key)"
-                    ></osl-radio>
-                </div>
-            }
+    @case ("text"){
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <span class="f-w-b">{{elem.label}}</span>
+                           @if(elem.requiredIf ? elem.requiredIf() : elem.required){
+                       <span class="txt-clr-red">*</span>
 
-            @case ("slide-toggle") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                    <osl-slide-toggle
-                        [label]="elem.label"
-                    [skeletonLoading]="skeletonLoading"
-                    [skeletonTheme]="skeletonTheme"
-                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
-                        [labelPosition]="elem.labelPosition || 'after'"
-                        [trueLabel]="elem.trueLabel || ''"
-                        [falseLabel]="elem.falseLabel || ''"
-                        (changeEv)="elem.change ? elem.change(model) : null"
-                        [model]="model[elem.key]"
-                        (modelChange)="onModelChange($event, elem.key)"
-                    ></osl-slide-toggle>
-                </div>
-            }
+                   }
+    </div>
 
-            @case ("autocomplete") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                    <osl-autocomplete
-                        [label]="elem.label"
-                    [skeletonLoading]="skeletonLoading"
-                    [skeletonTheme]="skeletonTheme"
-                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
-                        [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
-                        [(datasource)]="elem.datasource"
-                        [displayField]="elem.displayField || ''"
-                        [valueField]="elem.valueField || ''"
-                        [placeholder]="elem.autocompletePlaceholder || 'Type to search...'"
-                        [loading]="elem.loadingIf ? elem.loadingIf(model) : false"
-                        (changeEv)="onFieldChange(elem, $event)"
-                        [(model)]="model[elem.key]"
-                        [methodName]="elem.apiMethod"
-                        [service]="elem.apiService"
-                        [object]="model[elem.objectName]"
-                        [searchType]="elem.searchType"
-                        [configMethodName]="elem.apiConfigMethod"
-                        [isLister]="elem.isListerAutocomplete"
-                        [apiBody]="elem.apiBody ? elem.apiBody(model):null"
-                        [displayFn]="elem.displayFn || null"
-                    ></osl-autocomplete>
-                </div>
-            }
+    }
 
-            @case ("file-uploader") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                    <osl-file-upload
-                    [skeletonLoading]="skeletonLoading"
-                    [skeletonTheme]="skeletonTheme"
-                        [label]="elem.label"
-                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
-                        [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
-                        [accept]="elem.accept || ''"
-                        [multiple]="!!elem.multiple"
-                        [maxSize]="elem.maxFileSize || 0"
-                        [fileMode]="elem.fileMode || 'raw'"
-                        [downloadFn]="elem.fileDownloadFn ? elem.fileDownloadFn.bind(null, model) : null"
-                        (changeEv)="elem.change ? elem.change(model) : null"
-                        [model]="model[elem.key]"
-                        (modelChange)="onModelChange($event, elem.key)"
-                    ></osl-file-upload>
-                </div>
-            }
-
-            @case ("datepicker") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                    <osl-datepicker
-                    [skeletonLoading]="skeletonLoading"
-                    [skeletonTheme]="skeletonTheme"
-                        [label]="elem.label"
-                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
-                        [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
-                        [dateType]="elem.dateType || 'date'"
-                        [placeholder]="elem.placeholder || ''"
-                        [minDate]="elem.minDateIf ? elem.minDateIf(model) : elem.minDate || ''"
-                        [maxDate]="elem.maxDateIf ? elem.maxDateIf(model) : elem.maxDate || ''"
-                        (changeEv)="elem.change ? elem.change(model) : null"
-                        [model]="model[elem.key]"
-                        (modelChange)="onModelChange($event, elem.key)"
-                    ></osl-datepicker>
-                </div>
-            }
-
-             @case ("datetimepicker") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                    <osl-datetimepicker
-                        [skeletonLoading]="skeletonLoading"
-                        [skeletonTheme]="skeletonTheme"
-                        [label]="elem.label"
-                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
-                        [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
-                        [placeholder]="elem.placeholder || ''"
-                        [minDatetime]="elem.minDatetimeIf ? elem.minDatetimeIf(model) : elem.minDatetime || ''"
-                        [maxDatetime]="elem.maxDatetimeIf ? elem.maxDatetimeIf(model) : elem.maxDatetime || ''"
-                        [format]="elem.datetimepickerFormat || 'YYYY-MM-DDTHH:mm'"
-                        [showSeconds]="!!elem.datetimepickerShowSeconds"
-                        [enableMeridian]="!!elem.datetimepickerEnableMeridian"
-                        (changeEv)="elem.change ? elem.change(model) : null"
-                        [model]="model[elem.key]"
-                           (modelChange)="onModelChange($event, elem.key)"
-                    ></osl-datetimepicker>
-                </div>
-            }
-
-            @case ("checkbox") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                    <osl-checkbox
-                    [skeletonLoading]="skeletonLoading"
-                    [skeletonTheme]="skeletonTheme"
-                        [label]="elem.label"
-                        [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
-                        [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
-                        [indeterminate]="!!elem.indeterminate"
-                        (changeEv)="elem.change ? elem.change(model) : null"
-                        [model]="model[elem.key]"
-                        (modelChange)="onModelChange($event, elem.key)"
-                    ></osl-checkbox>
-                </div>
-            }
-
-            @case ("button") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                    <osl-button
-                        [label]="elem.label"
-                        [loading]="elem.loadingIf ? elem.loadingIf(model) : false"
-                        variant="secondary"
-                        (clickEv)="elem.change ? elem.change(model) : null"
-                    ></osl-button>
-                </div>
-            }
-
-            @case ("fieldset") {
-                <div [class]="'col-md-'+elem.columns+' mt-3'">
-                    <fieldset class="osl-fieldset">
-                        @if(elem.label) {
-                            <legend class="osl-fieldset-legend" [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
-                                <span class="osl-fieldset-legend__text">{{ elem.label }}</span>
-                            </legend>
-                        }
-                        <div class="row w-100 osl-fieldset-body">
-                            @for(innerElem of elem.rows; track innerElem) {
-                                @if(!(innerElem.hideIf ? innerElem.hideIf(model) : innerElem.hide)) {
-                                    <ng-container *ngTemplateOutlet="formField; context: { $implicit: innerElem }"></ng-container>
-                                }
-                            }
-                        </div>
-                    </fieldset>
-                </div>
-            }
-
-            @case ("templateRef"){
-                 <div [class]="'col-md-'+elem.columns+' mt-3'">
-                        <ng-container *ngTemplateOutlet="elem.templateRef; context: { $implicit: elem}"></ng-container>
-                </div>
-            }
-
-             @case ("spacer") {
-                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
-                </div>
-            }
-
-        }
+    }
     }
 </ng-template>

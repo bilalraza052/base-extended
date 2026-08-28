@@ -151,7 +151,7 @@ export class DynamicForm implements OnInit, OnChanges {
 export interface elements {
   columns: number;
   label: string;
-  elementType: 'button' | 'checkbox' | 'textbox' | 'textarea' | 'radio' | 'select' | 'datepicker' | 'datetimepicker' | 'file-uploader' | 'autocomplete' | 'slide-toggle' | 'fieldset' | 'templateRef' | 'chips-input' | 'spacer';
+  elementType: 'button' | 'checkbox' | 'textbox' | 'textarea' | 'radio' | 'select' | 'datepicker' | 'datetimepicker' | 'file-uploader' | 'autocomplete' | 'slide-toggle' | 'fieldset' | 'templateRef' | 'chips-input' | 'spacer' | 'text';
   key: string;
   /** Child elements rendered inside a fieldset. Only used when elementType is 'fieldset'. */
   rows?: elements[];
@@ -254,4 +254,6 @@ export interface elements {
   objectName?:string;
   isListerAutocomplete?:boolean
   isCapitalize?:boolean;
+  /** 'chips' enables multi-select with chip display; model becomes an array of valueField values. */
+  autocompleteType?: 'default' | 'chips';
 }
