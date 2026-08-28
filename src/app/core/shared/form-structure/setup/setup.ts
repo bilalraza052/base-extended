@@ -90,6 +90,10 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   @Input('cardTemplate') cardTemplate?: TemplateRef<any>;
   /** Bootstrap col-* class number for each field in the card body. Default: 3 (4 per row). */
   @Input('cardCol') cardCol: number = 3;
+  /** Passed straight through to osl-grid. When true, shows checkboxes for multi-row selection. */
+  @Input('checkboxSelection') checkboxSelection: boolean = false;
+  /** Passed straight through to osl-grid — set of primaryKey values currently checked. */
+  @Input('selectedRowKeys') selectedRowKeys: Set<any> = new Set();
 
   // ── Outputs ───────────────────────────────────────────────────
   @Output() onSearch = new EventEmitter<string>();
@@ -101,6 +105,8 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   @Output() sortChange = new EventEmitter<OslSortEvent>();
   @Output() onRowClick = new EventEmitter<any>();
   @Output() onStateRestored = new EventEmitter<OslSetupState>();
+  @Output() rowCheckToggle = new EventEmitter<{ row: any; checked: boolean }>();
+  @Output() selectAllPageToggle = new EventEmitter<{ rows: any[]; checked: boolean }>();
 
   // ── Dialog state ──────────────────────────────────────────────
   dialogModel: any = {};

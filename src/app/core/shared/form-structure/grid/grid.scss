@@ -227,6 +227,58 @@
   }
 }
 
+// ── Checkbox Column ───────────────────────────────────────────
+.osl-grid-th--checkbox,
+.osl-grid-td--checkbox {
+  width: 36px;
+  min-width: 36px;
+  text-align: center;
+  cursor: default;
+
+  input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    vertical-align: middle;
+    cursor: pointer;
+    accent-color: var(--osl-primary);
+  }
+}
+
+// Hovering the header checkbox shows a warning-styled popup clarifying it only
+// selects the current page — not all records. Fixed + JS-positioned (like
+// .osl-custom-menu below) so it always renders fully instead of being clipped
+// by the table's scroll container.
+.osl-grid-checkbox-popup {
+  position: fixed;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  width: 190px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: normal;
+  padding: 8px 10px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+  pointer-events: none;
+}
+
+.osl-grid-checkbox-popup-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #f59e0b;
+}
+
 // ── Actions Column ────────────────────────────────────────────
 .osl-grid-th--actions {
   width: 80px;
