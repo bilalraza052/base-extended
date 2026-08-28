@@ -1,4 +1,19 @@
 <div class="p-4">
-    <osl-setup [loading]="loader" [autoMode]="false" [title]="autocompleteData?.title"  [totalRecords]="recordCount" (pageSizeChange)="onPageChange($event)" (pageChange)="onPageChange($event)" (onRowClick)="onRowClick($event)" [columns]="column" [datasource]="datasource" [isLister]="true"></osl-setup>
-    
+    <osl-setup [loading]="loader" [autoMode]="false" [title]="autocompleteData?.title"  [totalRecords]="recordCount" (pageSizeChange)="onPageChange($event)" (pageChange)="onPageChange($event)" (onRowClick)="onRowClick($event)" [columns]="column" [datasource]="datasource" [isLister]="true"
+        [checkboxSelection]="!!autocompleteData?.multiple"
+        [selectedRowKeys]="selectedRowKeys"
+        [primaryKey]="autocompleteData?.valueField || 'id'"
+        (rowCheckToggle)="onRowCheckToggle($event)"
+        (selectAllPageToggle)="onSelectAllPageToggle($event)"></osl-setup>
+
+    @if(autocompleteData?.multiple){
+    <div class="lister-multi-footer d-flex justify-content-between align-items-center mt-2">
+        <span class="lister-multi-footer-count">{{selectedMap.size}} selected</span>
+        <div class="d-flex gap-2">
+            <osl-button variant="outline-secondary" size="sm" label="Clear" (clickEv)="clearSelection()"></osl-button>
+            <osl-button variant="secondary" size="sm" label="Cancel" (clickEv)="dialogRef.close()"></osl-button>
+            <osl-button variant="primary" size="sm" label="Apply" (clickEv)="applySelection()"></osl-button>
+        </div>
+    </div>
+    }
 </div>
