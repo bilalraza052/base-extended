@@ -8,4 +8,10 @@ export interface oslListerData {
   service: any;
   configMethodName: string;
   apiBody:any;
+  /** When true, the lister shows row checkboxes and lets the user pick multiple rows. */
+  multiple?: boolean;
+  /** Row property used as the unique key for checkbox selection state. */
+  valueField?: string;
+  /** Rows already selected before the dialog opened (seeds the checkbox state). */
+  selected?: any[];
 }
