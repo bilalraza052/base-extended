@@ -254,12 +254,16 @@ export class Example extends baseComponent {
       columns: 6, elementType: 'select', key: 'status', label: 'Status',
       datasource: this.statusOptions, displayField: 'label', valueField: 'value',
     },
+    // {
+    //   columns: 6, elementType: 'select', key: 'source', label: 'Source',
+    //   datasource: this.sourceOptions, displayField: 'label', valueField: 'value',
+    // },
     {
-      columns: 6, elementType: 'select', key: 'source', label: 'Source',
-      datasource: this.sourceOptions, displayField: 'label', valueField: 'value',
+      columns: 4, elementType: 'text', key: 'creditAdjustment', label: 'Credit Adjustment',
+      inputType: 'int', restrictNegative:true,required:false
     },
     {
-      columns: 6, elementType: 'textbox', key: 'creditAdjustment', label: 'Credit Adjustment',
+      columns: 6, elementType: 'textbox', key: 'creditAdjustment', label: '',
       inputType: 'int', restrictNegative:true
     },
     {
@@ -1577,7 +1581,7 @@ export class Example extends baseComponent {
             elementType: 'autocomplete',
             label: 'Crew Nationalities (Multi Autocomplete)',
             key: 'crewNationalities',
-            autocompleteMultiple: true,
+            autocompleteType: 'chips',
             displayField: 'name',
             valueField: 'code',
             searchType: 'Local',
@@ -1598,6 +1602,20 @@ export class Example extends baseComponent {
             label: 'Trading Routes (Chips Input)',
             key: 'tradingRoutes',
             placeholder: 'Add a route and press Enter...',
+          },
+          {
+            columns: 6,
+            elementType: 'autocomplete',
+            label: 'Crew Nationalities (Chips + Checkbox Lister)',
+            key: 'crewNationalitiesLister',
+            autocompleteType: 'chips',
+            displayField: 'name',
+            valueField: 'code',
+            searchType: 'Api',
+            apiService: this.service,
+            apiMethod: 'searchNationalities',
+            apiConfigMethod: 'nationalityConfig',
+            isListerAutocomplete: true,
           },
         ],
       },
