@@ -1,6 +1,6 @@
 {
   "name": "osl-base-extended",  
-  "version": "12.4.1",
+  "version": "14.5.1",
   
   "peerDependencies": {
     "@angular/common": "^21.2.0",
