@@ -149,7 +149,6 @@
                         [valueField]="elem.valueField || ''"
                         [placeholder]="elem.autocompletePlaceholder || 'Type to search...'"
                         [loading]="elem.loadingIf ? elem.loadingIf(model) : false"
-                        [multiple]="!!elem.autocompleteMultiple"
                         (changeEv)="onFieldChange(elem, $event)"
                         [(model)]="model[elem.key]"
                         [methodName]="elem.apiMethod"
@@ -160,6 +159,7 @@
                         [isLister]="elem.isListerAutocomplete"
                         [apiBody]="elem.apiBody"
                         [displayFn]="elem.displayFn || null"
+                        [autocompleteType]="elem.autocompleteType || 'default'"
                     ></osl-autocomplete>
                 </div>
             }
@@ -257,6 +257,15 @@
 
              @case ("spacer") {
                 <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+                </div>
+            }
+             @case ("text") {
+                <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+                   <span class="f-w-b"> {{elem.label}} </span> 
+                   @if(elem.requiredIf ? elem.requiredIf() : elem.required){
+                       <span class="txt-clr-red">*</span>
+
+                   }
                 </div>
             }
 
