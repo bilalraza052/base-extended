@@ -78,6 +78,10 @@
         (sortChange)="sortChange.emit($event)"
         [isSelectable]="isLister"
         (onRowClick)="onRowClick.emit($event)"
+        [checkboxSelection]="checkboxSelection"
+        [selectedRowKeys]="selectedRowKeys"
+        (rowCheckToggle)="rowCheckToggle.emit($event)"
+        (selectAllPageToggle)="selectAllPageToggle.emit($event)"
       />
     </div>
   }

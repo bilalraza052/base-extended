@@ -69,6 +69,13 @@ export class OslGrid implements OnChanges {
   @Input('highlightedRow') highlightedRow: any = null;
   @Input('primaryKey') primaryKey: string = 'id';
 
+  /** When true, prepends a checkbox column keyed by primaryKey. Opt-in — no effect when false. */
+  @Input('checkboxSelection') checkboxSelection: boolean = false;
+  /** Set of primaryKey values currently checked. Owned by the host, not this component. */
+  @Input('selectedRowKeys') selectedRowKeys: Set<any> = new Set();
+  @Output() rowCheckToggle = new EventEmitter<{ row: any; checked: boolean }>();
+  @Output() selectAllPageToggle = new EventEmitter<{ rows: any[]; checked: boolean }>();
+
   @ViewChild('tableContainer') private _tableContainerRef!: ElementRef<HTMLDivElement>;
 
   constructor(private cd: ChangeDetectorRef) {}
@@ -88,6 +95,24 @@ export class OslGrid implements OnChanges {
   menuPosition = { top: 0, left: 0 };
   loadingActionIndex: number | null = null;
   private _restorePage: number | null = null;
+
+  showPageCheckboxHint = false;
+  pageCheckboxHintPosition = { top: 0, left: 0 };
+
+  onPageCheckboxMouseEnter(event: Event): void {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const hintWidth = 190;
+    const left = Math.min(
+      Math.max(rect.left + rect.width / 2 - hintWidth / 2, 8),
+      window.innerWidth - hintWidth - 8
+    );
+    this.pageCheckboxHintPosition = { top: rect.bottom + 8, left };
+    this.showPageCheckboxHint = true;
+  }
+
+  onPageCheckboxMouseLeave(): void {
+    this.showPageCheckboxHint = false;
+  }
 
   @HostListener('document:click')
   onDocumentClick(): void {
@@ -253,5 +278,26 @@ export class OslGrid implements OnChanges {
       return match ? match.label : (raw ?? '--');
     }
     return raw !== null && raw !== undefined && raw !== '' ? raw : '--';
+  }
+
+  isRowChecked(row: any): boolean {
+    return this.selectedRowKeys.has(row[this.primaryKey]);
+  }
+
+  get pageAllSelected(): boolean {
+    return this.pagedData.length > 0 && this.pagedData.every(r => this.selectedRowKeys.has(r[this.primaryKey]));
+  }
+
+  get pageSomeSelected(): boolean {
+    return !this.pageAllSelected && this.pagedData.some(r => this.selectedRowKeys.has(r[this.primaryKey]));
+  }
+
+  toggleRowCheck(row: any, checked: boolean, event: Event): void {
+    event.stopPropagation();
+    this.rowCheckToggle.emit({ row, checked });
+  }
+
+  toggleSelectPage(checked: boolean): void {
+    this.selectAllPageToggle.emit({ rows: this.pagedData, checked });
   }
 }
