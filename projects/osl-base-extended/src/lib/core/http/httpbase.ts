@@ -251,7 +251,7 @@ export abstract class Httpbase {
     }
   }
 
-  protected async download(methodName: string, fileName: string, params?: myParams[]): Promise<HttpResponse<void>> {
+  protected async download(methodName: string, fileName: string, params?: myParams[],isDownload:boolean = true): Promise<HttpResponse<void>> {
     try {
       const res = await firstValueFrom(
         this.http
@@ -263,14 +263,17 @@ export abstract class Httpbase {
           })
           .pipe(timeout(60000)),
       );
-      const blob = res.body as Blob;
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = fileName;
-      anchor.click();
-      URL.revokeObjectURL(url);
-      return this.handleSuccess<void>(res.status, null as any, res.headers);
+      if(isDownload){
+        const blob = res.body as Blob;
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = fileName;
+        anchor.click();
+        URL.revokeObjectURL(url);
+
+      }
+      return this.handleSuccess<void>(res.status, res.body, res.headers);
     } catch (error: any) {
       // responseType:'blob' causes Angular to wrap the error body as a Blob too,
       // so we must read it back to JSON before handleError can parse the message.

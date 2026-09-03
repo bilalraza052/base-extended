@@ -478,10 +478,10 @@ export class OslSetup implements OnInit, OnChanges, AfterViewInit {
   }
 
   // ── Dialog actions ────────────────────────────────────────────
-  openAddDialog(): void {
+  async openAddDialog(): Promise<void> {
     this.dialogMode = 'add';
     if (this.beforeDisplay) {
-      this.dialogModel = this.beforeDisplay(this.dialogModel);
+      this.dialogModel = await this.beforeDisplay({});
     } else {
       this.dialogModel = {};
     }

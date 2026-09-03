@@ -183,9 +183,30 @@ export class Oslinput implements OnInit, OnChanges {
       return;
     }
 
-    if (this.mask && !this.isKeyAllowedByMask(event.key)) {
-      event.preventDefault();
+    if (this.mask) {
+      if (!this.isKeyAllowedByMask(event.key)) {
+        event.preventDefault();
+        return;
+      }
+      const input = event.target as HTMLInputElement;
+      const selStart = input.selectionStart ?? input.value.length;
+      const selEnd = input.selectionEnd ?? selStart;
+      if (selStart === selEnd && this.strippedLength(input.value) >= this.maskSlotCount()) {
+        event.preventDefault();
+      }
     }
+  }
+
+  private strippedLength(value: string): number {
+    return value.replace(/[^a-zA-Z0-9]/g, '').length;
+  }
+
+  private maskSlotCount(): number {
+    let count = 0;
+    for (const c of this.mask) {
+      if (c === '0' || c === 'A' || c === '*') count++;
+    }
+    return count;
   }
 
   private allowNegativeAt(input: HTMLInputElement): boolean {
