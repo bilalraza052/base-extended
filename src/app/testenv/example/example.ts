@@ -7,7 +7,8 @@ import { elements } from '../../core/shared/form-structure/dynamic-form/dynamic-
 import { OslSetupSaveEvent } from '../../core/shared/form-structure/setup/setup';
 import { DragColumn, DragDropPayload, DragItem, OslFormGridColumn, PanelPageEvent, PanelSearchEvent } from '../../core/shared/form-structure/form-grid/form-grid';
 import { OslReportColumn } from '../../core/shared/form-structure/report-grid/report-grid';
-import { ReportGenerateType } from '../../core/shared/form-structure/report-form/report-form';
+import { OslReportEmailConfig, ReportGenerateType } from '../../core/shared/form-structure/report-form/report-form';
+import { OslEmailSendResult } from '../../core/shared/components/email-dialog/email-dialog';
 import { ExampleService } from '../service/example';
 import { UserLogMeta } from '../../core/shared/form-structure/user-log/user-log';
 import { OslSkeletonModule } from '../../core/shared/directive/skeleton/skeleton.module';
@@ -991,10 +992,53 @@ export class Example extends baseComponent {
     },
   ];
 
-  onLedgerGenerate = async (_model: any, _type: ReportGenerateType): Promise<any[]> => {
-    await new Promise(r => setTimeout(r, 900));
-    return this._generateLedgerData();
+  // Pre-fills the "Email" compose dialog opened from the report-form's Email tab.
+  ledgerEmailConfig: OslReportEmailConfig = {
+    to: ['finance@example.com'],
+    cc: ['controller@example.com'],
+    subject: 'Account Ledger Report',
+    body: 'Hi,\n\nPlease find attached the account ledger report for the selected period.\n\nRegards,\nAccounts Team',
   };
+
+  onLedgerGenerate = async (_model: any, type: ReportGenerateType): Promise<any[]> => {
+    await new Promise(r => setTimeout(r, 900));
+    const rows = this._generateLedgerData();
+
+    if (type === 'email') {
+      // Build the attachment to include with the email (e.g. a CSV export of the report).
+      const csv = ['Date,Voucher No,Type,Description,Party,Debit,Credit,Balance']
+        .concat(rows.map(r => `${r.date},${r.voucherNo},${r.voucherType},"${r.description}",${r.party},${r.debit},${r.credit},${r.balance}`))
+        .join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const file = new File([blob], 'account-ledger.csv', { type: 'text/csv' });
+      return [{ name: file.name, size: file.size, type: file.type, file, removable: false }];
+    }
+
+    return rows;
+  };
+
+  onLedgerEmailSend = async (result: OslEmailSendResult, model: any): Promise<void> => {
+    console.log('Sending ledger report email:', result, 'filters:', model);
+    await new Promise(r => setTimeout(r, 1000));
+    this.showSuccess(`Email sent to ${result.to.join(', ')}`);
+  };
+
+  // ── Generic Email Dialog Demo (baseComponent.openEmailDialog) ────────────
+  openGenericEmailDialogDemo(): void {
+    this.openEmailDialog(
+      ['ali.raza@example.com'],
+      ['sara.khan@example.com'],
+      'Quarterly Invoice - INV-2049',
+      'Hi Ali,\n\nPlease find attached the invoice for this quarter.\n\nThanks,\nBilal',
+      [{ name: 'Invoice_INV-2049.pdf', size: 245_000, type: 'application/pdf', removable: false }],
+      async (result) => {
+        console.log('Sending generic email:', result);
+        await new Promise(r => setTimeout(r, 1000));
+        this.showSuccess(`Email sent to ${result.to.join(', ')}`);
+      },
+      'Send Invoice',
+    );
+  }
 
   private _generateLedgerData(): any[] {
     const parties = [

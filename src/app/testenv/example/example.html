@@ -118,3 +118,36 @@
     <button type="button" class="tip-btn tip-btn--default" (click)="dialogData.dialogRef.close()">Close</button>
   </ng-template>
 
+  <!-- ── Report Form: PDF / Grid / Excel / Email ──────────────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Report Form</span>
+      <span class="ex-card__desc">generateOptions now includes 'email' — pick the Email tab and click Compose Email; onGenerate builds a CSV attachment and the compose dialog opens pre-filled from emailConfig.</span>
+    </div>
+    <div class="ex-card__body">
+      <osl-report-form
+        title="Account Ledger Report"
+        [formElements]="ledgerFormElements"
+        [(model)]="ledgerModel"
+        [reportColumns]="ledgerColumns"
+        [generateOptions]="['grid', 'pdf', 'excel', 'email']"
+        [onGenerate]="onLedgerGenerate"
+        [emailConfig]="ledgerEmailConfig"
+        [onEmailSend]="onLedgerEmailSend"
+      ></osl-report-form>
+    </div>
+  </div>
+
+  <!-- ── Email Dialog (baseComponent.openEmailDialog) ─────────────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Email Dialog</span>
+      <span class="ex-card__desc">openEmailDialog(to, cc, subject, body, attachments, onSendClick, title) — reusable from any component extending baseComponent, with chip recipients and drag-drop attachments</span>
+    </div>
+    <div class="ex-card__body">
+      <button type="button" class="tip-btn tip-btn--indigo" (click)="openGenericEmailDialogDemo()">
+        Open Email Dialog
+      </button>
+    </div>
+  </div>
+

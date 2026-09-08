@@ -7,6 +7,7 @@ import { Dialog, DialogWrapper } from "../shared/components/dialog-wrapper/dialo
 import { DeleteConfirmation, DeleteConfirmationData } from "../shared/components/delete-confirmation/delete-confirmation";
 import { ErrorDialog, ErrorDialogData } from "../shared/components/error-dialog/error-dialog";
 import { WarningDialog, WarningDialogData } from "../shared/components/warning-dialog/warning-dialog";
+import { OslEmailAttachment, OslEmailDialog, OslEmailDialogData, OslEmailSendResult } from "../shared/components/email-dialog/email-dialog";
 import { DirtyStateService } from "../services/dirty-state.service";
 @Injectable()
 
@@ -110,6 +111,25 @@ export class baseComponent{
             }
         });
         return dialogRef;
+    }
+
+    protected openEmailDialog(
+        to: string[] = [],
+        cc: string[] = [],
+        subject: string = '',
+        body: string = '',
+        attachments: OslEmailAttachment[] = [],
+        onSendClick?: (result: OslEmailSendResult) => Promise<any> | any,
+        title: string = 'Compose Email',
+    ): MatDialogRef<OslEmailDialog> {
+        const dialogData: OslEmailDialogData = { title, to, cc, subject, body, attachments, onSendClick };
+        return this._injector.get(MatDialog).open(OslEmailDialog, {
+            width: '640px',
+            maxWidth: '92vw',
+            data: dialogData,
+            disableClose: true,
+            autoFocus: false,
+        });
     }
 
        protected isValidBeforeSave<T>(formElements: T[], model: any): string[] {

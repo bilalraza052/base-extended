@@ -27,6 +27,7 @@
             [class.orf-type-btn--pdf]="type === 'pdf'"
             [class.orf-type-btn--excel]="type === 'excel'"
             [class.orf-type-btn--grid]="type === 'grid'"
+            [class.orf-type-btn--email]="type === 'email'"
             (click)="selectType(type)"
             type="button"
           >
@@ -54,6 +55,12 @@
                 <rect x="14" y="3"  width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
                 <rect x="3"  y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
                 <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            }
+            @if (type === 'email') {
+              <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
+                <rect x="2.5" y="5" width="19" height="14" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M3.5 6.5l8.5 7 8.5-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             }
             <span>{{ typeLabel(type) }}</span>
@@ -104,7 +111,7 @@
       >
         @if (generating) {
           <span class="orf-generate-btn__spinner"></span>
-          <span>Generating...</span>
+          <span>{{ selectedType === 'email' ? 'Preparing...' : 'Generating...' }}</span>
         } @else {
           @if (selectedType === 'pdf') {
             <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
@@ -127,7 +134,13 @@
               <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
             </svg>
           }
-          <span>Generate {{ typeLabel(selectedType) }}</span>
+          @if (selectedType === 'email') {
+            <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
+              <rect x="2.5" y="5" width="19" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M3.5 6.5l8.5 7 8.5-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          }
+          <span>{{ selectedType === 'email' ? 'Compose Email' : 'Generate ' + typeLabel(selectedType) }}</span>
           <svg class="orf-generate-btn__arrow" viewBox="0 0 20 20" fill="none">
             <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.8"
                   stroke-linecap="round" stroke-linejoin="round"/>

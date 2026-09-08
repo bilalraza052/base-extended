@@ -18,48 +18,57 @@
           <p class="orf-header__sub">Configure parameters and generate report</p>
         </div>
       </div>
+      @if(generateOptions && generateOptions.length > 1){
 
-      <div class="orf-header__right">
-        @for (type of generateOptions; track type) {
-          <button
-            class="orf-type-btn"
-            [class.active]="selectedType === type"
-            [class.orf-type-btn--pdf]="type === 'pdf'"
-            [class.orf-type-btn--excel]="type === 'excel'"
-            [class.orf-type-btn--grid]="type === 'grid'"
-            (click)="selectType(type)"
-            type="button"
-          >
-            @if (type === 'pdf') {
-              <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                      stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                <path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                <path d="M9 13h1.5a1.5 1.5 0 0 1 0 3H9v-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                <path d="M14 13v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                <path d="M14 13h1.5a1.5 1.5 0 0 1 0 3H14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-              </svg>
-            }
-            @if (type === 'excel') {
-              <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
-                <rect x="2" y="3" width="20" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M2 8h20" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M8 8v13M14 8v13" stroke="currentColor" stroke-width="1.2"/>
-                <path d="M2 13h20M2 18h20" stroke="currentColor" stroke-width="1.2"/>
-              </svg>
-            }
-            @if (type === 'grid') {
-              <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
-                <rect x="3"  y="3"  width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="14" y="3"  width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="3"  y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-              </svg>
-            }
-            <span>{{ typeLabel(type) }}</span>
-          </button>
-        }
-      </div>
+        <div class="orf-header__right">
+          @for (type of generateOptions; track type) {
+            <button
+              class="orf-type-btn"
+              [class.active]="selectedType === type"
+              [class.orf-type-btn--pdf]="type === 'pdf'"
+              [class.orf-type-btn--excel]="type === 'excel'"
+              [class.orf-type-btn--grid]="type === 'grid'"
+              [class.orf-type-btn--email]="type === 'email'"
+              (click)="selectType(type)"
+              type="button"
+            >
+              @if (type === 'pdf') {
+                <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                        stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                  <path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                  <path d="M9 13h1.5a1.5 1.5 0 0 1 0 3H9v-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                  <path d="M14 13v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                  <path d="M14 13h1.5a1.5 1.5 0 0 1 0 3H14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+              }
+              @if (type === 'excel') {
+                <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
+                  <rect x="2" y="3" width="20" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M2 8h20" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M8 8v13M14 8v13" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M2 13h20M2 18h20" stroke="currentColor" stroke-width="1.2"/>
+                </svg>
+              }
+              @if (type === 'grid') {
+                <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
+                  <rect x="3"  y="3"  width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                  <rect x="14" y="3"  width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                  <rect x="3"  y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+              }
+              @if (type === 'email') {
+                <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
+                  <rect x="2.5" y="5" width="19" height="14" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M3.5 6.5l8.5 7 8.5-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              }
+              <span>{{ typeLabel(type) }}</span>
+            </button>
+          }
+        </div>
+      }
     </div>
 
     <!-- Section divider with label -->
@@ -104,7 +113,7 @@
       >
         @if (generating) {
           <span class="orf-generate-btn__spinner"></span>
-          <span>Generating...</span>
+          <span>{{ selectedType === 'email' ? 'Preparing...' : 'Generating...' }}</span>
         } @else {
           @if (selectedType === 'pdf') {
             <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
@@ -127,7 +136,13 @@
               <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
             </svg>
           }
-          <span>Generate {{ typeLabel(selectedType) }}</span>
+          @if (selectedType === 'email') {
+            <svg class="orf-btn-icon" viewBox="0 0 24 24" fill="none">
+              <rect x="2.5" y="5" width="19" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M3.5 6.5l8.5 7 8.5-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          }
+          <span>{{ selectedType === 'email' ? 'Compose Email' : 'Generate ' + typeLabel(selectedType) }}</span>
           <svg class="orf-generate-btn__arrow" viewBox="0 0 20 20" fill="none">
             <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.8"
                   stroke-linecap="round" stroke-linejoin="round"/>
