@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { elements } from '../dynamic-form/dynamic-form';
+import { DatasourceCacheService } from '../datasource-cache/datasource-cache.service';
 import {
   CdkDragDrop,
   CdkDragEnd,
@@ -88,8 +89,46 @@ export interface PanelPageEvent {
   styleUrl: './form-grid.scss',
   providers: [DatePipe],
 })
-export class OslFormGrid {
+export class OslFormGrid implements OnChanges {
+  private datasourceCache = inject(DatasourceCacheService);
+  private cdr = inject(ChangeDetectorRef);
   constructor(private datePipe: DatePipe) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['columns']) {
+      this.loadApiDatasources();
+    }
+  }
+
+  // ── API datasources (select / radio) ───────────────────────────────────────
+  // Same contract as osl-dynamic-form: a column whose formElem has apiService +
+  // apiMethod gets its datasource loaded once for the whole column. Autocomplete
+  // is skipped because osl-autocomplete calls the service itself.
+  private apiLoadingElems = new Set<elements>();
+
+  private loadApiDatasources(): void {
+    for (const col of this.columns || []) {
+      const elem = col.formElem;
+      if (!elem || (elem.elementType !== 'select' && elem.elementType !== 'radio')) continue;
+      if (!elem.apiService || !elem.apiMethod) continue;
+      if (elem.searchType && elem.searchType !== 'Local') continue;
+      this.loadApiDatasource(elem);
+    }
+  }
+
+  private async loadApiDatasource(elem: elements): Promise<void> {
+    const body = elem.apiBody ? elem.apiBody({}) : null;
+    this.apiLoadingElems.add(elem);
+    try {
+      const data = await this.datasourceCache.load(elem.apiService, elem.apiMethod!, body);
+      if (data && data.length > 0) {
+        elem.datasource = data;
+      }
+    } finally {
+      this.apiLoadingElems.delete(elem);
+      this.cdr.markForCheck();
+    }
+  }
 
   // ── Existing inputs ────────────────────────────────────────────────────────
   @Input('columns') columns: OslFormGridColumn[] = [];
@@ -311,6 +350,7 @@ export class OslFormGrid {
   }
 
   isLoading(row: any, elem: elements): boolean {
+    if (this.apiLoadingElems.has(elem)) return true;
     return elem.loadingIf ? elem.loadingIf(row) : false;
   }
 
