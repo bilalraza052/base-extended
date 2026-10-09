@@ -256,4 +256,6 @@ export interface elements {
   isCapitalize?:boolean;
   /** 'chips' enables multi-select with chip display; model becomes an array of valueField values. */
   autocompleteType?: 'default' | 'chips';
+  /** Allow free text beyond the options — typed text that matches no option is kept as the model instead of being cleared. Ignored in chips mode. */
+  manualEntry?: boolean;
 }
