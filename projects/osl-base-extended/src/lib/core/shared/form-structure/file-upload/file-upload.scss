@@ -149,3 +149,40 @@
 .txt-clr-red {
     color: var(--osl-error-color);
 }
+
+// Single-line variant used inside grid cells
+.compact {
+    .drop-zone {
+        height: var(--osl-control-height);
+        min-height: 0;
+        padding: 0 8px;
+        overflow: hidden;
+    }
+
+    .drop-content {
+        flex-direction: row;
+        gap: 6px;
+        min-width: 0;
+    }
+
+    .upload-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+
+    .drop-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .drop-meta {
+        display: none;
+    }
+
+    .file-list {
+        min-width: 0;
+    }
+}

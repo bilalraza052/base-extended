@@ -1,9 +1,11 @@
-<div class="d-flex flex-column">
+<div class="d-flex flex-column" [class.compact]="compact">
+    @if(!compact) {
     <div  [oslSkeleton]="skeletonLoading" [oslSkeletonTheme]="skeletonTheme">
     <label class="label" [class.txt-clr-red]="isInvalid">
         <span class="label-text" [title]="label">{{label}}</span><span class="txt-clr-red label-required">{{required?'*':''}}</span>
     </label>
     </div>
+    }
 
     <input
         type="file"
@@ -22,6 +24,7 @@
         [class.file-disabled]="disabled"
         [class.drag-over]="isDragOver"
         [class.has-file]="isBase64Mode ? !!savedFileName : !!model"
+        [title]="compactHint"
         (click)="isBase64Mode && savedFileName ? null : triggerInput(fileInput)"
         (dragover)="onDragOver($event)"
         (dragleave)="onDragLeave()"
@@ -73,7 +76,9 @@
         }
     </div>
 
-    @if(sizeError) {
+    @if(compact) {
+        <!-- shown as tooltip on the drop zone -->
+    } @else if(sizeError) {
         <mat-hint class="hint">File exceeds the {{maxSizeLabel}} limit.</mat-hint>
     } @else if(isInvalid) {
         <mat-hint class="hint">{{label}} is Required!</mat-hint>

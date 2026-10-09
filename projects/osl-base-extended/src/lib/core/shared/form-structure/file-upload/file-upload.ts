@@ -27,6 +27,8 @@ export class OslFileUpload {
   @Input('fileMode') fileMode: 'raw' | 'base64' = 'raw';
   /** Called when user clicks download on a saved file that has no base64 content. */
   @Input('downloadFn') downloadFn: (() => void) | null = null;
+  /** Single-line layout (no label, fixed control height) for use inside grid cells. */
+  @Input('compact') compact: boolean = false;
 
   @Output() modelChange = new EventEmitter<OslFileValue | File | File[] | null>();
   @Output() changeEv = new EventEmitter<OslFileValue | File | File[] | null>();
@@ -142,6 +144,14 @@ export class OslFileUpload {
     } else if (this.downloadFn) {
       this.downloadFn();
     }
+  }
+
+  /** Tooltip for compact mode, where the meta lines and hint are not rendered. */
+  get compactHint(): string {
+    if (!this.compact) return '';
+    if (this.sizeError) return `File exceeds the ${this.maxSizeLabel} limit.`;
+    if (this.isBase64Mode ? this.savedFileName : this.model) return this.savedFileName || this.fileNames;
+    return [this.accept, this.maxSizeLabel].filter(Boolean).join(' · ');
   }
 
   get maxSizeLabel(): string {
