@@ -265,6 +265,7 @@
                               [isLister]="!!col.formElem.isListerAutocomplete"
                               [manualEntry]="!!col.formElem.manualEntry"
                               [model]="row[col.key]"
+                              [apiBody]="col.formElem?.apiBody ? col.formElem?.apiBody(row):null"
                               (modelChange)="onCellChange(row, col, $event)"
                               (changeEv)="col.formElem.change ? onSelectChange(col, row, i, $event) : null">
                             </osl-autocomplete>
@@ -366,6 +367,8 @@
                               [accept]="col.formElem.accept || ''"
                               [multiple]="!!col.formElem.multiple"
                               [maxSize]="col.formElem.maxFileSize || 0"
+                               [fileMode]="col.formElem.fileMode || 'raw'"
+                        [downloadFn]="col.formElem.fileDownloadFn ? col.formElem.fileDownloadFn.bind(null, row) : null"
                               [model]="row[col.key]"
                               (modelChange)="onCellChange(row, col, $event)"
                               (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">

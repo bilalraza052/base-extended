@@ -346,7 +346,7 @@ export class OslFormGrid implements OnChanges {
   }
 
   isDisabled(elem: elements, row: any, index: number): boolean {
-    return elem.disabledIf ? elem.disabledIf(row, index) : !!elem.disabled;
+    return elem.disabledIf ? elem.disabledIf(row, index,this.datasource) : !!elem.disabled;
   }
 
   isLoading(row: any, elem: elements): boolean {
@@ -437,12 +437,12 @@ export class OslFormGrid implements OnChanges {
     if (list) {
       if (Array.isArray(value)) {
         selectedObj = value.map(v =>
-          list.find(item => (elem.valueField ? item[elem.valueField] : item) === v) ?? null,
+          list.find(item => (elem.valueField ? item[elem.valueField] : item) == v) ?? null,
         );
       } else if (value !== null && value !== undefined) {
         selectedObj =
           list.find(item =>
-            (elem.valueField ? item[elem.valueField] : item) === value,
+            (elem.valueField ? item[elem.valueField] : item) == value,
           ) ?? null;
       } else {
         selectedObj = null;

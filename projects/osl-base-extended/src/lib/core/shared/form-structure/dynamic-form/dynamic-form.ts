@@ -159,7 +159,7 @@ export interface elements {
   change?: (model: any, index?: any, selectedObj?: any) => void;
   disabled?: boolean;
   hide?: boolean;
-  disabledIf?: (row:any, index?:any) => boolean;
+  disabledIf?: (row:any, index?:any,arr?:any[]) => boolean;
   hideIf?: (model: any) => boolean;
   minDateIf?: (model: any) => string;
   maxDateIf?: (model: any) => string;
