@@ -42,10 +42,10 @@
         <thead class="osl-fg-thead">
           <tr>
             @if (allowReorder) {
-              <th class="osl-fg-th osl-fg-th--drag"></th>
+              <th class="osl-fg-th osl-fg-th--drag" [attr.rowspan]="hasGroupedHeader ? 2 : null"></th>
             }
             @if (hasActions) {
-              <th class="osl-fg-th osl-fg-th--actions">
+              <th class="osl-fg-th osl-fg-th--actions" [attr.rowspan]="hasGroupedHeader ? 2 : null">
                 @if (canAdd) {
                   <button class="osl-grid-icon-btn" (click)="addRow()" [disabled]="loading" title="Add row">
                     <mat-icon>add</mat-icon>
@@ -53,16 +53,44 @@
                 }
               </th>
             }
-            @for (col of columns; track col.key) {
-              <th class="osl-fg-th" [style.width]="col.width">
-                {{ col.displayName }}
-                @if (colRequired(col)) {
-                  <span class="osl-fg-th-required">*</span>
+            @if (hasGroupedHeader) {
+              @for (cell of headerCells; track $index) {
+                @if (cell.groupTitle) {
+                  <th class="osl-fg-th osl-fg-th--group" [attr.colspan]="cell.columns.length">
+                    {{ cell.groupTitle }}
+                  </th>
+                } @else {
+                  <th class="osl-fg-th" rowspan="2" [style.width]="cell.columns[0].width">
+                    <ng-container *ngTemplateOutlet="colHeader; context: { $implicit: cell.columns[0] }"></ng-container>
+                  </th>
                 }
-              </th>
+              }
+            } @else {
+              @for (col of columns; track col.key) {
+                <th class="osl-fg-th" [style.width]="col.width">
+                  <ng-container *ngTemplateOutlet="colHeader; context: { $implicit: col }"></ng-container>
+                </th>
+              }
             }
           </tr>
+          <!-- Second header row: columns that sit under a group title -->
+          @if (hasGroupedHeader) {
+            <tr>
+              @for (col of groupedColumns; track col.key) {
+                <th class="osl-fg-th" [class.osl-fg-th--divider]="!isLastColumn(col)" [style.width]="col.width">
+                  <ng-container *ngTemplateOutlet="colHeader; context: { $implicit: col }"></ng-container>
+                </th>
+              }
+            </tr>
+          }
         </thead>
+
+        <ng-template #colHeader let-col>
+          {{ col.displayName }}
+          @if (colRequired(col)) {
+            <span class="osl-fg-th-required">*</span>
+          }
+        </ng-template>
 
         <!-- ── Body ──────────────────────────────────────────────── -->
         <tbody
