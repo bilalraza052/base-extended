@@ -52,6 +52,17 @@
     </div>
     }
 
+    @case ("chips-input") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <osl-chips-input [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
+            [placeholder]="elem.placeholder || 'Type and press Enter...'" [inputType]="elem.inputType || 'text'"
+            [returnType]="elem.returnType || 'raw'" (changeEv)="elem.change ? elem.change(model) : null"
+            [model]="model[elem.key]" (modelChange)="onModelChange($event, elem.key)"></osl-chips-input>
+    </div>
+    }
+
     @case ("radio") {
     <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
         <osl-radio [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"

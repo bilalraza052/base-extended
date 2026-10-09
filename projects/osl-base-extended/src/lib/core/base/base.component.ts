@@ -138,7 +138,7 @@ export class baseComponent{
         return errors;
     }
 
-    protected isValidFormGrid(columns: { key: string; displayName: string; label?: string; formElem?: { required?: boolean; requiredIf?: (row: any) => boolean } }[], datasource: any[]): string[] {
+    protected isValidFormGrid(columns: { key: string; displayName: string; label?: string; formElem?: { required?: boolean; requiredIf?: (row: any) => boolean; elementType?: string; inputType?: string } }[], datasource: any[]): string[] {
         const errors: string[] = [];
         datasource.forEach((row, rowIndex) => {
             const rowNum = rowIndex + 1;
@@ -146,8 +146,18 @@ export class baseComponent{
                 if (!col.formElem) continue;
                 const elem = col.formElem;
                 const isRequired = elem.required || elem.requiredIf?.(row);
-                if (!isRequired) continue;
                 const value = row[col.key];
+                if (elem.elementType === 'chips-input') {
+                    const chips = this._chipValues(value);
+                    const typeError = this._chipsTypeError(elem.inputType, chips);
+                    if (isRequired && chips.length === 0) {
+                        errors.push(`Row ${rowNum}, ${col.label ?? col.displayName} is required`);
+                    } else if (typeError) {
+                        errors.push(`Row ${rowNum}, ${col.label ?? col.displayName} ${typeError}`);
+                    }
+                    continue;
+                }
+                if (!isRequired) continue;
                 const isEmpty = value === null || value === undefined || value === ''
                     || (Array.isArray(value) && value.length === 0);
                 if (isEmpty) {
@@ -178,10 +188,17 @@ export class baseComponent{
             const isRequired = el.required || el.requiredIf?.(model);
             const value = model[el.key];
             const isEmpty = value === null || value === undefined || value === ''
-                || (Array.isArray(value) && value.length === 0);
+                || (Array.isArray(value) && value.length === 0)
+                || (el.elementType === 'chips-input' && this._chipValues(value).length === 0);
 
             if (isRequired && isEmpty) {
                 errors.push(`${el.label} is required`);
+                continue;
+            }
+
+            if (el.elementType === 'chips-input') {
+                const typeError = this._chipsTypeError(el.inputType, this._chipValues(value));
+                if (typeError) errors.push(`${el.label} ${typeError}`);
                 continue;
             }
 
@@ -212,6 +229,30 @@ export class baseComponent{
                     }
                 }
             }
+        }
+    }
+
+    /** Normalises a chips-input value (string[] or comma separated string) to its chips. */
+    private _chipValues(value: any): string[] {
+        const list = Array.isArray(value) ? value : typeof value === 'string' ? value.split(',') : [];
+        return list.map(v => String(v ?? '').trim()).filter(v => !!v);
+    }
+
+    /** Returns the error suffix when any chip fails the element's inputType, otherwise null. */
+    private _chipsTypeError(inputType: string | undefined, chips: string[]): string | null {
+        switch (inputType) {
+            case 'email': {
+                const emailRegex = /^(?!.*\.\.)(?!.*\.$)[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/
+                return chips.every(c => emailRegex.test(c)) ? null : 'must contain only valid email addresses';
+            }
+            case 'number':
+                return chips.every(c => /^-?\d+(\.\d+)?$/.test(c)) ? null : 'must contain only valid numbers';
+            case 'int':
+                return chips.every(c => /^-?\d+$/.test(c)) ? null : 'must contain only whole numbers';
+            case 'url':
+                return chips.every(c => URL.canParse(c)) ? null : 'must contain only valid URLs';
+            default:
+                return null;
         }
     }
 
