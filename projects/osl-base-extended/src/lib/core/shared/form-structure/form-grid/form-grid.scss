@@ -143,6 +143,16 @@
     min-width: 28px;
     padding: 0;
   }
+
+  // Group title cell spanning its columns in the double header
+  &--group {
+    text-align: center;
+    padding: 5px 8px;
+    border-bottom-width: 1px;
+  }
+
+  // Last cell of the second header row that is followed by a row-spanning column
+  &--divider:last-child { border-right: 1px solid var(--osl-border-color, #e5e7eb); }
 }
 
 .osl-fg-th-required {

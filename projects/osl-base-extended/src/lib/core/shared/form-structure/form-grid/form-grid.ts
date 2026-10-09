@@ -20,6 +20,14 @@ export interface OslFormGridColumn {
   formElem?: elements;
   /** Optional CSS width, e.g. '150px' or '20%'. */
   width?: string;
+  /** When set on any column the header becomes two rows; adjacent columns sharing the same title sit under one group header. */
+  groupTitle?: string;
+}
+
+export interface OslFormGridHeaderCell {
+  /** Group title, or null for a standalone column spanning both header rows. */
+  groupTitle: string | null;
+  columns: OslFormGridColumn[];
 }
 
 export interface OslFormGridFooterColumn {
@@ -162,6 +170,34 @@ export class OslFormGrid {
   get hasActions(): boolean {
     if (this.enableDragDrop) return this.canAdd || this.allowRemove;
     return this.canAdd || this.canDelete;
+  }
+
+  // ── Grouped (double) header ────────────────────────────────────────────────
+  get hasGroupedHeader(): boolean {
+    return this.columns.some(col => !!col.groupTitle);
+  }
+
+  /** Top header row: one cell per standalone column, one per run of adjacent columns sharing a groupTitle. */
+  get headerCells(): OslFormGridHeaderCell[] {
+    const cells: OslFormGridHeaderCell[] = [];
+    for (const col of this.columns) {
+      const last = cells[cells.length - 1];
+      if (col.groupTitle && last?.groupTitle === col.groupTitle) {
+        last.columns.push(col);
+      } else {
+        cells.push({ groupTitle: col.groupTitle || null, columns: [col] });
+      }
+    }
+    return cells;
+  }
+
+  /** Second header row: only the columns that sit under a group header. */
+  get groupedColumns(): OslFormGridColumn[] {
+    return this.columns.filter(col => !!col.groupTitle);
+  }
+
+  isLastColumn(col: OslFormGridColumn): boolean {
+    return this.columns[this.columns.length - 1] === col;
   }
 
   currentPage = 1;
