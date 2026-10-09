@@ -1,5 +1,5 @@
 @if(elements && elements.length > 0) {
-    <div class="row align-items-center w-100">
+    <div class="row align-items-center w-100 osl-form-row">
         @for(elem of elements; track elem) {
             @if(!(elem.hideIf ? elem.hideIf(model) : elem.hide)) {
                 <ng-container *ngTemplateOutlet="formField; context: { $implicit: elem }"></ng-container>
@@ -241,7 +241,7 @@
                                 <span class="osl-fieldset-legend__text">{{ elem.label }}</span>
                             </legend>
                         }
-                        <div class="row w-100 osl-fieldset-body">
+                        <div class="row w-100 osl-fieldset-body osl-form-row">
                             @for(innerElem of elem.rows; track innerElem) {
                                 @if(!(innerElem.hideIf ? innerElem.hideIf(model) : innerElem.hide)) {
                                     <ng-container *ngTemplateOutlet="formField; context: { $implicit: innerElem }"></ng-container>

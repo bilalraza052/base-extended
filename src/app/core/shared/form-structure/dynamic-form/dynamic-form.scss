@@ -2,7 +2,7 @@
 .osl-fieldset {
   border: 1.5px solid var(--osl-border-color, #e5e7eb);
   border-radius: 10px;
-  padding: 0 16px 16px;
+  padding: 0 12px 12px;
   margin: 0;
   background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
@@ -41,6 +41,11 @@
 
 .osl-fieldset-body {
   margin-top: 4px;
+}
+
+// ── Field rows: tighter horizontal gutter than Bootstrap default (24px) ──
+.osl-form-row {
+  --bs-gutter-x: 1rem;
 }
 
 .f-w-b{
