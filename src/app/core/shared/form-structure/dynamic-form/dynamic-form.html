@@ -93,6 +93,8 @@
                         [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
                         [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
                         [placeholder]="elem.placeholder || 'Type and press Enter...'"
+                        [inputType]="elem.inputType || 'text'"
+                        [returnType]="elem.returnType || 'raw'"
                         (changeEv)="elem.change ? elem.change(model) : null"
                         [model]="model[elem.key]"
                         (modelChange)="onModelChange($event, elem.key)"

@@ -242,6 +242,20 @@
                             </osl-autocomplete>
                           }
 
+                          @case ('chips-input') {
+                            <osl-chips-input
+                              [label]="''"
+                              [required]="false"
+                              [disabled]="isDisabled(col.formElem,row,i)"
+                              [placeholder]="col.formElem.placeholder || col.displayName"
+                              [inputType]="col.formElem.inputType || 'text'"
+                              [returnType]="col.formElem.returnType || 'raw'"
+                              [model]="row[col.key]"
+                              (modelChange)="onCellChange(row, col, $event)"
+                              (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
+                            </osl-chips-input>
+                          }
+
                           @case ('radio') {
                             <osl-radio
                               [label]="''"

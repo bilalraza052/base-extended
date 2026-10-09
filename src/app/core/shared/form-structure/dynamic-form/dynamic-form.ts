@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
 import { DatasourceCacheService } from '../datasource-cache/datasource-cache.service';
 import { InputType } from '../input/input';
+import { ChipsReturnType } from '../chips-input/chips-input';
 import { DateInputType } from '../datepicker/datepicker';
 import { TextareaResize } from '../textarea/textarea';
 
@@ -246,4 +247,9 @@ export interface elements {
   autocompleteType?: 'default' | 'chips';
   /** Allow free text beyond the options — typed text that matches no option is kept as the model instead of being cleared. Ignored in chips mode. */
   manualEntry?: boolean;
+
+  // ── osl-chips-input ───────────────────────────────
+  // inputType (above) validates each chip: 'email' | 'number' | 'int' | 'url'.
+  /** 'raw' (default) keeps the model as string[]; 'commaSeparated' stores a single comma separated string. */
+  returnType?: ChipsReturnType;
 }
