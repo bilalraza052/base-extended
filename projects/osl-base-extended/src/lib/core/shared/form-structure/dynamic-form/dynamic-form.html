@@ -133,7 +133,7 @@
             [placeholder]="elem.placeholder || ''"
             [minDatetime]="elem.minDatetimeIf ? elem.minDatetimeIf(model) : elem.minDatetime || ''"
             [maxDatetime]="elem.maxDatetimeIf ? elem.maxDatetimeIf(model) : elem.maxDatetime || ''"
-            [format]="elem.datetimepickerFormat || 'YYYY-MM-DDTHH:mm'" [showSeconds]="!!elem.datetimepickerShowSeconds"
+            [format]="elem.datetimepickerFormat || 'YYYY-MM-DDTHH:mm'" [showSeconds]="!!elem.datetimepickerShowSeconds" [onlyHours]="!!elem.onlyHours"
             [enableMeridian]="!!elem.datetimepickerEnableMeridian" (changeEv)="elem.change ? elem.change(model) : null"
             [model]="model[elem.key]" (modelChange)="onModelChange($event, elem.key)"></osl-datetimepicker>
     </div>

@@ -322,6 +322,7 @@
                               [format]="col.formElem.datetimepickerFormat || 'YYYY-MM-DDTHH:mm'"
                               [showSeconds]="!!col.formElem.datetimepickerShowSeconds"
                               [enableMeridian]="!!col.formElem.datetimepickerEnableMeridian"
+                              [onlyHours]="!!col.formElem.onlyHours"
                               [model]="row[col.key]"
                               (modelChange)="onCellChange(row, col, $event)"
                               (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">

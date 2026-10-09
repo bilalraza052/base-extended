@@ -63,6 +63,14 @@ export class OslDatetimepicker implements AfterViewInit {
 
   @Input('showSeconds') showSeconds: boolean = false;
   @Input('enableMeridian') enableMeridian: boolean = false;
+  @Input('stepMinutes') stepMinutes: number = 1;
+  /** When true only the hour can be picked — minutes (and seconds) are locked to zero. */
+  @Input('onlyHours') onlyHours: boolean = false;
+
+  /** Seeds the picker with the current hour at :00 when no value is set yet. */
+  get defaultTime(): number[] | undefined {
+    return this.onlyHours ? [new Date().getHours(), 0, 0] : undefined;
+  }
 
   @Input('skeletonLoading') skeletonLoading: boolean = false;
   @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
@@ -75,6 +83,10 @@ export class OslDatetimepicker implements AfterViewInit {
   }
 
   onDateChange(date: Date | null): void {
+    if (date && this.onlyHours) {
+      date = new Date(date);
+      date.setMinutes(0, 0, 0);
+    }
     this.dateModel = date;
     this._updateDisplay();
     const str = date ? formatDate(date, this.format) : '';

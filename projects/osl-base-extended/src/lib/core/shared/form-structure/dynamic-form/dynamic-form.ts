@@ -222,6 +222,8 @@ export interface elements {
   datetimepickerFormat?: string;
   datetimepickerShowSeconds?: boolean;
   datetimepickerEnableMeridian?: boolean;
+  /** Only the hour is selectable — minutes are locked to zero. */
+  onlyHours?: boolean;
 
   // ── osl-radio ─────────────────────────────────────
   inline?: boolean;

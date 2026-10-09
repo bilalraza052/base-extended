@@ -38,7 +38,10 @@
             #picker
             [showSpinners]="true"
             [showSeconds]="showSeconds"
-            [enableMeridian]="enableMeridian">
+            [enableMeridian]="enableMeridian"
+            [stepMinute]="stepMinutes"
+            [disableMinute]="onlyHours"
+            [defaultTime]="$any(defaultTime)">
         </ngx-mat-datetime-picker>
     </div>
     @if (dtField.touched && dtField.invalid && required) {
