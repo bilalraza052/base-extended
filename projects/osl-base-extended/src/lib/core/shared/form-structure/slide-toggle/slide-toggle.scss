@@ -1,6 +1,6 @@
 .label {
     font-size: var(--osl-label-font-size);
-    margin-bottom: 5px;
+    margin-bottom: var(--osl-label-gap, 3px);
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -75,7 +75,7 @@
 }
 
 .state-label {
-    font-size: var(--osl-label-font-size);
+    font-size: var(--osl-text-font-size);
     user-select: none;
 
     &.state-on {

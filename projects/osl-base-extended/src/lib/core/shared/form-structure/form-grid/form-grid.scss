@@ -119,10 +119,10 @@
   background: #f3f4f6;
   color: #4b5563;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: 10px 12px;
+  padding: 6px 8px;
   text-align: left;
   border-bottom: 2px solid var(--osl-border-color, #e5e7eb);
   border-right: 1px solid var(--osl-border-color, #e5e7eb);
@@ -179,7 +179,7 @@
 
 // ── Cells ─────────────────────────────────────────────────────
 .osl-fg-td {
-  padding: 4px 10px;
+  padding: 3px 6px;
   vertical-align: middle;
   border-right: 1px solid #f0f0f0;
 
@@ -355,7 +355,7 @@
 }
 
 .osl-fg-skeleton {
-  height: 36px;
+  height: var(--osl-control-height, 30px);
   border-radius: 6px;
   background: #e5e7eb;
   animation: osl-fg-pulse 1.4s ease-in-out infinite;
@@ -379,10 +379,10 @@
   background: #f3f4f6;
   color: #4b5563;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: 10px 12px;
+  padding: 6px 8px;
   text-align: left;
   border-top: 2px solid var(--osl-border-color, #e5e7eb);
   border-right: 1px solid var(--osl-border-color, #e5e7eb);
@@ -398,7 +398,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 16px;
+  padding: 6px 12px;
   border-top: 1px solid var(--osl-border-color, #e5e7eb);
   background: #f9fafb;
   flex-shrink: 0;

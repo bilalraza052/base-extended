@@ -1,6 +1,6 @@
 .label {
     font-size: var(--osl-label-font-size);
-    margin-bottom: 5px;
+    margin-bottom: var(--osl-label-gap, 3px);
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -63,7 +63,7 @@
         gap: 6px;
         min-height: var(--osl-control-height);
         height: auto;
-        padding: 4px 30px 4px 8px;
+        padding: 2px 30px 2px 8px;
         border-radius: var(--osl-border-radius);
         border: 1px solid var(--osl-border-color);
         background: #fff;
@@ -198,8 +198,8 @@
 }
 
 .dropdown-item {
-    padding: 8px 10px;
-    font-size: var(--osl-label-font-size);
+    padding: 6px 10px;
+    font-size: var(--osl-text-font-size);
     cursor: pointer;
 
     &:hover {
@@ -283,8 +283,8 @@
 }
 
 .no-results {
-    padding: 8px 10px;
-    font-size: var(--osl-label-font-size);
+    padding: 6px 10px;
+    font-size: var(--osl-text-font-size);
     color: #aaa;
     font-style: italic;
 }
