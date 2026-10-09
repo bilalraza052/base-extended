@@ -235,6 +235,7 @@
                               [service]="col.formElem.apiService"
                               [object]="col.formElem.objectName ? row[col.formElem.objectName] : null"
                               [isLister]="!!col.formElem.isListerAutocomplete"
+                              [manualEntry]="!!col.formElem.manualEntry"
                               [model]="row[col.key]"
                               (modelChange)="onCellChange(row, col, $event)"
                               (changeEv)="col.formElem.change ? onSelectChange(col, row, i, $event) : null">

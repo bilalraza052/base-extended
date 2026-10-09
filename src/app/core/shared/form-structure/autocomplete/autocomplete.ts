@@ -55,7 +55,11 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
       this.syncSelectedItemsFromModel();
       return;
     }
-    if (val !== null && val !== undefined && this._object) {
+    // manualEntry echoes typed text back through [(model)] on every keystroke — that is
+    // not an external change, so it must not reset the datasource to the stale _object.
+    const isTypedEcho = this.isManualText && val === this.inputValue;
+    if (!isTypedEcho) this.isManualText = false;
+    if (val !== null && val !== undefined && this._object && !isTypedEcho) {
       this.datasource = [this._object];
       this.filteredItems = [...this.datasource];
       this.syncInputFromModel();
@@ -103,6 +107,12 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   @Input('displayFn') displayFn: ((item: any) => string) | null = null;
   /** 'chips' enables multi-select: model becomes an array of valueField values, rendered as removable chips. */
   @Input('autocompleteType') autocompleteType: 'default' | 'chips' = 'default';
+  /** Allows free text beyond the options: typed text that matches no option is kept as the model instead of being cleared. Ignored in chips mode. */
+  @Input('manualEntry') manualEntry: boolean = false;
+  /** True while the model holds text the user is typing rather than a picked option (manualEntry only). */
+  private isManualText: boolean = false;
+  /** Search text the current Api datasource was loaded for — lets blur tell whether the results are current. */
+  private lastSearchedText: string | null = null;
 
   @Output() modelChange = new EventEmitter<any>();
   @Output() changeEv = new EventEmitter<any>();
@@ -218,6 +228,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
           const res: HttpResponse = await this.service[this.methodName]({searchValue:value,apiBody:this.apiBody});
           if (!res.isSuccessful) return;
           this.datasource = res?.result && Array.isArray(res?.result) ? res.result : res?.result?.data;
+          this.lastSearchedText = value;
           this.datasourceChange.emit(this.datasource);
           this.filteredItems = this.datasource;
           this.cdr.markForCheck();
@@ -264,9 +275,17 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   private syncInputFromModel() {
     if (this.autocompleteType === 'chips') return;
     if (this._model !== null && this._model !== undefined) {
+      // Text the user is typing is already in the input — don't let a coincidental
+      // valueField match swap it for that option's display mid-typing.
+      if (this.isManualText && this._model === this.inputValue) return;
       const found = this.datasource?.find((item) => this.getValue(item) === this._model);
       if (found) {
         const display = this.getDisplay(found);
+        this.inputValue = display;
+        this.inputControl.setValue(display, { emitEvent: false });
+      } else if (this.manualEntry) {
+        // Model holds a manually entered value that is not among the options.
+        const display = String(this._model);
         this.inputValue = display;
         this.inputControl.setValue(display, { emitEvent: false });
       }
@@ -299,7 +318,10 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
     if (!isChips) {
       // Fix: set _model directly so null is always stored, bypassing the setter's
       // datasource-refresh side effect which should only run on external model changes
-      this._model = null;
+      this._model = this.manualEntry && val ? val : null;
+      this.isManualText = this._model !== null;
+      // manualEntry: keep the parent model live while typing; changeEv fires once on blur.
+      if (this.isManualText) this.modelChange.emit(val);
     }
 
     if (this.searchType === 'Local') {
@@ -349,11 +371,63 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
     // Fix: removed auto-select-on-single-match — it caused refill when user
     // cleared text and datasource had only 1 item.
     // If no selection was made, clear the typed text.
-    if (this._model === null || this._model === undefined) {
+    if (this.isManualText) {
+      void this.commitManualEntry();
+    } else if (this._model === null || this._model === undefined) {
       this.inputValue = '';
       this.inputControl.setValue('', { emitEvent: false });
     }
     this.cdr.markForCheck();
+  }
+
+  /** manualEntry: finalize typed text on blur — pick the option it exactly names, otherwise keep the trimmed text as the model. */
+  private async commitManualEntry() {
+    const text = this.inputValue.trim();
+    let match = this.findExactOption(text, this.datasource);
+    const resultsAreStale = this.lastSearchedText?.trim() !== text;
+    if (!match && text && this.searchType === 'Api' && this.methodName && this.service && resultsAreStale) {
+      // Blurred before the debounced search returned for this text — look it up so an
+      // exact option is still picked instead of being kept as manual text.
+      let res: HttpResponse | undefined;
+      try {
+        res = await this.service[this.methodName]({ searchValue: text, apiBody: this.apiBody });
+      } catch {
+        res = undefined;
+      }
+      // Picked, cleared or retyped while the lookup was in flight — nothing left to commit here.
+      if (!this.isManualText || this.inputValue.trim() !== text) return;
+      if (res?.isSuccessful) {
+        const results: any[] = Array.isArray(res.result) ? res.result : res.result?.data;
+        match = this.findExactOption(text, results);
+        if (match) {
+          this.datasource = results;
+          this.datasourceChange.emit(this.datasource);
+          this.filteredItems = this.datasource;
+        }
+      }
+    }
+    if (match) {
+      this.selectItem(match);
+      this.cdr.markForCheck();
+      return;
+    }
+    this.inputValue = text;
+    this.inputControl.setValue(text, { emitEvent: false });
+    this._model = text || null;
+    this.isManualText = false;
+    this.modelChange.emit(this._model);
+    this.changeEv.emit(this._model);
+    this.cdr.markForCheck();
+  }
+
+  /** Option whose display text (displayFn or displayField) equals the typed text, ignoring case and surrounding spaces. */
+  private findExactOption(text: string, list: any[] | null | undefined): any {
+    if (!text || !Array.isArray(list)) return undefined;
+    const target = text.toLowerCase();
+    const same = (v: any) => v !== null && v !== undefined && String(v).trim().toLowerCase() === target;
+    return list.find(
+      (item) => same(this.getDisplay(item)) || (!!this.displayField && same(item?.[this.displayField])),
+    );
   }
 
   clearValue(event?: Event) {
@@ -369,6 +443,7 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
     // Fix: set _model directly to null — using the setter would trigger the
     // datasource-refresh side effect unnecessarily
     this._model = null;
+    this.isManualText = false;
     this.modelChange.emit(null);
     this.changeEv.emit(null);
     this.cdr.markForCheck();
@@ -380,6 +455,10 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
     this.inputValue = display;
     this.inputControl.setValue(display, { emitEvent: false });
     this._model = value;
+    this.isManualText = false;
+    // Keep the object behind the model current — otherwise the [(model)] echo of this
+    // pick resets the datasource to the previous object and the display can't resolve.
+    if (this._object) this._object = item;
     this.modelChange.emit(value);
     this.changeEv.emit(value);
     this.showDropdown = false;
