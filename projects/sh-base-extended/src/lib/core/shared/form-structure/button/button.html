@@ -1,0 +1,26 @@
+@if (variant == 'icon' && icon) {
+  <button class="icon-btn" [class.icon-btn--sm]="size === 'sm'" [type]="type" [disabled]="disabled || loading"
+          [attr.aria-label]="tooltip || label" [title]="tooltip || ''" (click)="onClick()">
+    @if (loading) {
+      <span class="sh-btn__spinner"></span>
+    } @else {
+      <mat-icon>{{ icon }}</mat-icon>
+    }
+  </button>
+} @else {
+  <button [class]="classes" [type]="type" [disabled]="disabled || loading" [title]="tooltip || ''" (click)="onClick()">
+    @if (loading) {
+      <span class="sh-btn__spinner"></span>
+    }
+    @if (icon && iconPosition === 'before' && !loading) {
+      <span class="sh-btn__label-icon"><mat-icon>{{ icon }}</mat-icon></span>
+    }
+    <span class="sh-btn__label">{{ label }}</span>
+    @if (icon && iconPosition === 'after') {
+      <span class="sh-btn__label-icon"><mat-icon>{{ icon }}</mat-icon></span>
+    }
+    @if (caret) {
+      <span class="sh-btn__caret"></span>
+    }
+  </button>
+}

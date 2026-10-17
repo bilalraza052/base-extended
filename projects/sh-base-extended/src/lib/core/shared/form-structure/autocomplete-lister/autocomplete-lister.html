@@ -1,0 +1,19 @@
+<div class="p-4">
+    <sh-setup #setup  [loading]="loader" [autoMode]="false" [title]="autocompleteData?.title" (sortChange)="onSortChange($event)" [totalRecords]="recordCount"  (pageSizeChange)="onPageChange($event)" (pageChange)="onPageChange($event)" (onRowClick)="onRowClick($event)" [columns]="column" [datasource]="datasource" [isLister]="true"
+        [checkboxSelection]="!!autocompleteData?.multiple"
+        [selectedRowKeys]="selectedRowKeys"
+        [primaryKey]="autocompleteData?.valueField || 'id'"
+        (rowCheckToggle)="onRowCheckToggle($event)"
+        (selectAllPageToggle)="onSelectAllPageToggle($event)"></sh-setup>
+
+    @if(autocompleteData?.multiple){
+    <div class="lister-multi-footer d-flex justify-content-between align-items-center mt-2">
+        <span class="lister-multi-footer-count">{{selectedMap.size}} selected</span>
+        <div class="d-flex gap-2">
+            <sh-button variant="outline-secondary" size="sm" label="Clear" (clickEv)="clearSelection()"></sh-button>
+            <sh-button variant="secondary" size="sm" label="Cancel" (clickEv)="dialogRef.close()"></sh-button>
+            <sh-button variant="primary" size="sm" label="Apply" (clickEv)="applySelection()"></sh-button>
+        </div>
+    </div>
+    }
+</div>

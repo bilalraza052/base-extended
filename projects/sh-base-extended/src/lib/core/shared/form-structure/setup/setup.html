@@ -1,0 +1,307 @@
+<div class="sh-setup">
+
+  <!-- ── Page header: "Contacts"  ……  [⋮] [Add contacts] ─────────── -->
+  <div class="sh-setup-header">
+    <div class="sh-setup-title-wrap">
+      @if (titleIcon) {
+        <span class="title-icon" [innerHTML]="renderIcon(titleIcon)"></span>
+      }
+      <div class="sh-setup-title-text">
+        <h1 class="sh-setup-title">{{ title }}</h1>
+        @if (subtitle) {
+          <span class="sh-setup-subtitle">{{ subtitle }}</span>
+        }
+      </div>
+    </div>
+    <div class="sh-setup-header-actions">
+      @if (moreMenuHeaderActions.length > 0 && hasVisibleHeaderActions) {
+        <button class="sh-circle-btn" (click)="toggleHeaderMenu($event)" shTooltip="Actions" aria-label="More actions">
+          <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3.2" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="12.8" r="1.4"/></svg>
+        </button>
+      }
+      @if (!isLister && canAdd) {
+        <sh-button variant="primary" size="sm" [label]="'Add ' + (title || '').toLowerCase()" (clickEv)="openAddDialog()"></sh-button>
+      }
+    </div>
+  </div>
+
+  <!-- ── Toolbar: [Search ( / )]  ……  [board | table] ─────────────── -->
+  <div class="sh-setup-toolbar">
+    <div class="sh-setup-toolbar-left">
+      <sh-searchbar #searchbar (onSearch)="onSearchSetup($event)"></sh-searchbar>
+    </div>
+    <div class="sh-setup-toolbar-right">
+      @if (!isLister) {
+        <div class="sh-view-toggle" role="group" aria-label="View">
+          <button class="sh-view-toggle-btn" [class.sh-view-toggle-btn--active]="viewMode === 'card'"
+            (click)="toggleView('card')" shTooltip="Board view" aria-label="Board view">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
+              <rect x="2" y="2.5" width="3.4" height="11" rx="1"/><rect x="6.3" y="2.5" width="3.4" height="7.5" rx="1"/><rect x="10.6" y="2.5" width="3.4" height="9.5" rx="1"/>
+            </svg>
+          </button>
+          <button class="sh-view-toggle-btn" [class.sh-view-toggle-btn--active]="viewMode === 'table'"
+            (click)="toggleView('table')" shTooltip="Table view" aria-label="Table view">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
+              <rect x="2" y="2.5" width="12" height="11" rx="1.5"/><line x1="2" y1="6.2" x2="14" y2="6.2"/><line x1="2" y1="9.8" x2="14" y2="9.8"/><line x1="6.5" y1="6.2" x2="6.5" y2="13.5"/>
+            </svg>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Table View ───────────────────────────────────────────── -->
+  @if (viewMode === 'table') {
+    <div class="sh-setup-body">
+      <sh-grid
+        #gridRef
+        [columns]="columnsWithActions"
+        [(datasource)]="datasource"
+        [isPaginated]="isPaginated"
+        [pageSize]="pageSize"
+        [autoMode]="autoMode"
+        [tableHeight]="tableHeight"
+        [totalRecords]="totalRecords"
+        [loading]="loading"
+        [moreMenuActions]="moreMenuActions"
+        [canEdit]="canEdit"
+        [canDelete]="canDelete"
+        [highlightedRow]="restoredRow"
+        [primaryKey]="primaryKey"
+        [columnChooser]="columnChooser && !isLister"
+        [stateKey]="stateKey"
+        [bulkActions]="bulkActions"
+        [recordLabel]="recordLabel"
+        (editClick)="openEditDialog($event)"
+        (deleteClick)="onDeleteClick($event)"
+        (pageChange)="onPageChange(pageChange, $event)"
+        (pageSizeChange)="onPageChange(pageSizeChange, $event)"
+        (sortChange)="sortChange.emit($event)"
+        [isSelectable]="isLister"
+        (onRowClick)="onRowClick.emit($event)"
+        [checkboxSelection]="checkboxSelection"
+        [selectedRowKeys]="selectedRowKeys"
+        (rowCheckToggle)="rowCheckToggle.emit($event)"
+        (selectAllPageToggle)="selectAllPageToggle.emit($event)"
+        (clearSelection)="onClearSelectionSetup()"
+        (columnsChange)="columnsChange.emit($event)"
+      />
+    </div>
+  }
+
+  <!-- ── Board (card) View ────────────────────────────────────── -->
+  @if (viewMode === 'card') {
+
+    @if (loading && cardPagedData.length === 0) {
+      <div class="sh-card-grid">
+        @for (sk of skeletonCardRows; track $index) {
+          <div class="sh-card sh-card--skeleton">
+            <div class="sh-sk-line sh-sk-line--title"></div>
+            <div class="sh-sk-line"></div>
+            <div class="sh-sk-line sh-sk-line--short"></div>
+          </div>
+        }
+      </div>
+    }
+
+    @else if (cardPagedData.length === 0 && !loading) {
+      <div class="sh-card-empty">
+        <div class="sh-card-empty__text">
+          <p class="sh-card-empty-title">No {{ recordLabel }}s match the current filters.</p>
+          <p class="sh-card-empty-desc">Expecting to see new {{ recordLabel }}s? Try again in a few seconds as the system catches up.</p>
+        </div>
+        <i class="sh-card-empty-icon" aria-hidden="true"></i>
+      </div>
+    }
+
+    @else {
+      <div #cardGridRef class="sh-card-grid" [style.max-height]="tableHeight">
+        @for (row of cardPagedData; track row[primaryKey] ?? $index; let i = $index) {
+
+          @if (cardTemplate) {
+            <ng-container *ngTemplateOutlet="cardTemplate; context: { $implicit: row, index: i }"></ng-container>
+          } @else {
+            <div class="sh-card"
+                 [class.sh-card--selectable]="isLister"
+                 [class.sh-card--highlighted]="isHighlightedCard(row)"
+                 (click)="isLister ? onRowClick.emit(row) : null">
+
+              <div class="sh-card-header">
+                <div class="sh-card-avatar">{{ getCardInitial(row) }}</div>
+                <div class="sh-card-title-wrap">
+                  @if (cardTitleColumn) {
+                    <span class="sh-card-title" (click)="onCardTitleClick(row, $event)">
+                      @switch (cardTitleColumn.displayType) {
+                        @case ('date')     { {{ row[cardTitleColumn.key] | date }} }
+                        @case ('datetime') { {{ row[cardTitleColumn.key] | date:'medium' }} }
+                        @case ('time')     { {{ row[cardTitleColumn.key] | date:'shortTime' }} }
+                        @case ('customDateFormat') { {{ row[cardTitleColumn.key] | date:cardTitleColumn.customDateFormat }} }
+                        @default           { {{ getCellValue(row, cardTitleColumn) }} }
+                      }
+                    </span>
+                  }
+                </div>
+                @if (!isLister && ((hasForm && (canEdit || canDelete)) || (moreMenuActions.length > 0 && hasVisibleActions(row)))) {
+                  <div class="sh-card-actions">
+                    @if (hasForm && canEdit) {
+                      <button class="sh-card-action-btn" (click)="$event.stopPropagation(); openEditDialog(row)" shTooltip="Edit" aria-label="Edit">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.8 2.6l2.6 2.6L5.6 13H3v-2.6z"/><path d="M9.4 4l2.6 2.6"/></svg>
+                      </button>
+                    }
+                    @if (hasForm && canDelete) {
+                      <button class="sh-card-action-btn sh-card-action-btn--delete" (click)="$event.stopPropagation(); onDeleteClick(row)" shTooltip="Delete" aria-label="Delete">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11M6 4V2.6h4V4M4 4l.7 9.4h6.6L12 4M6.7 6.6v4.4M9.3 6.6v4.4"/></svg>
+                      </button>
+                    }
+                    @if (moreMenuActions.length > 0 && hasVisibleActions(row)) {
+                      <button class="sh-card-action-btn" (click)="toggleCardMenu(i, $event)" shTooltip="More" aria-label="More actions">
+                        <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3.2" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="12.8" r="1.4"/></svg>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+
+              @if (cardBodyColumns.length > 0) {
+                <div class="sh-card-body">
+                  <div class="row g-0">
+                    @for (col of cardBodyColumns; track col.key) {
+                      <div [class]="'col-' + cardCol + ' sh-card-field'">
+                        <span class="sh-card-label">{{ col.label }}</span>
+                        <span class="sh-card-value" [class.link]="col.displayType === 'link'" (click)="col.click ? col.click(row, col) : null">
+                          @switch (col.displayType) {
+                            @case ('date')     { {{ ((row[col.key] | date) || '--') }} }
+                            @case ('datetime') { {{ (row[col.key] | date:'medium') || '--' }} }
+                            @case ('time')     { {{ (row[col.key] | date:'shortTime') || '--' }} }
+                            @case ('customDateFormat') { {{ (row[col.key] | date:col.customDateFormat) || '--' }} }
+                            @case ('boolean')  { {{ row[col.key] ? 'Yes' : 'No' }} }
+                            @default           { {{ (getCellValue(row, col) || '--') }} }
+                          }
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
+    }
+
+    @if (isPaginated && _cardTotal > 0) {
+      <div class="sh-grid-pagination">
+        <span class="sh-grid-pagination__info">
+          @if (loading) { Loading... } @else { <span class="sh-count-pill">{{ recordCountLabel }}</span> }
+        </span>
+        <div class="sh-grid-pagination__controls">
+          <button class="sh-grid-page-btn sh-grid-page-btn--nav" (click)="cardGoToPage(cardCurrentPage - 1)"
+                  [disabled]="cardCurrentPage === 1 || loading" aria-label="Previous page">
+            <svg viewBox="0 0 16 16"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Prev
+          </button>
+          @for (page of cardPageNumbers; track $index) {
+            @if (page === -1) {
+              <span class="sh-grid-page-ellipsis">…</span>
+            } @else {
+              <button class="sh-grid-page-btn sh-grid-page-btn--num"
+                      [class.sh-grid-page-btn--active]="page === cardCurrentPage"
+                      [disabled]="loading"
+                      (click)="cardGoToPage(page)">{{ page }}</button>
+            }
+          }
+          <button class="sh-grid-page-btn sh-grid-page-btn--nav" (click)="cardGoToPage(cardCurrentPage + 1)"
+                  [disabled]="cardCurrentPage === cardTotalPages || loading" aria-label="Next page">
+            Next
+            <svg viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <select class="sh-grid-page-size" [ngModel]="_effectiveCardPageSize" (ngModelChange)="cardOnPageSizeChange($event)" [disabled]="loading">
+            @for (opt of cardPageSizeOptions; track opt) {
+              <option [value]="opt">{{ opt }} per page</option>
+            }
+          </select>
+        </div>
+        <span class="sh-grid-pagination__spacer"></span>
+      </div>
+    }
+  }
+
+  <!-- ── Footer bar: [Export] like HubSpot's index footer ─────────── -->
+  @if (canExport && !isLister) {
+    <div class="sh-setup-footer">
+      <button type="button" class="sh-toolbar-btn" (click)="exportCsv()" [disabled]="loading || !datasource.length">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10.5V2.5M5 5.3 8 2.3l3 3M3 9v4.2h10V9"/></svg>
+        Export
+      </button>
+    </div>
+  }
+
+</div>
+
+<!-- Dialog / panel: Form Body -->
+<ng-template #formBodyTpl>
+  <sh-dynamic-form
+    [skeletonLoading]="formLoading"
+    [elements]="formElements"
+    [(model)]="dialogModel"
+  ></sh-dynamic-form>
+</ng-template>
+
+<!-- Dialog / panel: Form Footer  ([Create] [Create and add another] [Cancel]) -->
+<ng-template #formFooterTpl>
+  <div class="sh-setup-dialog-footer">
+    <sh-button [loading]="saveLoading" variant="primary" [label]="dialogMode === 'add' ? 'Create' : 'Save'"
+               [disabled]="saveAnotherLoading" (clickEv)="saveDialog()"></sh-button>
+    @if (dialogMode === 'add' && addAnother) {
+      <sh-button [loading]="saveAnotherLoading" variant="secondary" label="Create and add another"
+                 [disabled]="saveLoading" (clickEv)="saveDialog(true)"></sh-button>
+    }
+    <sh-button variant="secondary" label="Cancel" (clickEv)="cancelDialog()"></sh-button>
+  </div>
+</ng-template>
+
+<ng-template #customFooterWrapperTpl let-data>
+  <ng-container *ngTemplateOutlet="customFormFooter!; context: { $implicit: { dialogModel: dialogModel, dialogMode: dialogMode, dialogRef: data.dialogRef } }"></ng-container>
+</ng-template>
+
+<!-- Floating header more-actions menu -->
+@if (headerMenuOpen && moreMenuHeaderActions.length > 0) {
+  <div class="sh-card-menu"
+       [style.top.px]="headerMenuPosition.top"
+       [style.left.px]="headerMenuPosition.left"
+       (click)="$event.stopPropagation()">
+    @for (action of moreMenuHeaderActions; track $index) {
+      @if (!action.hideIf || !action.hideIf(undefined)) {
+        <button class="sh-card-menu-item"
+                [disabled]="headerLoadingActionIndex !== null"
+                (click)="$event.stopPropagation(); onHeaderActionClick(action, $index)">
+          @if (headerLoadingActionIndex === $index) {
+            <span class="sh-card-menu-spinner"></span>
+          }
+          {{ action.labelIf ? action.labelIf(undefined) : action.label }}
+        </button>
+      }
+    }
+  </div>
+}
+
+<!-- Floating card more-actions menu -->
+@if (viewMode === 'card' && cardOpenMenuIndex !== null && moreMenuActions.length > 0) {
+  <div class="sh-card-menu"
+       [style.top.px]="cardMenuPosition.top"
+       [style.left.px]="cardMenuPosition.left"
+       (click)="$event.stopPropagation()">
+    @for (action of moreMenuActions; track $index) {
+      @if (!action.hideIf || !action.hideIf(cardPagedData[cardOpenMenuIndex])) {
+        <button class="sh-card-menu-item"
+                [disabled]="cardLoadingActionIndex !== null"
+                (click)="$event.stopPropagation(); onCardActionClick(action, cardPagedData[cardOpenMenuIndex], $index)">
+          @if (cardLoadingActionIndex === $index) {
+            <span class="sh-card-menu-spinner"></span>
+          }
+          {{ action.labelIf ? action.labelIf(cardPagedData[cardOpenMenuIndex]) : action.label }}
+        </button>
+      }
+    }
+  </div>
+}

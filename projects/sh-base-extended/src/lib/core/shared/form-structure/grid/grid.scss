@@ -1,0 +1,487 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: block; }
+
+// ═════════════════════════════════════════════════════════════════
+//  HubSpot record table
+//  header 14px/400 #666 · rows 14px/300 #333 · 40px rows · #ccc dividers
+// ═════════════════════════════════════════════════════════════════
+.sh-grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font-family: var(--sh-font-family);
+  color: var(--sh-text, #333);
+  background: #fff;
+}
+
+// ── Selection bar ───────────────────────────────────────────────
+.sh-grid-bulkbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  margin-bottom: 8px;
+  padding: 0 4px 0 16px;
+  border: 1px solid var(--sh-border, #ccc);
+  border-radius: var(--sh-radius-sm, 6px);
+  background: #fff;
+}
+
+.sh-grid-bulkbar__count {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  margin-right: 24px;
+  white-space: nowrap;
+}
+
+.sh-grid-bulkbar__btn {
+  @include sh.btn-transparent;
+  &--danger { color: var(--sh-danger, #ac0020); }
+}
+
+.sh-grid-bulkbar__icon {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  ::ng-deep svg { width: 14px; height: 14px; }
+}
+
+.sh-grid-bulkbar__mat { font-size: 16px; width: 16px; height: 16px; }
+
+.sh-grid-bulkbar__close {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sh-text, #333);
+  cursor: pointer;
+  svg { width: 16px; height: 16px; }
+  &:hover { background: var(--sh-surface-hover, #f0f0f0); }
+}
+
+// ── Table ───────────────────────────────────────────────────────
+.sh-grid-table-container {
+  overflow: auto;
+  position: relative;
+  border-top: 1px solid var(--sh-border, #ccc);
+
+  &::-webkit-scrollbar { width: 10px; height: 10px; }
+  &::-webkit-scrollbar-thumb { background: #b3b3b3; border-radius: 999px; border: 2px solid #fff; }
+  &::-webkit-scrollbar-track { background: transparent; }
+}
+
+.sh-grid-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: auto;
+}
+
+.sh-grid-thead {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--sh-surface, #fff);
+}
+
+.sh-grid-th {
+  height: 40px;
+  padding: 0 24px;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--sh-text-subtle, #666);
+  background: var(--sh-surface, #fff);
+  border-bottom: 1px solid var(--sh-border, #ccc);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.12s ease;
+
+  &:hover { background: #ebebeb; }
+  &:hover .sh-grid-sort-icon--idle { opacity: 1; }
+  &--sorted { color: var(--sh-text, #333); }
+  &--last { width: 100%; }
+}
+
+.sh-grid-th-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sh-grid-sort-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--sh-text, #333);
+
+  svg {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.15s ease;
+    &.is-desc { transform: rotate(180deg); }
+  }
+
+  &--active { color: var(--sh-text, #333); }
+  &--idle { opacity: 0; color: var(--sh-text-subtle, #666); transition: opacity 0.12s ease; }
+}
+
+.sh-grid-row {
+  transition: background-color 0.1s ease;
+
+  td { background: var(--sh-surface, #fff); }
+  &:hover td { background: var(--sh-zebra, #f5f5f5); }
+  &--checked td { background: var(--sh-teal-subtle, #e0fcfa); }
+  &--checked:hover td { background: #cdf8f5; }
+}
+
+.sh-grid-td {
+  height: 40px;
+  padding: 2px 24px;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 24px;
+  color: var(--sh-text, #333);
+  border-bottom: 1px solid var(--sh-border, #ccc);
+  white-space: nowrap;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &--last { width: 100%; }
+}
+
+.sh-grid-cell { display: inline; }
+
+.sh-grid-row--highlighted td {
+  background: var(--sh-warning-subtle, #fcf6e6) !important;
+  animation: sh-grid-flash 3s ease-out;
+}
+
+@keyframes sh-grid-flash {
+  0%, 40% { background: #fbeece; }
+  100% { background: var(--sh-warning-subtle, #fcf6e6); }
+}
+
+// ── Empty state (same copy & illustration as HubSpot) ───────────
+.sh-grid-empty {
+  padding: 40px 24px !important;
+  border-bottom: none !important;
+  white-space: normal !important;
+  background: #fff;
+}
+
+.sh-grid-empty__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  position: sticky;
+  left: 0;
+}
+
+.sh-grid-empty__text { max-width: 300px; text-align: left; }
+
+.sh-grid-empty__title {
+  margin: 0 0 12px;
+  font-family: var(--sh-font-family);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24px;
+  color: var(--sh-text, #333);
+}
+
+.sh-grid-empty__desc {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 24px;
+  color: var(--sh-text, #333);
+}
+
+.icon {
+  display: inline-block !important;
+  width: 160px;
+  height: 150px;
+  flex-shrink: 0;
+  background: url(../../../../assets/empty-state-charts\ \(1\).svg) center / contain no-repeat;
+}
+
+// ── Pagination ──────────────────────────────────────────────────
+.sh-grid-pagination {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0 4px;
+  font-size: 14px;
+}
+
+.sh-grid-pagination__info,
+.sh-grid-pagination__spacer {
+  flex: 1;
+  min-width: 0;
+}
+
+.sh-grid-count-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 16px;
+  border-radius: var(--sh-radius-pill, 999999px);
+  background: var(--sh-surface-recessed, #f0f0f0);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--sh-text, #333);
+  white-space: nowrap;
+}
+
+.sh-grid-pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sh-grid-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: var(--sh-font-family);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--sh-text, #333);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--sh-radius-pill, 999999px);
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+
+  svg { width: 14px; height: 14px; }
+
+  &:hover:not(:disabled) { background: var(--sh-surface-hover, #f0f0f0); }
+  &:disabled { color: var(--sh-text-disabled, #8a8a8a); cursor: default; }
+
+  &--nav { padding: 5px 6px; }
+
+  &--num {
+    min-width: 24px;
+    height: 30px;
+    padding: 5px 6px;
+  }
+
+  &--active {
+    background: var(--sh-surface-hover, #f0f0f0);
+    border-color: var(--sh-border-interactive, #8a8a8a);
+    &:disabled { color: var(--sh-text, #333); }
+  }
+}
+
+.sh-grid-page-ellipsis {
+  padding: 0 4px;
+  color: var(--sh-text-subtle, #666);
+}
+
+.sh-grid-pagination__size {
+  position: relative;
+  margin-left: 16px;
+}
+
+.sh-grid-page-size {
+  @include sh.btn-transparent;
+  gap: 8px;
+}
+
+.sh-grid-caret { @include sh.caret(currentColor); border-top-width: 4px; border-left-width: 4px; border-right-width: 4px; }
+
+.sh-grid-size-menu {
+  @include sh.popover;
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  min-width: 160px;
+  z-index: 20;
+  padding: 0;
+}
+
+.sh-grid-size-option { @include sh.option; white-space: nowrap; }
+
+// ── Checkbox column ─────────────────────────────────────────────
+.sh-grid-th--checkbox,
+.sh-grid-td--checkbox {
+  width: 52px;
+  min-width: 52px;
+  padding: 0 8px 0 24px !important;
+  text-align: center;
+  cursor: default;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+.sh-grid-th--checkbox { z-index: 4; }
+.sh-grid-th--checkbox:hover { background: var(--sh-surface, #fff); }
+
+.sh-grid-check { @include sh.checkbox-box; vertical-align: middle; }
+
+.sh-grid-checkbox-popup {
+  position: fixed;
+  z-index: 1100;
+  max-width: 220px;
+  padding: 10px 16px;
+  border-radius: var(--sh-radius-sm, 6px);
+  background: var(--sh-tooltip-bg, #141414);
+  color: var(--sh-tooltip-text, #fff);
+  font-family: var(--sh-font-family);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 18px;
+  box-shadow: var(--sh-shadow-400);
+  pointer-events: none;
+}
+
+// ── "Edit columns" (+) column, stuck to the right like HubSpot ──
+.sh-grid-th--chooser, .sh-grid-td--chooser {
+  position: sticky;
+  right: 0;
+  width: 48px;
+  min-width: 48px;
+  padding: 0 8px !important;
+  text-align: center;
+  z-index: 2;
+  box-shadow: inset 1px 0 0 var(--sh-border, #ccc);
+}
+.sh-grid-th--chooser { z-index: 4; cursor: default; &:hover { background: var(--sh-surface, #fff); } }
+
+.sh-grid-chooser-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sh-text, #333);
+  cursor: pointer;
+  svg { width: 16px; height: 16px; }
+  &:hover { background: var(--sh-surface-hover, #f0f0f0); }
+}
+
+// ── Actions column ──────────────────────────────────────────────
+.sh-grid-th--actions {
+  width: 1%;
+  cursor: default;
+  &:hover { background: var(--sh-surface, #fff); }
+}
+
+.sh-grid-td--actions {
+  width: 1%;
+  padding: 0 8px 0 24px;
+}
+
+.sh-grid-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.sh-grid-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sh-text, #333);
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+
+  svg { width: 16px; height: 16px; }
+
+  &:hover { opacity: 1; background: var(--sh-secondary-hover, #ebfdfc); border-color: var(--sh-border-interactive, #8a8a8a); }
+  &--danger:hover { background: var(--sh-danger-subtle, #fcece9); color: var(--sh-danger, #ac0020); border-color: var(--sh-danger, #ac0020); }
+}
+
+
+// ── Row "more actions" popover ──────────────────────────────────
+.sh-menu-wrapper { position: relative; display: inline-flex; }
+
+.sh-custom-menu {
+  @include sh.popover;
+  position: fixed;
+  z-index: 1000;
+  width: 190px;
+  padding: 0;
+}
+
+.sh-custom-menu-item {
+  @include sh.option;
+  padding: 8px 20px;
+  &:disabled { color: var(--sh-text-disabled, #8a8a8a); cursor: progress; background: transparent; }
+}
+
+.sh-custom-menu-spinner { @include sh.spinner(14px); }
+.sh-grid-spinner { @include sh.spinner(14px); }
+
+// ── Skeleton rows ───────────────────────────────────────────────
+.sh-skeleton {
+  height: 12px;
+  width: 70%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ebebeb 25%, #f5f5f5 37%, #ebebeb 63%);
+  background-size: 400% 100%;
+  animation: sh-shimmer 1.4s ease infinite;
+
+  &--actions { width: 56px; height: 20px; }
+  &--header { width: 60%; height: 10px; }
+  &--check { width: 20px; height: 20px; border-radius: 6px; }
+}
+
+@keyframes sh-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+.sh-grid-th--skeleton { cursor: default; }
+.sh-grid-row--skeleton { pointer-events: none; }
+
+// ── Misc ────────────────────────────────────────────────────────
+.pointer { cursor: pointer; }
+
+// HubSpot record links: teal, bold, underline on hover
+.link {
+  color: var(--sh-link, #006162);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  &:hover { color: var(--sh-link-hover, #00494b); text-decoration: underline; text-underline-offset: 24%; }
+}
+
+// Boolean → HubSpot "Yes" / "No" tags
+.sh-bool-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--sh-radius-sm, 6px);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+
+  &--true { background: var(--sh-success-subtle, #edf4ef); color: #006831; border: 1px solid #3cb769; }
+  &--false { background: #f0f0f0; color: var(--sh-text-subtle, #666); border: 1px solid #ccc; }
+}

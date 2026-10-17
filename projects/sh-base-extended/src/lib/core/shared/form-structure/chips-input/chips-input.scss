@@ -1,0 +1,68 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: block; }
+
+.label { @include sh.label; }
+.label.txt-clr-red { color: var(--sh-text, #333); }
+.txt-clr-red { color: var(--sh-error-text, #ac0020); }
+.hint { @include sh.hint; }
+
+// Field holding HubSpot tags + a free-text input
+.chips-wrapper {
+    @include sh.field-box;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-height: var(--sh-control-height);
+    padding: 7px 12px;
+    cursor: text;
+
+    &:focus-within { @include sh.focus-ring; }
+    &.error { @include sh.field-error; }
+    &.error:focus-within { border-color: transparent; }
+    &.chips-disabled { @include sh.field-disabled; }
+}
+
+.chip {
+    @include sh.tag;
+}
+
+.chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+}
+
+.chip-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--sh-text, #333);
+    cursor: pointer;
+
+    mat-icon { font-size: 13px; width: 13px; height: 13px; font-weight: 700; }
+    &:hover { background: rgba(20, 20, 20, 0.11); }
+}
+
+.chips-inner-input {
+    flex: 1;
+    min-width: 100px;
+    height: 24px;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: var(--sh-font-family);
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--sh-text, #333);
+
+    &::placeholder { @include sh.placeholder; }
+    &:disabled { cursor: not-allowed; }
+}

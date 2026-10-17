@@ -1,0 +1,414 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: block; }
+
+// HubSpot index page: white rounded card sitting on the #f0f0f0 page
+.sh-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px 16px;
+  background: var(--sh-surface, #fff);
+  border-radius: var(--sh-radius-lg, 16px);
+  font-family: var(--sh-font-family);
+  color: var(--sh-text, #333);
+}
+
+// ── Header ──────────────────────────────────────────────────────
+.sh-setup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 40px;
+}
+
+.sh-setup-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.title-icon {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  ::ng-deep svg { width: 24px; height: 24px; }
+}
+
+.sh-setup-title-text { display: flex; flex-direction: column; min-width: 0; }
+
+.sh-setup-title {
+  margin: 0;
+  font-family: var(--sh-font-family-heading);
+  font-size: var(--sh-heading-lg, 20px);
+  font-weight: 500;
+  line-height: 24px;
+  color: var(--sh-text, #333);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sh-setup-subtitle {
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 18px;
+  color: var(--sh-text-subtle, #666);
+}
+
+.sh-setup-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sh-circle-btn {
+  @include sh.btn-icon-circle;
+  width: 32px;
+  height: 32px;
+  svg { width: 16px; height: 16px; }
+}
+
+// ── Toolbar ─────────────────────────────────────────────────────
+.sh-setup-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sh-setup-toolbar-left, .sh-setup-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// Board / table switch: two joined circular buttons
+.sh-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 1px solid var(--sh-border-interactive, #8a8a8a);
+  border-radius: var(--sh-radius-pill, 999999px);
+  background: #fff;
+  overflow: hidden;
+}
+
+.sh-view-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--sh-text, #333);
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+
+  svg { width: 14px; height: 14px; }
+
+  & + & { border-left: 1px solid var(--sh-border-interactive, #8a8a8a); }
+  &:hover:not(&--active) { background: var(--sh-secondary-hover, #ebfdfc); }
+  &--active { background: var(--sh-surface-pressed, #e6e6e6); }
+}
+
+.sh-toolbar-btn {
+  @include sh.btn-toolbar;
+  svg { width: 14px; height: 14px; }
+}
+
+.sh-setup-body { min-width: 0; }
+
+// ── Footer (Export) ─────────────────────────────────────────────
+.sh-setup-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sh-border, #ccc);
+}
+
+// ── Add / Edit footer ───────────────────────────────────────────
+.sh-setup-dialog-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+// ── Board (card) view — HubSpot board cards ─────────────────────
+.sh-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  align-items: start;
+  gap: 12px;
+  padding: 12px;
+  overflow-y: auto;
+  background: var(--sh-surface-recessed, #f0f0f0);
+  border-radius: var(--sh-radius-lg, 16px);
+
+  &::-webkit-scrollbar { width: 10px; }
+  &::-webkit-scrollbar-thumb { background: #b3b3b3; border-radius: 999px; border: 2px solid #f0f0f0; }
+}
+
+.sh-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--sh-border, #ccc);
+  border-radius: var(--sh-radius-lg, 16px);
+  box-shadow: var(--sh-shadow-100);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover { box-shadow: var(--sh-shadow-300); border-color: var(--sh-border-hover, #b3b3b3); }
+
+  &--selectable { cursor: pointer; }
+  &--highlighted { border-color: var(--sh-warning-hover, #eeb117); background: var(--sh-warning-subtle, #fcf6e6); }
+
+  &--skeleton { gap: 10px; }
+}
+
+.sh-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sh-card-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--sh-teal-subtle, #e0fcfa);
+  color: var(--sh-primary, #00494b);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sh-card-title-wrap { flex: 1; min-width: 0; padding-top: 6px; padding-right: 96px; }
+
+.sh-card-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--sh-link, #006162);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover { color: var(--sh-link-hover, #00494b); text-decoration: underline; text-underline-offset: 24%; }
+}
+
+.sh-card { position: relative; }
+
+.sh-card-actions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 2px;
+  padding-left: 8px;
+  background: #fff;
+}
+
+.sh-card-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sh-text, #333);
+  cursor: pointer;
+
+  svg { width: 15px; height: 15px; }
+  &:hover { background: var(--sh-secondary-hover, #ebfdfc); border-color: var(--sh-border-interactive, #8a8a8a); }
+  &--delete:hover { background: var(--sh-danger-subtle, #fcece9); color: var(--sh-danger, #ac0020); border-color: var(--sh-danger, #ac0020); }
+}
+
+.sh-card-body {
+  padding-left: 42px;
+
+  // HubSpot board cards list properties as "Label: value" lines
+  .row > [class*="col-"] { flex: 0 0 100%; max-width: 100%; width: 100%; }
+}
+
+.sh-card-field {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+  padding: 0 0 4px;
+}
+
+.sh-card-label {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 18px;
+  color: var(--sh-text, #333);
+  &::after { content: ':'; }
+}
+
+.sh-card-value {
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 18px;
+  color: var(--sh-text, #333);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link {
+  color: var(--sh-link, #006162);
+  cursor: pointer;
+  &:hover { text-decoration: underline; }
+}
+
+.sh-sk-line {
+  height: 10px;
+  width: 80%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ebebeb 25%, #f5f5f5 37%, #ebebeb 63%);
+  background-size: 400% 100%;
+  animation: sh-shimmer 1.4s ease infinite;
+
+  &--title { width: 55%; height: 14px; }
+  &--short { width: 40%; }
+}
+
+@keyframes sh-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+// Empty state
+.sh-card-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 48px 24px;
+}
+
+.sh-card-empty__text { max-width: 300px; }
+
+.sh-card-empty-title {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24px;
+  color: var(--sh-text, #333);
+}
+
+.sh-card-empty-desc {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 24px;
+}
+
+.sh-card-empty-icon {
+  display: inline-block;
+  width: 160px;
+  height: 150px;
+  background: url(../../../../assets/empty-state-charts\ \(1\).svg) center / contain no-repeat;
+}
+
+// ── Pagination for board view (mirrors sh-grid) ─────────────────
+.sh-grid-pagination {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 4px;
+}
+
+.sh-grid-pagination__info, .sh-grid-pagination__spacer { flex: 1; min-width: 0; }
+
+.sh-count-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 16px;
+  border-radius: var(--sh-radius-pill, 999999px);
+  background: var(--sh-surface-recessed, #f0f0f0);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sh-grid-pagination__controls { display: flex; align-items: center; gap: 4px; }
+
+.sh-grid-page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--sh-font-family);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--sh-text, #333);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--sh-radius-pill, 999999px);
+  padding: 5px 6px;
+  cursor: pointer;
+
+  svg { width: 14px; height: 14px; }
+  &:hover:not(:disabled) { background: var(--sh-surface-hover, #f0f0f0); }
+  &:disabled { color: var(--sh-text-disabled, #8a8a8a); cursor: default; }
+  &--num { min-width: 24px; justify-content: center; }
+  &--active { background: var(--sh-surface-hover, #f0f0f0); border-color: var(--sh-border-interactive, #8a8a8a); &:disabled { color: var(--sh-text, #333); } }
+}
+
+.sh-grid-page-ellipsis { padding: 0 4px; color: var(--sh-text-subtle, #666); }
+
+.sh-grid-page-size {
+  margin-left: 16px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: var(--sh-radius-pill, 999999px);
+  background: transparent;
+  font-family: var(--sh-font-family);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sh-text, #333);
+  cursor: pointer;
+  &:hover { background: var(--sh-surface-hover, #f0f0f0); }
+  &:focus-visible { outline: 2px solid var(--sh-focus-ring, #016de1); }
+}
+
+// ── Floating menus ──────────────────────────────────────────────
+.sh-card-menu {
+  @include sh.popover;
+  position: fixed;
+  z-index: 1000;
+  min-width: 196px;
+  padding: 0;
+}
+
+.sh-card-menu-item {
+  @include sh.option;
+  padding: 8px 20px;
+  &:disabled { color: var(--sh-text-disabled, #8a8a8a); cursor: progress; background: transparent; }
+}
+
+.sh-card-menu-spinner { @include sh.spinner(14px); }

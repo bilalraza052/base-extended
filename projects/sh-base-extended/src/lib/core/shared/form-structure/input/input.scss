@@ -1,0 +1,104 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: block; }
+
+.label { @include sh.label; }
+.label.txt-clr-red { color: var(--sh-text, #333); }
+
+// Wrapper is the visual field (HubSpot: white, 1px #333, radius 6px, 40px)
+.input-wrapper {
+    @include sh.field-box;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: var(--sh-control-height);
+    padding: 0 var(--sh-control-padding-x, 16px);
+    gap: 8px;
+
+    &:hover:not(.input-disabled):not(:focus-within) {
+        border-color: var(--sh-border-color, #333);
+    }
+
+    &:focus-within { @include sh.focus-ring; }
+
+    &.error { @include sh.field-error; }
+    &.error:focus-within { border-color: transparent; }
+
+    &.input-disabled {
+        @include sh.field-disabled;
+        .inner-input { color: var(--sh-text-disabled, #8a8a8a); }
+    }
+
+    // No icons → the <input> itself is the field
+    &.plain {
+        padding: 0;
+        border: none;
+        background: transparent;
+        height: auto;
+        gap: 0;
+
+        &:focus-within { outline: none; box-shadow: none; }
+
+        .inner-input {
+            @include sh.field-box;
+            height: var(--sh-control-height);
+            padding: 8px var(--sh-control-padding-x, 16px);
+
+            &:focus { @include sh.focus-ring; }
+            &:disabled { @include sh.field-disabled; }
+        }
+
+        &.error .inner-input { @include sh.field-error; }
+        &.error .inner-input:focus { border-color: transparent; }
+        &.input-disabled { background: transparent; }
+    }
+}
+
+.inner-input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    font-family: var(--sh-font-family);
+    font-size: var(--sh-text-font-size, 14px);
+    font-weight: 300;
+    color: var(--sh-text, #333);
+
+    &:disabled { cursor: not-allowed; }
+    &::placeholder { @include sh.placeholder; }
+
+    // hide number spinners like HubSpot number fields
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    &[type=number] { -moz-appearance: textfield; }
+}
+
+.input-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--sh-text-subtle, #666);
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.password-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--sh-text-subtle, #666);
+    flex-shrink: 0;
+
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    &:hover { color: var(--sh-text, #333); }
+}
+
+.hint { @include sh.hint; }
+.txt-clr-red { color: var(--sh-error-text, #ac0020); }

@@ -1,0 +1,395 @@
+// ═════════════════════════════════════════════════════════════════════
+//  SH Component Library – Theme (HubSpot "Trellis" look & feel)
+//
+//  Include once in your app's styles.scss:
+//      @use 'sh-base-extended/styles' as *;        (package export)
+//   or @import 'path/to/_sh-theme.scss';
+//
+//  Every value is a CSS custom property, so you can override any of them:
+//      :root { --sh-primary: #7c3aed; }
+//
+//  Fonts: HubSpot uses "Lexend Deca" (body) and "HubSpot Sans" (headings).
+//  Lexend Deca is loaded from Google Fonts below; HubSpot Sans is not
+//  publicly distributed, so headings fall back to Lexend Deca.
+// ═════════════════════════════════════════════════════════════════════
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap');
+
+:root {
+  // ── Typography ───────────────────────────────────────────────────
+  --sh-font-family:          "Lexend Deca", Helvetica, Arial, sans-serif;
+  --sh-font-family-heading:  "HubSpot Sans", "Lexend Deca", Helvetica, Arial, sans-serif;
+  --sh-font-size:            14px;      // body-100
+  --sh-font-size-sm:         12px;      // detail-100
+  --sh-font-size-lg:         16px;      // body-200
+  --sh-line-height:          24px;
+  --sh-font-weight:          300;       // HubSpot body text is light
+  --sh-font-weight-regular:  400;
+  --sh-font-weight-medium:   500;
+  --sh-font-weight-bold:     600;       // labels, buttons, links
+  --sh-heading-xl:           32px;      // modal titles (heading-600, w300)
+  --sh-heading-lg:           20px;      // page / panel titles (heading-300, w500)
+  --sh-heading-md:           16px;      // heading-100 (w600)
+
+  // ── Text colors ──────────────────────────────────────────────────
+  --sh-text:                 #333333;   // text-core-default
+  --sh-text-subtle:          #666666;   // text-core-subtle
+  --sh-text-disabled:        #8a8a8a;
+  --sh-text-inverse:         #ffffff;
+  --sh-link:                 #006162;   // text-interactive-default
+  --sh-link-hover:           #00494b;
+  --sh-link-pressed:         #033637;
+  --sh-black:                #141414;
+
+  // ── Surfaces ─────────────────────────────────────────────────────
+  --sh-surface:              #ffffff;
+  --sh-surface-recessed:     #f0f0f0;   // page background / board columns
+  --sh-surface-hover:        #f0f0f0;
+  --sh-surface-pressed:      #e6e6e6;
+  --sh-surface-subtle:       #f5f5f5;
+  --sh-zebra:                #f5f5f5;
+  --sh-scrim:                rgba(20, 20, 20, 0.46);
+  --sh-backdrop-blur:        5px;
+
+  // ── Borders ──────────────────────────────────────────────────────
+  --sh-border:               #cccccc;   // containers / dividers
+  --sh-border-hover:         #b3b3b3;
+  --sh-border-interactive:   #8a8a8a;   // buttons, search, tags
+  --sh-border-strong:        #333333;   // form fields
+  --sh-border-disabled:      #e6e6e6;
+
+  // ── Radius / shadows / spacing ───────────────────────────────────
+  --sh-radius-sm:            6px;       // fields, tags, menu items
+  --sh-radius-lg:            16px;      // cards, popovers, modals
+  --sh-radius-pill:          999999px;  // buttons, search
+  --sh-shadow-100:           0 1px 8px 0 rgba(20, 20, 20, 0.08);
+  --sh-shadow-200:           0 8px 16px 0 rgba(20, 20, 20, 0.04);
+  --sh-shadow-300:           0 16px 32px 0 rgba(20, 20, 20, 0.08);
+  --sh-shadow-400:           0 24px 48px 0 rgba(20, 20, 20, 0.08);
+  --sh-space-1:              4px;
+  --sh-space-2:              8px;
+  --sh-space-3:              12px;
+  --sh-space-4:              16px;
+  --sh-space-5:              20px;
+  --sh-space-6:              24px;
+  --sh-space-10:             40px;
+
+  // ── Brand / buttons ──────────────────────────────────────────────
+  --sh-brand:                #ff4800;   // HubSpot orange (logo, spinners, today)
+  --sh-primary:              #00494b;   // primary button fill
+  --sh-primary-hover:        #007c7d;
+  --sh-primary-pressed:      #009b9c;
+  --sh-primary-text:         #ffffff;
+  --sh-secondary:            #ffffff;   // secondary (outline) button
+  --sh-secondary-hover:      #ebfdfc;
+  --sh-secondary-pressed:    #e6e6e6;
+  --sh-secondary-text:       #333333;
+  --sh-secondary-border:     #8a8a8a;
+  --sh-disabled-bg:          #f5f5f5;
+  --sh-disabled-text:        #8a8a8a;
+  --sh-disabled-opacity:     1;
+
+  // Status palette (fills / subtle fills / text)
+  --sh-danger:               #ac0020;
+  --sh-danger-hover:         #d9002b;
+  --sh-danger-subtle:        #fcece9;
+  --sh-danger-text:          #ffffff;
+  --sh-success:              #00823a;
+  --sh-success-hover:        #006831;
+  --sh-success-subtle:       #edf4ef;
+  --sh-success-text:         #ffffff;
+  --sh-warning:              #f7c03e;
+  --sh-warning-hover:        #eeb117;
+  --sh-warning-subtle:       #fcf6e6;
+  --sh-warning-text:         #333333;
+  --sh-info:                 #016de1;
+  --sh-info-hover:           #0050c7;
+  --sh-info-subtle:          #e1f2fb;
+  --sh-info-text:            #ffffff;
+  --sh-teal-subtle:          #e0fcfa;
+
+  // ── Form controls ────────────────────────────────────────────────
+  --sh-control-height:       40px;
+  --sh-control-height-sm:    32px;
+  --sh-control-padding-x:    16px;
+  --sh-border-color:         var(--sh-border-strong);
+  --sh-border-radius:        var(--sh-radius-sm);
+  --sh-focus-ring:           #016de1;   // 2px outline on focus
+  --sh-focus-border-color:   #016de1;
+  --sh-field-bg:             #ffffff;
+  --sh-field-hover-bg:       #f0f0f0;
+  --sh-label-font-size:      14px;
+  --sh-label-font-weight:    600;
+  --sh-label-gap:            8px;
+  --sh-hint-font-size:       12px;
+  --sh-text-font-size:       14px;
+  --sh-placeholder:          #8a8a8a;
+  --sh-error-color:          #d9002b;   // field border
+  --sh-error-text:           #ac0020;   // message text
+
+  // Toggle / checkbox / radio
+  --sh-toggle-active-bg:     #00823a;
+  --sh-toggle-inactive-bg:   #8a8a8a;
+  --sh-accent-color:         #333333;
+
+  // Dropdown / popover
+  --sh-dropdown-hover-bg:    #f0f0f0;
+  --sh-dropdown-selected-bg: #f0f0f0;
+  --sh-popover-search-bg:    #f0f0f0;
+
+  // Tags
+  --sh-tag-bg:               #ebebeb;
+  --sh-tag-border:           #8a8a8a;
+
+  // Tooltip
+  --sh-tooltip-bg:           #141414;
+  --sh-tooltip-text:         #ffffff;
+
+  // File upload / misc (kept for parity with osl tokens)
+  --sh-file-browse-bg:       #f5f5f5;
+  --sh-border-subtle:        rgba(20, 20, 20, 0.06);
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  Base typography – HubSpot body text is 14px / 24px, weight 300, #333
+// ─────────────────────────────────────────────────────────────────────
+.sh-app, body.sh-app {
+  font-family: var(--sh-font-family);
+  font-size: var(--sh-font-size);
+  font-weight: var(--sh-font-weight);
+  line-height: var(--sh-line-height);
+  color: var(--sh-text);
+  background: var(--sh-surface-recessed);
+}
+
+// Utility classes kept from osl
+.f-s-20 { font-size: 20px; }
+.f-w-600 { font-weight: 600; }
+.txt-clr-black { color: var(--sh-black); }
+
+.sh-link {
+  color: var(--sh-link);
+  font-weight: var(--sh-font-weight-bold);
+  text-decoration: none;
+  cursor: pointer;
+  &:hover { color: var(--sh-link-hover); text-decoration: underline; text-underline-offset: 24%; }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  Overlays – HubSpot dims AND blurs the page behind modals
+// ─────────────────────────────────────────────────────────────────────
+.cdk-overlay-backdrop.cdk-overlay-dark-backdrop,
+.sh-backdrop {
+  background: var(--sh-scrim) !important;
+  backdrop-filter: blur(var(--sh-backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--sh-backdrop-blur));
+}
+.sh-backdrop-light {
+  // HubSpot side panels leave the page visible (no dim, no blur)
+  background: transparent !important;
+}
+
+// MatDialog surface → HubSpot modal surface
+.mat-mdc-dialog-container .mat-mdc-dialog-surface,
+.sh-dialog-panel .mat-mdc-dialog-surface {
+  border-radius: var(--sh-radius-lg) !important;
+  border: 1px solid var(--sh-border);
+  box-shadow: var(--sh-shadow-300) !important;
+  background: var(--sh-surface) !important;
+  font-family: var(--sh-font-family);
+  color: var(--sh-text);
+}
+.mat-mdc-dialog-container {
+  --mat-dialog-container-shape: 16px;
+  --mdc-dialog-container-shape: 16px;
+}
+
+// Right-side panel (HubSpot "Create record" panel) — slides in from the right edge
+.sh-side-panel {
+  position: fixed !important;
+  right: 0 !important;
+  top: 0 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  .mat-mdc-dialog-container .mat-mdc-dialog-surface,
+  .mat-mdc-dialog-surface {
+    border-radius: 0 !important;
+    border: none;
+    border-left: 1px solid var(--sh-border);
+    box-shadow: var(--sh-shadow-400) !important;
+    height: 100vh;
+  }
+  // cancel Material's scale/fade so only our slide is visible
+  .mat-mdc-dialog-container .mat-mdc-dialog-inner-container,
+  .mat-mdc-dialog-container .mdc-dialog__container {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+  .mat-mdc-dialog-container {
+    opacity: 1 !important;
+    animation: sh-panel-in 0.28s cubic-bezier(0.2, 0, 0, 1) both;
+  }
+  &.sh-side-panel--closing .mat-mdc-dialog-container {
+    animation: sh-panel-out 0.2s cubic-bezier(0.4, 0, 1, 1) both;
+  }
+}
+@keyframes sh-panel-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes sh-panel-out {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  Toasts (MatSnackBar) → HubSpot floating alert
+// ─────────────────────────────────────────────────────────────────────
+.mat-mdc-snack-bar-container.sh-toast {
+  --mdc-snackbar-container-color: #ffffff;
+  --mat-snack-bar-container-color: #ffffff;
+  --mdc-snackbar-supporting-text-color: #333333;
+  --mat-snack-bar-supporting-text-color: #333333;
+  --mdc-snackbar-container-shape: 16px;
+  --mat-snack-bar-container-shape: 16px;
+  --mat-snack-bar-button-color: #006162;
+  --mat-snackbar-button-color: #006162;
+  .mdc-snackbar__surface {
+    border: 1px solid var(--sh-border) !important;
+    border-left: 6px solid var(--sh-info) !important;
+    box-shadow: var(--sh-shadow-400) !important;
+    border-radius: 16px !important;
+    min-width: 360px;
+  }
+  .mdc-snackbar__label, .mat-mdc-snack-bar-label {
+    font-family: var(--sh-font-family);
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 24px;
+    padding: 14px 16px 14px 20px;
+  }
+  .mat-mdc-button, .mdc-button {
+    font-family: var(--sh-font-family);
+    font-weight: 600;
+    border-radius: 999999px;
+  }
+  &.sh-toast--success .mdc-snackbar__surface { border-left-color: var(--sh-success) !important; }
+  &.sh-toast--error   .mdc-snackbar__surface { border-left-color: var(--sh-danger-hover) !important; }
+  &.sh-toast--warning .mdc-snackbar__surface { border-left-color: var(--sh-warning) !important; }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  Material datepicker → HubSpot calendar
+// ─────────────────────────────────────────────────────────────────────
+.mat-datepicker-content {
+  border-radius: var(--sh-radius-lg) !important;
+  border: 1px solid var(--sh-border);
+  box-shadow: var(--sh-shadow-400) !important;
+  background: #fff !important;
+  font-family: var(--sh-font-family) !important;
+  --mat-datepicker-calendar-container-shape: 16px;
+  --mat-datepicker-calendar-date-selected-state-background-color: #141414;
+  --mat-datepicker-calendar-date-selected-state-text-color: #ffffff;
+  --mat-datepicker-calendar-date-today-outline-color: transparent;
+  --mat-datepicker-calendar-date-today-selected-state-outline-color: transparent;
+  --mat-datepicker-calendar-date-hover-state-background-color: #f0f0f0;
+  --mat-datepicker-calendar-date-focus-state-background-color: #f0f0f0;
+  --mat-datepicker-calendar-date-text-color: #333333;
+  --mat-datepicker-calendar-header-text-color: #666666;
+  --mat-datepicker-calendar-body-label-text-color: #666666;
+  --mat-datepicker-calendar-period-button-text-color: #333333;
+  --mat-datepicker-calendar-navigation-button-icon-color: #333333;
+  --mat-datepicker-calendar-header-divider-color: transparent;
+
+  .mat-calendar { font-family: var(--sh-font-family) !important; }
+  .mat-calendar-period-button {
+    font-family: var(--sh-font-family);
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    border-radius: 6px;
+  }
+  .mat-calendar-table-header th {
+    font-size: 15px;
+    font-weight: 500;
+    color: #666;
+  }
+  .mat-calendar-body-cell-content {
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 6px !important;
+  }
+  .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+    color: #9f2800 !important;
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 3px;
+      left: 50%;
+      width: 4px;
+      height: 4px;
+      margin-left: -2px;
+      border-radius: 50%;
+      background: var(--sh-brand);
+    }
+  }
+  .mat-calendar-body-selected {
+    background: #141414 !important;
+    color: #fff !important;
+  }
+  .mat-calendar-body-label { color: transparent; }
+}
+
+// sh-datepicker: room under the day grid for the header's Today / Clear row
+.mat-calendar.sh-datepicker-panel {
+  position: relative;
+  height: auto !important;
+  padding-bottom: 44px;
+}
+.mat-calendar.sh-datepicker-panel .mat-calendar-content { padding: 0 8px 4px; }
+
+// ngx-mat-datetime-picker shares mat-datepicker-content; style its time spinners
+.ngx-mat-timepicker {
+  font-family: var(--sh-font-family);
+  input {
+    border: 1px solid var(--sh-border-strong) !important;
+    border-radius: 6px !important;
+    font-family: var(--sh-font-family);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  Material menu / tooltip / select panels → HubSpot popover
+// ─────────────────────────────────────────────────────────────────────
+.mat-mdc-menu-panel {
+  border-radius: var(--sh-radius-lg) !important;
+  border: 1px solid var(--sh-border);
+  box-shadow: var(--sh-shadow-400) !important;
+  .mat-mdc-menu-item {
+    font-family: var(--sh-font-family);
+    font-size: 14px;
+    font-weight: 400;
+    color: #333;
+    min-height: 40px;
+    padding: 0 20px;
+    &:hover { background: #f0f0f0; }
+  }
+}
+.mat-mdc-tooltip, .mdc-tooltip {
+  --mdc-plain-tooltip-container-color: #141414;
+  --mat-tooltip-container-color: #141414;
+  --mdc-plain-tooltip-supporting-text-color: #fff;
+  --mdc-plain-tooltip-container-shape: 6px;
+  --mdc-plain-tooltip-supporting-text-size: 12px;
+  --mdc-plain-tooltip-supporting-text-weight: 300;
+  --mdc-plain-tooltip-supporting-text-font: "Lexend Deca", Helvetica, Arial, sans-serif;
+  .mdc-tooltip__surface { padding: 10px 16px !important; line-height: 18px; }
+}
+
+// Thin HubSpot-like scrollbars inside sh components
+.sh-scroll {
+  &::-webkit-scrollbar { width: 8px; height: 8px; }
+  &::-webkit-scrollbar-thumb { background: #b3b3b3; border-radius: 999px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+}

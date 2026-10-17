@@ -1,0 +1,69 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: block; }
+
+.label { @include sh.label; }
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &.radio-inline {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px 24px;
+    }
+}
+
+.radio-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-family: var(--sh-font-family);
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 24px;
+    color: var(--sh-text, #333);
+    user-select: none;
+
+    // HubSpot radio: 20px circle, 1px #141414 border, filled dot when checked
+    input[type="radio"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        flex-shrink: 0;
+        border: 1px solid #141414;
+        border-radius: 50%;
+        background: #fff;
+        cursor: pointer;
+        display: grid;
+        place-content: center;
+        transition: background-color 0.12s ease;
+
+        &::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #141414;
+            transform: scale(0);
+            transition: transform 0.12s ease;
+        }
+
+        &:checked::before { transform: scale(1); }
+        &:hover:not(:disabled) { background: var(--sh-surface-hover, #f0f0f0); }
+        &:focus-visible { outline: 2px solid var(--sh-focus-ring, #016de1); outline-offset: 1px; }
+        &:disabled { border-color: #ccc; background: var(--sh-disabled-bg, #f5f5f5); cursor: not-allowed; }
+    }
+
+    &.disabled {
+        cursor: not-allowed;
+        color: var(--sh-text-disabled, #8a8a8a);
+    }
+}
+
+.txt-clr-red, .label-required { color: var(--sh-error-text, #ac0020); }

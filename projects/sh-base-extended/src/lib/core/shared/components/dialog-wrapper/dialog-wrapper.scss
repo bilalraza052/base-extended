@@ -1,0 +1,159 @@
+// ═════════════════════════════════════════════════════════════════
+//  HubSpot modal  (title 32px/300 · header rule · 40px gutters)
+//  HubSpot panel  (title 20px/500 · 69px header · sticky footer)
+// ═════════════════════════════════════════════════════════════════
+:host { display: block; height: 100%; }
+
+.dialog-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+  font-family: var(--sh-font-family);
+  color: var(--sh-text, #333);
+  background: #fff;
+}
+
+.dialog-header-custom {
+  display: contents;
+  &.draggable { cursor: move; }
+}
+
+.dialog-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 36px 72px 28px 40px;
+  border-bottom: 1px solid var(--sh-border, #ccc);
+  background: #fff;
+  flex-shrink: 0;
+
+  &.draggable { cursor: move; }
+}
+
+.dialog-heading {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--sh-font-family-heading);
+  font-size: var(--sh-heading-xl, 32px);
+  font-weight: 300;
+  line-height: 39px;
+  color: var(--sh-text, #333);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dialog-partial-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.dialog-drag-handle {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+  display: flex;
+  color: var(--sh-text-disabled, #8a8a8a);
+  pointer-events: none;
+  svg { width: 16px; height: 10px; }
+}
+
+.dialog-close-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sh-text, #333);
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+
+  svg { width: 16px; height: 16px; }
+  &:hover { background: var(--sh-surface-hover, #f0f0f0); }
+  &:focus-visible { outline: 2px solid var(--sh-focus-ring, #016de1); }
+}
+
+// ── Body ────────────────────────────────────────────────────────
+.dialog-content {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-height: 65vh;
+  overflow-y: auto;
+  color: var(--sh-text, #333) !important;
+  font-family: var(--sh-font-family) !important;
+  font-size: 14px !important;
+  font-weight: 300 !important;
+  line-height: 24px !important;
+  letter-spacing: normal !important;
+
+  &::-webkit-scrollbar { width: 8px; }
+  &::-webkit-scrollbar-thumb { background: #b3b3b3; border-radius: 999px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+}
+
+.dialog-body { padding: 24px 40px; }
+
+// ── Footer ──────────────────────────────────────────────────────
+.dialog-actions {
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: unset !important;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.dialog-footer {
+  width: 100%;
+  padding: 8px 40px 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+// ── Side-panel variant ──────────────────────────────────────────
+.dialog-container--panel {
+  height: 100vh;
+  max-height: 100vh;
+
+  .dialog-header {
+    min-height: 69px;
+    padding: 0 64px 0 40px;
+  }
+
+  .dialog-heading {
+    font-size: var(--sh-heading-lg, 20px);
+    font-weight: 500;
+    line-height: 24px;
+  }
+
+  .dialog-close-btn { top: 50%; right: 24px; transform: translateY(-50%); }
+
+  .dialog-content {
+    flex: 1;
+    max-height: none;
+  }
+
+  .dialog-body { padding: 24px 40px 32px; }
+
+  .dialog-footer {
+    margin: 0 20px 0 40px;
+    width: calc(100% - 60px);
+    padding: 20px 0 24px;
+    border-top: 1px solid var(--sh-border, #ccc);
+  }
+}
+
+.mat-mdc-dialog-title::before { display: none; }

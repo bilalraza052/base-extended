@@ -1,0 +1,56 @@
+@if(dialogData.component){
+    <ng-container [ngComponentOutlet]="dialogData.component"  [ngComponentOutletInputs]="{ data: dialogData }"></ng-container>
+}
+@else{
+  <div
+    class="dialog-container"
+    [class.dialog-container--panel]="isPanel"
+    cdkDrag
+    cdkDragRootElement=".cdk-overlay-pane"
+    [cdkDragConstrainPosition]="dragConstrainPosition"
+    [cdkDragDisabled]="!dialogData.isDraggable">
+
+    <!-- Header -->
+    @if(typeof dialogData.header == 'string') {
+      <div class="dialog-header" [class.draggable]="dialogData.isDraggable" cdkDragHandle [cdkDragHandleDisabled]="!dialogData.isDraggable">
+        <h2 class="dialog-heading" [title]="headerText">{{ headerText }}</h2>
+        @if(dialogData.isDraggable) {
+          <div class="dialog-drag-handle" title="Drag to move">
+            <svg viewBox="0 0 16 10" fill="currentColor"><circle cx="3" cy="3" r="1.3"/><circle cx="8" cy="3" r="1.3"/><circle cx="13" cy="3" r="1.3"/><circle cx="3" cy="7" r="1.3"/><circle cx="8" cy="7" r="1.3"/><circle cx="13" cy="7" r="1.3"/></svg>
+          </div>
+        }
+        @if(dialogData.partialHeader) {
+          <div class="dialog-partial-header">
+            <ng-container *ngTemplateOutlet="dialogData.partialHeader; context: { $implicit: dialogData }"></ng-container>
+          </div>
+        }
+        <button type="button" class="dialog-close-btn" mat-dialog-close aria-label="Close">
+          <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3 3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    } @else {
+      <div class="dialog-header-custom" [class.draggable]="dialogData.isDraggable" cdkDragHandle [cdkDragHandleDisabled]="!dialogData.isDraggable">
+        <ng-container *ngTemplateOutlet="dialogData.header; context: { $implicit: dialogData }"></ng-container>
+      </div>
+    }
+
+    <!-- Body -->
+    <mat-dialog-content class="dialog-content">
+      @if(dialogData.formBody) {
+        <div class="dialog-body">
+          <ng-container *ngTemplateOutlet="dialogData.formBody; context: { $implicit: dialogData }"></ng-container>
+        </div>
+      }
+    </mat-dialog-content>
+
+    <!-- Footer -->
+    @if(dialogData.formFooter) {
+      <mat-dialog-actions class="dialog-actions">
+        <div class="dialog-footer">
+          <ng-container *ngTemplateOutlet="dialogData.formFooter; context: { $implicit: dialogData }"></ng-container>
+        </div>
+      </mat-dialog-actions>
+    }
+
+  </div>
+}

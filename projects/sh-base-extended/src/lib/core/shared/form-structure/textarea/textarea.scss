@@ -1,0 +1,42 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: block; }
+
+.label { @include sh.label; }
+.label.txt-clr-red { color: var(--sh-text, #333); }
+
+textarea {
+    @include sh.field-box;
+    display: block;
+    width: 100%;
+    min-height: 72px;
+    padding: 8px var(--sh-control-padding-x, 16px);
+    outline: none;
+
+    &::placeholder { @include sh.placeholder; }
+    &:focus { @include sh.focus-ring; }
+    &.error { @include sh.field-error; }
+    &.error:focus { border-color: transparent; }
+    &:disabled { @include sh.field-disabled; }
+}
+
+.textarea-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.char-counter {
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 18px;
+    color: var(--sh-text-subtle, #666);
+    margin-top: 4px;
+    white-space: nowrap;
+
+    &.counter-limit { color: var(--sh-error-text, #ac0020); font-weight: 600; }
+}
+
+.hint { @include sh.hint; }
+.txt-clr-red { color: var(--sh-error-text, #ac0020); }

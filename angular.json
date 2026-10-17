@@ -35,7 +35,10 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/styles.scss","node_modules/bootstrap/dist/css/bootstrap.min.css"]
+            "styles": [
+              "src/styles.scss",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css"
+            ]
           },
           "configurations": {
             "production": {
@@ -85,7 +88,6 @@
       "prefix": "lib",
       "architect": {
         "build": {
-          
           "builder": "@angular-devkit/build-angular:ng-package",
           "options": {
             "project": "projects/osl-base/ng-package.json"
@@ -122,6 +124,100 @@
           "options": {
             "tsConfig": "projects/osl-base-extended/tsconfig.spec.json"
           }
+        }
+      }
+    },
+    "sh-base-extended": {
+      "projectType": "library",
+      "root": "projects/sh-base-extended",
+      "sourceRoot": "projects/sh-base-extended/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/sh-base-extended/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/sh-base-extended/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/sh-base-extended/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "sh-demo": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/sh-demo",
+      "sourceRoot": "projects/sh-demo/src",
+      "prefix": "demo",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/sh-demo/src/main.ts",
+            "index": "projects/sh-demo/src/index.html",
+            "tsConfig": "projects/sh-demo/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/sh-base-extended/src/lib/assets",
+                "output": "assets"
+              }
+            ],
+            "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "projects/sh-demo/src/styles.scss"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2MB",
+                  "maximumError": "4MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "40kB",
+                  "maximumError": "80kB"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "sh-demo:build:production"
+            },
+            "development": {
+              "buildTarget": "sh-demo:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
         }
       }
     }

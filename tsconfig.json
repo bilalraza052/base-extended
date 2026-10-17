@@ -12,7 +12,8 @@
     "isolatedModules": true,
     "experimentalDecorators": true,
     "paths": {
-      "osl-base-extended": ["./dist/osl-base-extended"]
+      "osl-base-extended": ["./dist/osl-base-extended"],
+      "sh-base-extended": ["./dist/sh-base-extended"]
     },
     "importHelpers": true,
     "target": "ES2022",
@@ -37,6 +38,12 @@
     },
     {
       "path": "./projects/osl-base-extended/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/sh-base-extended/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/sh-base-extended/tsconfig.spec.json"
     }
   ]
 }

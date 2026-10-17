@@ -1,0 +1,76 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: block; }
+
+.label { @include sh.label; }
+.label.txt-clr-red { color: var(--sh-text, #333); }
+.txt-clr-red { color: var(--sh-error-text, #ac0020); }
+.hint { @include sh.hint; }
+
+// HubSpot date field: [📅 MM/DD/YYYY        ]
+.input-wrapper {
+    @include sh.field-box;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: var(--sh-control-height);
+    padding: 0 12px 0 14px;
+
+    &:focus-within { @include sh.focus-ring; }
+    &.error { @include sh.field-error; }
+    &.error:focus-within { border-color: transparent; }
+    &.is-disabled { @include sh.field-disabled; }
+}
+
+.picker-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--sh-text, #333);
+    cursor: pointer;
+    flex-shrink: 0;
+
+    svg { width: 16px; height: 16px; }
+    &:disabled { color: var(--sh-text-disabled, #8a8a8a); cursor: not-allowed; }
+}
+
+.date-input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: var(--sh-font-family);
+    font-size: var(--sh-text-font-size, 14px);
+    font-weight: 300;
+    color: var(--sh-text, #333);
+    cursor: pointer;
+
+    &::placeholder { @include sh.placeholder; }
+    &:disabled { cursor: not-allowed; color: var(--sh-text-disabled, #8a8a8a); }
+}
+
+.date-clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--sh-text-subtle, #666);
+    cursor: pointer;
+
+    svg { width: 10px; height: 10px; }
+    &:hover { background: var(--sh-surface-hover, #f0f0f0); color: var(--sh-text, #333); }
+}
+

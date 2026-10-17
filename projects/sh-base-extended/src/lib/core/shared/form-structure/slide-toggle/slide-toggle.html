@@ -1,0 +1,17 @@
+<div class="d-flex flex-column">
+    @if(label) {
+        <div [shSkeleton]="skeletonLoading" [shSkeletonTheme]="skeletonTheme">
+            <label class="label" [title]="label"><span class="label-text">{{label}}</span></label>
+
+        </div>
+    }
+    <div class="toggle-row" [class.reverse]="labelPosition === 'before'" [shSkeleton]="skeletonLoading" [shSkeletonTheme]="skeletonTheme">
+        <label class="toggle" [class.toggle-disabled]="disabled">
+            <input type="checkbox" [ngModel]="model" (ngModelChange)="onModelChange($event)" [disabled]="disabled">
+            <span class="slider"></span>
+        </label>
+        @if(stateLabel) {
+            <span class="state-label" [class.state-on]="model" [class.state-off]="!model">{{stateLabel}}</span>
+        }
+    </div>
+</div>

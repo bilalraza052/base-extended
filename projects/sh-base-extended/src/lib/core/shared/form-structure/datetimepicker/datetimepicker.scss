@@ -1,0 +1,50 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: block; }
+
+.label { @include sh.label; }
+.label.txt-clr-red { color: var(--sh-text, #333); }
+.txt-clr-red { color: var(--sh-error-text, #ac0020); }
+.hint { @include sh.hint; }
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.dt-icon-btn {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--sh-text, #333);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+
+    svg { width: 16px; height: 16px; }
+    &:disabled { color: var(--sh-text-disabled, #8a8a8a); cursor: not-allowed; }
+}
+
+.dt-input {
+    @include sh.field-box;
+    width: 100%;
+    height: var(--sh-control-height);
+    padding: 8px 16px 8px 40px;
+    outline: none;
+    cursor: pointer;
+
+    &::placeholder { @include sh.placeholder; }
+    &:focus { @include sh.focus-ring; }
+    &:disabled { @include sh.field-disabled; }
+    &.error { @include sh.field-error; }
+    &.error:focus { border-color: transparent; }
+}

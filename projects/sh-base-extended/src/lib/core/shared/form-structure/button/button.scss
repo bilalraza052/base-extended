@@ -1,0 +1,182 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: inline-block; }
+:host:has(.sh-btn--full) { display: block; }
+
+.sh-btn {
+    @include sh.btn-base;
+
+    // ── Sizes ───────────────────────────────────────
+    &--sm {
+        min-height: 32px;
+        height: 32px;
+        padding: 8px 16px;
+        font-size: 12px;
+        font-weight: 300;
+        line-height: 14px;
+        mat-icon { font-size: 14px; width: 14px; height: 14px; }
+    }
+    &--md {
+        min-height: 40px;
+        padding: 10px 24px;
+        font-size: 14px;
+        mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    }
+    &--lg {
+        min-height: 48px;
+        padding: 14px 32px;
+        font-size: 16px;
+        mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    }
+    &--full { width: 100%; }
+    &--loading { cursor: progress; }
+
+    // ── Solid variants ──────────────────────────────
+    &--primary {
+        background: var(--sh-primary);
+        border-color: var(--sh-primary);
+        color: var(--sh-primary-text);
+        &:hover:not(:disabled) { background: var(--sh-primary-hover); border-color: var(--sh-primary-hover); }
+        &:active:not(:disabled) { background: var(--sh-primary-pressed); border-color: var(--sh-primary-pressed); }
+    }
+
+    &--secondary, &--tertiary {
+        background: var(--sh-secondary);
+        border-color: var(--sh-secondary-border);
+        color: var(--sh-secondary-text);
+        &:hover:not(:disabled) { background: var(--sh-secondary-hover); }
+        &:active:not(:disabled) { background: var(--sh-secondary-pressed); }
+    }
+
+    &--transparent {
+        background: transparent;
+        border-color: transparent;
+        color: var(--sh-text);
+        padding-left: 12px;
+        padding-right: 12px;
+        &:hover:not(:disabled) { background: var(--sh-surface-hover); }
+        &:disabled { background: transparent !important; }
+    }
+
+    &--link {
+        background: transparent;
+        border-color: transparent;
+        color: var(--sh-link);
+        padding-left: 4px;
+        padding-right: 4px;
+        min-height: auto;
+        &:hover:not(:disabled) { color: var(--sh-link-hover); text-decoration: underline; text-underline-offset: 24%; }
+        &:disabled { background: transparent !important; }
+    }
+
+    &--success {
+        background: var(--sh-success);
+        border-color: var(--sh-success);
+        color: var(--sh-success-text);
+        &:hover:not(:disabled) { background: var(--sh-success-hover); border-color: var(--sh-success-hover); }
+    }
+
+    &--danger {
+        background: var(--sh-danger);
+        border-color: var(--sh-danger);
+        color: var(--sh-danger-text);
+        &:hover:not(:disabled) { background: var(--sh-danger-hover); border-color: var(--sh-danger-hover); }
+    }
+
+    &--warning {
+        background: var(--sh-warning);
+        border-color: var(--sh-warning);
+        color: var(--sh-warning-text);
+        &:hover:not(:disabled) { background: var(--sh-warning-hover); border-color: var(--sh-warning-hover); }
+    }
+
+    &--info {
+        background: var(--sh-info);
+        border-color: var(--sh-info);
+        color: var(--sh-info-text);
+        &:hover:not(:disabled) { background: var(--sh-info-hover); border-color: var(--sh-info-hover); }
+    }
+
+    // ── Outline variants (white fill, coloured text + border) ──
+    &--outline-primary {
+        background: #fff;
+        border-color: var(--sh-primary);
+        color: var(--sh-primary);
+        &:hover:not(:disabled) { background: var(--sh-secondary-hover); }
+    }
+    &--outline-secondary {
+        background: #fff;
+        border-color: var(--sh-secondary-border);
+        color: var(--sh-text);
+        &:hover:not(:disabled) { background: var(--sh-secondary-hover); }
+    }
+    &--outline-success {
+        background: #fff;
+        border-color: var(--sh-success);
+        color: var(--sh-success);
+        &:hover:not(:disabled) { background: var(--sh-success-subtle); }
+    }
+    &--outline-danger {
+        background: #fff;
+        border-color: var(--sh-danger);
+        color: var(--sh-danger);
+        &:hover:not(:disabled) { background: var(--sh-danger-subtle); }
+    }
+    &--outline-warning {
+        background: #fff;
+        border-color: var(--sh-warning-hover);
+        color: #784b05;
+        &:hover:not(:disabled) { background: var(--sh-warning-subtle); }
+    }
+    &--outline-info {
+        background: #fff;
+        border-color: var(--sh-info);
+        color: var(--sh-info);
+        &:hover:not(:disabled) { background: var(--sh-info-subtle); }
+    }
+}
+
+.sh-btn__label { display: inline-block; }
+
+.sh-btn__label-icon {
+    display: inline-flex;
+    align-items: center;
+    mat-icon { display: flex; align-items: center; justify-content: center; }
+}
+
+.sh-btn__caret {
+    @include sh.caret(currentColor);
+    border-top-width: 4px;
+    border-left-width: 4px;
+    border-right-width: 4px;
+    margin-left: -2px;
+}
+
+.sh-btn__spinner {
+    @include sh.spinner(14px, currentColor);
+    border-color: rgba(255, 255, 255, 0.4);
+    border-top-color: currentColor;
+}
+.sh-btn--secondary .sh-btn__spinner,
+.sh-btn--tertiary .sh-btn__spinner,
+.sh-btn--transparent .sh-btn__spinner,
+[class*="sh-btn--outline"] .sh-btn__spinner {
+    border-color: #ccc;
+    border-top-color: var(--sh-brand, #ff4800);
+}
+
+// ── Circular icon button (HubSpot ⋮ / settings / view switch buttons) ──
+.icon-btn {
+    @include sh.btn-icon-circle;
+    width: 40px;
+    height: 40px;
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+    &--sm {
+        width: 32px;
+        height: 32px;
+        mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    }
+
+    .sh-btn__spinner { @include sh.spinner(14px); }
+}

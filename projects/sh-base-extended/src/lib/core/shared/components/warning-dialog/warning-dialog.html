@@ -1,0 +1,20 @@
+<div class="sh-modal">
+  <header class="sh-modal__header">
+    <h2 class="sh-modal__title">{{ data.title }}</h2>
+  </header>
+  <button type="button" class="sh-modal__close" (click)="cancel()" aria-label="Close">
+    <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3 3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+  </button>
+
+  <mat-dialog-content class="sh-modal__body">
+    <div class="sh-alert">
+      <svg class="sh-alert__icon" viewBox="0 0 16 16"><path d="M8 1.6 15 14H1z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 6v3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></svg>
+      <p>{{ data.message }}</p>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="sh-modal__footer">
+    <button type="button" class="sh-modal__btn--primary" (click)="confirm()">{{ data.yesText }}</button>
+    <button type="button" class="sh-modal__btn--secondary" (click)="cancel()">{{ data.noText }}</button>
+  </mat-dialog-actions>
+</div>

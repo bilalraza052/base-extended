@@ -1,0 +1,17 @@
+@use '../../../styles/sh-mixins' as sh;
+@include sh.modal;
+
+.sh-alert {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 8px;
+  border: 1px solid var(--sh-warning-hover, #eeb117);
+  border-left-width: 6px;
+  border-radius: var(--sh-radius-sm, 6px);
+  background: var(--sh-warning-subtle, #fcf6e6);
+
+  p { margin: 0; }
+}
+
+.sh-alert__icon { width: 18px; height: 18px; flex-shrink: 0; margin-top: 3px; color: #956309; }

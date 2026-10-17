@@ -1,0 +1,152 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: block; }
+
+.label { @include sh.label; }
+.label.txt-clr-red { color: var(--sh-text, #333); }
+.txt-clr-red { color: var(--sh-error-text, #ac0020); }
+.hint { @include sh.hint; }
+
+.file-input { display: none; }
+
+// HubSpot file drop area: dashed #8a8a8a, radius 16px, light recessed fill
+.drop-zone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 96px;
+    padding: 16px;
+    border: 1px dashed var(--sh-border-interactive, #8a8a8a);
+    border-radius: var(--sh-radius-lg, 16px);
+    background: #fff;
+    cursor: pointer;
+    font-family: var(--sh-font-family);
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+
+    &:hover:not(.file-disabled) {
+        background: var(--sh-surface-subtle, #f5f5f5);
+        border-color: var(--sh-border-strong, #333);
+    }
+
+    &.drag-over {
+        background: var(--sh-teal-subtle, #e0fcfa);
+        border-color: var(--sh-primary, #00494b);
+        border-style: solid;
+    }
+
+    &.has-file {
+        min-height: var(--sh-control-height);
+        border-style: solid;
+        border-color: var(--sh-border, #ccc);
+        border-radius: var(--sh-radius-sm, 6px);
+        padding: 6px 8px 6px 14px;
+        justify-content: flex-start;
+        cursor: default;
+    }
+
+    &.error { border-color: var(--sh-error-color, #d9002b); }
+
+    &.file-disabled {
+        background: var(--sh-disabled-bg, #f5f5f5);
+        border-color: var(--sh-border-disabled, #e6e6e6);
+        cursor: not-allowed;
+        color: var(--sh-text-disabled, #8a8a8a);
+    }
+}
+
+.drop-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+}
+
+.upload-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: var(--sh-text, #333);
+}
+
+.drop-text {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 24px;
+    color: var(--sh-text, #333);
+}
+
+.browse-link {
+    color: var(--sh-link, #006162);
+    font-weight: 600;
+    &:hover { color: var(--sh-link-hover, #00494b); text-decoration: underline; }
+}
+
+.drop-meta {
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 18px;
+    color: var(--sh-text-subtle, #666);
+}
+
+.file-list {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+.file-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--sh-text-subtle, #666);
+    flex-shrink: 0;
+}
+
+.file-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sh-link, #006162);
+}
+
+.clear-btn, .download-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--sh-text, #333);
+    cursor: pointer;
+    flex-shrink: 0;
+
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+.clear-btn:hover { background: var(--sh-danger-subtle, #fcece9); color: var(--sh-danger, #ac0020); }
+.download-btn:hover { background: var(--sh-surface-hover, #f0f0f0); }
+
+// Single-line variant used inside grid cells
+.compact {
+    .drop-zone {
+        height: var(--sh-control-height);
+        min-height: 0;
+        padding: 0 10px;
+        overflow: hidden;
+        border-radius: var(--sh-radius-sm, 6px);
+    }
+    .drop-content { flex-direction: row; gap: 6px; min-width: 0; }
+    .upload-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
+    .drop-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .drop-meta { display: none; }
+    .file-list { min-width: 0; }
+}

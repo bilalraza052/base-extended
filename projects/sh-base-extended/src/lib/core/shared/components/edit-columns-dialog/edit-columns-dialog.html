@@ -1,0 +1,66 @@
+<div class="sh-ec">
+  <header class="sh-ec__header">
+    <h2 class="sh-ec__title">{{ title }}</h2>
+    <button type="button" class="sh-ec__close" (click)="cancel()" aria-label="Close">
+      <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3 3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+
+  <div class="sh-ec__body">
+    <!-- Left: every available column -->
+    <section class="sh-ec__pane sh-ec__pane--left">
+      <div class="sh-ec__search">
+        <input type="text" placeholder="Search columns" autocomplete="off" [value]="query" (input)="query = $any($event.target).value">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="7"/><line x1="21" y1="21" x2="15.6" y2="15.6"/></svg>
+      </div>
+      <div class="sh-ec__group">Properties</div>
+      <div class="sh-ec__list">
+        @for (col of filtered; track col.key) {
+          <label class="sh-ec__option" [class.is-locked]="isLocked(col.key)">
+            <input type="checkbox" [checked]="isChecked(col.key)" [disabled]="isLocked(col.key)" (change)="toggle(col.key)">
+            <span>{{ col.label || col.key }}</span>
+          </label>
+        } @empty {
+          <div class="sh-ec__empty">No columns match "{{ query }}"</div>
+        }
+      </div>
+    </section>
+
+    <!-- Right: selected columns in order -->
+    <section class="sh-ec__pane sh-ec__pane--right">
+      <div class="sh-ec__selected-head">Selected columns ({{ selected.length }})</div>
+      <div class="sh-ec__selected">
+        @for (key of locked; track key) {
+          @if (isChecked(key)) {
+            <div class="sh-ec__item sh-ec__item--locked">
+              <svg class="sh-ec__lock" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="7" width="9" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
+              <span class="sh-ec__item-label">{{ label(key) }}</span>
+            </div>
+          }
+        }
+        <div cdkDropList class="sh-ec__droplist" (cdkDropListDropped)="drop($event)">
+          @for (key of movable; track key) {
+            <div class="sh-ec__item" cdkDrag cdkDragLockAxis="y">
+              <span class="sh-ec__handle" cdkDragHandle aria-label="Drag to reorder">
+                <svg viewBox="0 0 10 16" fill="currentColor"><circle cx="3" cy="3" r="1.3"/><circle cx="7" cy="3" r="1.3"/><circle cx="3" cy="8" r="1.3"/><circle cx="7" cy="8" r="1.3"/><circle cx="3" cy="13" r="1.3"/><circle cx="7" cy="13" r="1.3"/></svg>
+              </span>
+              <span class="sh-ec__item-label">{{ label(key) }}</span>
+              <button type="button" class="sh-ec__remove" (click)="remove(key)" aria-label="Remove column">
+                <svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4 4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </button>
+              <div *cdkDragPlaceholder class="sh-ec__placeholder"></div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="sh-ec__footer">
+    <button type="button" class="sh-ec__btn sh-ec__btn--primary" (click)="apply()">Apply</button>
+    <button type="button" class="sh-ec__btn sh-ec__btn--secondary" (click)="cancel()">Cancel</button>
+    <span class="sh-ec__spacer"></span>
+    <button type="button" class="sh-ec__link" (click)="resetToDefault()">Reset to default</button>
+    <button type="button" class="sh-ec__link" (click)="removeAll()">Remove all columns</button>
+  </footer>
+</div>

@@ -1,0 +1,25 @@
+{
+  "name": "sh-base-extended",  
+  "version": "1.1.0",
+  
+  "peerDependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/material": "^21.2.0",
+    "@angular/cdk": "^21.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false,
+  "description": "HubSpot-styled enterprise Angular component library (sh-*). Same concepts as osl-base-extended.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+   "exports": {
+    "./styles": "./styles/_sh-theme.scss"
+  },
+
+  "author": "Bilal Raza",
+  "license": "ISC"
+}

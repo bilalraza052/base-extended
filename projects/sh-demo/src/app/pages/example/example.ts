@@ -1,0 +1,1691 @@
+import { ChangeDetectorRef, Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { baseComponent, FormStructureModule, ShGridColumn, ShMenuAction, elements, ShSetupSaveEvent, DragColumn, DragDropPayload, DragItem, ShFormGridColumn, PanelPageEvent, PanelSearchEvent, ShReportColumn, ShReportEmailConfig, ReportGenerateType, ShEmailSendResult, UserLogMeta, ShSkeletonModule, SkeletonTheme, ShSkeletonThemeService, ShDocumentUploader, ShSavedDocument, ShTooltipDirective, DirtyStateService, ShMenuTriggerFor } from 'sh-base-extended';
+import { ExampleService } from './example.service';
+import { DomSanitizer } from '@angular/platform-browser';
+
+@Component({
+  selector: 'app-example',
+  imports: [FormStructureModule, ShSkeletonModule],
+  templateUrl: './example.html',
+  styleUrl: './example.scss',
+})
+export class Example extends baseComponent {
+  icon = `<svg fill="#000000" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><title>Google Ads icon</title><path d="M11.994 1.046h.022c.899.002 1.73.301 2.398.805l.003.001.001.001a4 4 0 011.116 1.299l4.467 7.769.025.065 3.419 5.927A3.98 3.98 0 0124 18.948c0 .565-.117 1.104-.329 1.592l.006.016a3.93 3.93 0 01-.634.993 3.97 3.97 0 01-1.045.868 3.984 3.984 0 01-1.946.537h-.068a3.984 3.984 0 01-2.398-.805l-.003-.001v-.001h-.001a4 4 0 01-1.116-1.299l-4.467-7.769-.025-.065-3.419-5.927-.005-.009-.011-.019A3.981 3.981 0 018 5.052c0-.424.066-.832.188-1.215v-.001l.008-.025.01-.03c.052-.157.117-.337.117-.337.158-.358.371-.689.626-.984l.063-.072.014-.015.002-.003.001-.001.002-.002.009-.01.006-.007c.27-.296.59-.557.956-.767a3.984 3.984 0 011.946-.537h.046zM4.006 22.954h-.058a3.984 3.984 0 01-1.946-.537 3.97 3.97 0 01-1.045-.868 3.93 3.93 0 01-.634-.993l.006-.016A3.988 3.988 0 010 18.948c0-.743.202-1.439.555-2.035l3.419-5.927.025-.065 3.039-5.286c.076.648.276 1.281.596 1.856l.057.1 3.377 5.854-.003-.01.067.142.291.507-3.889 6.764a4 4 0 01-1.116 1.299h-.001v.001l-.003.001a3.984 3.984 0 01-2.398.805h-.01z"></path></g></svg>`
+  loading = false;
+  private _dirtyState = inject(DirtyStateService);
+  get isDirty(): boolean { return this._dirtyState.isDirty; }
+
+  logMeta: UserLogMeta = {
+    addLog: 'Bilal Raza',
+    addOn: '2026-05-28T09:15:00',
+    editLog: 'Sara Khan',
+    editOn: new Date(),
+  };
+
+  logMetaAddOnly: UserLogMeta = {
+    addLog: 'Ahmed Ali',
+    addOn: '2026-06-01T11:30:00',
+  };
+  listData: any[] = []
+  colList: ShFormGridColumn[] = []
+  model: any = {}
+  // Each click can return a Promise — the "more actions" menu (setup/grid/
+  // report-form) shows a spinner on the clicked item and keeps the menu open
+  // until it resolves, then closes it.
+  moreMenu: ShMenuAction[] = [
+    {
+      label: 'Approve',
+      click: async (row) => {
+        await new Promise(r => setTimeout(r, 1200));
+        this.showSuccess(`Approved ${row?.name ?? 'lead'}`);
+      },
+    },
+    {
+      label: 'Send Reminder',
+      click: async (row) => {
+        await new Promise(r => setTimeout(r, 900));
+        this.showSuccess(`Reminder sent to ${row?.name ?? 'lead'}`);
+      },
+    },
+  ]
+
+  // ── sh-menu (generic CDK overlay menu) + ShMenuItem loading demo ────────
+  @ViewChild('demoTrigger') demoTrigger!: ShMenuTriggerFor;
+  demoMenuLoadingKey: string | null = null;
+
+  async onDemoMenuAction(key: string, label: string): Promise<void> {
+    if (this.demoMenuLoadingKey) return;
+    this.demoMenuLoadingKey = key;
+    try {
+      await new Promise(r => setTimeout(r, 1200));
+      this.showSuccess(`${label} complete`);
+    } finally {
+      this.demoMenuLoadingKey = null;
+      this.demoTrigger.close();
+      this.cd.markForCheck();
+    }
+  }
+  @ViewChild('mainEngineConsumptionGrid', { static: true }) mainEngineConsumptionGrid: TemplateRef<any> | undefined
+  @ViewChild('docUploader') docUploader!: ShDocumentUploader;
+  @ViewChild('draggableDialogBody') draggableDialogBody: TemplateRef<any> | undefined;
+  @ViewChild('draggableDialogFooter') draggableDialogFooter: TemplateRef<any> | undefined;
+
+  // ── Draggable Dialog Demo ─────────────────────────────────────────────────
+  openDraggableDialogDemo() {
+    this.openDialog(
+      'Draggable Dialog Demo',
+      this.draggableDialogBody,
+      this.draggableDialogFooter,
+      '30vw',
+      undefined,
+      undefined,
+      true,
+    );
+  }
+
+  // ── File Upload Base64 Demo ───────────────────────────────────────────────
+  fileUploadNewModel: any = {};
+  fileUploadEditModel: any = { attachment: { fileName: 'contract_draft.pdf' } };
+
+  fileUploadNewElements: elements[] = [
+    {
+      columns: 6, elementType: 'file-uploader', key: 'attachment',
+      label: 'Attachment', required: true,
+      fileMode: 'base64',
+      accept: '.pdf,.doc,.docx',
+    },
+  ];
+
+  renderIcon(icon: string) {
+    return this.sanitizer.bypassSecurityTrustHtml(icon)
+  }
+
+  fileUploadEditElements: elements[] = [
+    {
+      columns: 6, elementType: 'file-uploader', key: 'attachment',
+      label: 'Attachment', required: true,
+      fileMode: 'base64',
+      accept: '.pdf,.doc,.docx',
+      fileDownloadFn: (model: any) => {
+        alert(`Calling API: GET /api/records/${model?.id ?? 1}/attachment\nWould download: ${model?.attachment?.fileName}`);
+      },
+    },
+  ];
+  // ── Document Uploader Demo ────────────────────────────────────────────────
+  docUploaderModel: any = {};
+  docPendingFiles: File[] = [];
+
+  savedDocs: ShSavedDocument[] = [
+    { id: 1, name: 'Vessel_Certificate.pdf', file: '/docs/1', addBy: 'Bilal Raza', addOn: '2026-01-15' },
+    { id: 2, name: 'Bill_of_Lading.docx', file: '/docs/2', addBy: 'Sara Khan', addOn: '2026-02-20' },
+    { id: 3, name: 'Cargo_Manifest.xlsx', file: '/docs/3', addBy: 'Ahmed Ali', addOn: '2026-03-05' },
+    { id: 4, name: 'Port_Survey_Photo.jpg', file: '/docs/4', addBy: 'Bilal Raza', addOn: new Date('2026-05-10') },
+  ];
+
+  onDocUpload(formData: FormData) {
+    console.log('FormData ready for API:', formData);
+    for (const [key, val] of (formData as any).entries()) {
+      console.log(` ${key}:`, val);
+    }
+    alert(`Uploading ${this.docPendingFiles.length} file(s). Check console for FormData entries.`);
+  }
+
+  onDocView(doc: ShSavedDocument) {
+    console.log('View:', doc);
+    alert(`Viewing: ${doc.name}`);
+  }
+
+  onDocDownload(doc: ShSavedDocument) {
+    console.log('Download:', doc);
+    alert(`Downloading: ${doc.name}`);
+  }
+
+  onDocDelete(doc: ShSavedDocument) {
+    this.savedDocs = this.savedDocs.filter(d => d.id !== doc.id);
+  }
+
+  onDocFilesChanged(files: File[]) {
+    this.docPendingFiles = files;
+  }
+
+  uploadViaRef() {
+    this.docUploader.upload();
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
+  leads: any[] = [
+    { id: 1, name: 'Ali Raza', email: 'ali.raza@example.com', phone: '0300-1234567', status: 1, source: 'website' },
+    { id: 2, name: 'Sara Khan', email: 'sara.khan@example.com', phone: '0321-9876543', status: 2, source: 'referral' },
+    { id: 3, name: 'Ahmed Bhatti', email: 'ahmed.b@example.com', phone: '0333-4567890', status: 3, source: 'social' },
+    { id: 4, name: 'Fatima Noor', email: 'fatima.noor@example.com', phone: '0345-1122334', status: 4, source: 'email' },
+    { id: 5, name: 'Bilal Iqbal', email: 'bilal.iqbal@example.com', phone: '0301-2233445', status: 1, source: 'referral' },
+    { id: 6, name: 'Mariam Sheikh', email: 'mariam.sheikh@example.com', phone: '0312-5566778', status: 2, source: 'website' },
+  
+   
+  
+
+
+
+  ];
+
+  columns: ShGridColumn[] = [
+    { key: 'name', label: 'Name' },
+    { key: 'email', label: 'Email' },
+    { key: 'phone', label: 'Phone' },
+    {
+      key: 'status',
+      label: 'Status',
+      enums: [
+        { value: 1, label: 'New' },
+        { value: 2, label: 'Contacted' },
+        { value: 3, label: 'Qualified' },
+        { value: 4, label: 'Closed' },
+      ],
+    },
+    {
+      key: 'source',
+      label: 'Source',
+      displayFn: (val) =>
+        val ? (val as string).charAt(0).toUpperCase() + (val as string).slice(1) : '--',
+    },
+    {
+      key: 'source',
+      label: 'Source',
+      displayFn: (val) =>
+        val ? (val as string).charAt(0).toUpperCase() + (val as string).slice(1) : '--',
+    },
+    {
+      key: 'source',
+
+      col: 4,
+      label: 'Source',
+      displayFn: (val) =>
+        val ? (val as string).charAt(0).toUpperCase() + (val as string).slice(1) : '--',
+    },
+    {
+      key: 'source',
+      label: 'Source',
+      displayFn: (val) =>
+        val ? (val as string).charAt(0).toUpperCase() + (val as string).slice(1) : '--',
+    },
+    {
+      key: 'source',
+      label: 'Source',
+      displayFn: (val) =>
+        val ? (val as string).charAt(0).toUpperCase() + (val as string).slice(1) : '--',
+    },
+  ];
+
+  sourceOptions = [
+    { label: 'Website', value: 'website' },
+    { label: 'Referral', value: 'referral' },
+    { label: 'Social', value: 'social' },
+    { label: 'Email', value: 'email' },
+  ];
+
+  statusOptions = [
+    { label: 'New', value: 1 },
+    { label: 'Contacted', value: 2 },
+    { label: 'Qualified', value: 3 },
+    { label: 'Closed', value: 4 },
+  ];
+
+  leadsFormElements: elements[] = [
+    { columns: 6, elementType: 'textbox', key: 'name', label: 'Name', required: true },
+    { columns: 6, elementType: 'textbox', key: 'email', label: 'Email', inputType: 'email' },
+    { columns: 6, elementType: 'textbox', key: 'phone', label: 'Phone' },
+    {
+      columns: 6, elementType: 'select', key: 'status', label: 'Status',
+      datasource: this.statusOptions, displayField: 'label', valueField: 'value',
+    },
+    // {
+    //   columns: 6, elementType: 'select', key: 'source', label: 'Source',
+    //   datasource: this.sourceOptions, displayField: 'label', valueField: 'value',
+    // },
+    {
+      columns: 4, elementType: 'text', key: 'creditAdjustment', label: 'Credit Adjustment',
+      inputType: 'int', restrictNegative:true,required:false
+    },
+    {
+      columns: 6, elementType: 'textbox', key: 'creditAdjustment', label: '',
+      inputType: 'int', restrictNegative:true
+    },
+    {
+      columns: 6, elementType: 'textbox', key: 'dealValue', label: 'Deal Value',
+      inputType: 'number', decimalPortion: 2,
+    },
+    {
+      columns: 6, elementType: 'datepicker', key: 'dealYear', label: 'Deal Year',
+      dateType: 'year', change: (model) => {
+        const year = new Date(model.dealYear).getFullYear();
+        model.dealYear = `${year}-12-31T00:00:00`;
+        console.log(model.dealYear);
+      }
+    },
+  ];
+
+  formElements: elements[] = [];
+
+  // ── Form-Grid demo ────────────────────────────────────────────
+  orderRows: any[] = [
+    { product: 'Laptop', qty: 1, price: 85000, urgent: false },
+    { product: 'Mouse', qty: 2, price: 1500, urgent: true },
+    { product: 'Keyboard', qty: 1, price: 3500, urgent: false },
+  ];
+
+  productOptions = [
+    { label: 'Laptop', value: 'Laptop' },
+    { label: 'Mouse', value: 'Mouse' },
+    { label: 'Keyboard', value: 'Keyboard' },
+    { label: 'Monitor', value: 'Monitor' },
+    { label: 'Headset', value: 'Headset' },
+  ];
+
+  orderColumns: ShFormGridColumn[] = [
+    {
+      key: 'product',
+      displayName: 'Product',
+      formElem: {
+        elementType: 'textbox',
+        key: 'product',
+        label: 'Product',
+        columns: 12,
+        datasource: this.productOptions,
+        displayField: 'label',
+        valueField: 'value',
+        disabledIf: () => {
+          return true
+        },
+        required: true,
+      },
+    },
+    {
+      key: 'qty',
+      displayName: 'Quantity',
+      width: '140px',
+      formElem: {
+        elementType: 'textbox',
+        key: 'qty',
+        label: 'Qty',
+        columns: 12,
+        inputType: 'number',
+        decimalPortion: 4,
+        // min: 1,
+        required: true,
+      },
+    },
+    {
+      key: 'price',
+      displayName: 'Unit Price (Rs)',
+      width: '160px',
+      formElem: {
+        elementType: 'textbox',
+        key: 'price',
+        label: 'Price',
+        columns: 12,
+        inputType: 'number',
+        min: 0,
+        prefixIcon: 'attach_money',
+      },
+    },
+    {
+      key: 'urgent',
+      displayName: 'Urgent',
+      width: '100px',
+      formElem: {
+        elementType: 'slide-toggle',
+        key: 'urgent',
+        label: 'Urgent',
+        columns: 12,
+      },
+    },
+  ];
+  // ── Form-Grid Builder Mode ────────────────────────────────────────────────
+  draggingColumns: DragColumn[] = [
+    { field: 'label', header: 'Description' },
+  ];
+
+  // Full catalogue; sliced for initial load + extended by onPanelPageChange
+  private _allCharges: DragItem[] = [
+    { id: 'of',   label: 'Ocean Freight',    data: { product: 'Ocean Freight',    qty: 1, price: 85000 } },
+    { id: 'lolo', label: 'LOLO Charges',      data: { product: 'LOLO Charges',      qty: 1, price: 12000 } },
+    { id: 'det',  label: 'Detention',         data: { product: 'Detention',         qty: 1, price: 5000  } },
+    { id: 'dem',  label: 'Demurrage',         data: { product: 'Demurrage',         qty: 1, price: 4500  } },
+    { id: 'thcs', label: 'THC (Source)',      data: { product: 'THC (Source)',      qty: 1, price: 8000  } },
+    { id: 'thcd', label: 'THC (Destination)', data: { product: 'THC (Destination)', qty: 1, price: 8000  } },
+    { id: 'bl',   label: 'BL Fee',           data: { product: 'BL Fee',           qty: 1, price: 3500  } },
+    { id: 'dgs',  label: 'DG Surcharge',      data: { product: 'DG Surcharge',      qty: 1, price: 6000  } },
+    { id: 'wr',   label: 'War Risk',          data: { product: 'War Risk',          qty: 1, price: 2500  } },
+    { id: 'ems',  label: 'EMS Fee',           data: { product: 'EMS Fee',           qty: 1, price: 1800  } },
+    { id: 'baf',  label: 'BAF Surcharge',     data: { product: 'BAF Surcharge',     qty: 1, price: 9500  } },
+    { id: 'caf',  label: 'CAF Surcharge',     data: { product: 'CAF Surcharge',     qty: 1, price: 4200  } },
+    { id: 'ins',  label: 'Insurance',         data: { product: 'Insurance',         qty: 1, price: 3000  } },
+    { id: 'cust', label: 'Customs Clearance', data: { product: 'Customs Clearance', qty: 1, price: 7500  } },
+    { id: 'port', label: 'Port Dues',         data: { product: 'Port Dues',         qty: 1, price: 2200  } },
+  ];
+
+  // Show 10 initially (panel scrolls); 15 total triggers "Load More" button
+  draggingList: DragItem[] = this._allCharges.slice(0, 10);
+
+  /** Set true while the parent is fetching panel items in Api mode. */
+  panelLoading = false;
+  /** Total available records — more than draggingList.length so "Load More" appears. */
+  panelTotalRecords = 15;
+
+  onPanelSearch(event: PanelSearchEvent): void {
+    console.log('[FormGrid] panelSearch', event);
+    const q = event.searchValue.toLowerCase().trim();
+    const filtered = q
+      ? this._allCharges.filter(i => i.label.toLowerCase().includes(q))
+      : this._allCharges.slice(0, event.pageSize);
+    this.draggingList = filtered;
+    this.panelTotalRecords = q ? filtered.length : this._allCharges.length;
+  }
+
+  onPanelPageChange(event: PanelPageEvent): void {
+    console.log('[FormGrid] panelPageChange', event);
+    const upTo = Math.min(event.page * event.pageSize, this._allCharges.length);
+    this.draggingList = this._allCharges.slice(0, upTo);
+  }
+
+  onDragStarted(event: DragDropPayload): void { console.log('[FormGrid] dragStarted', event); }
+  onDragEnded(event: DragDropPayload): void { 
+    console.log('[FormGrid] dragEnded', event); 
+    if(event.currentContainer != 'grid')
+    this.orderRows.push(event.item?.data)
+    }
+  onDragEntered(event: DragDropPayload): void { console.log('[FormGrid] dragEntered', event); }
+  onDragExited(event: DragDropPayload): void { console.log('[FormGrid] dragExited', event); }
+  onItemDropped(event: DragDropPayload): void { console.log('[FormGrid] itemDropped', event); }
+  onItemMoved(event: DragDropPayload): void { console.log('[FormGrid] itemMoved', event); }
+  onItemRemoved(event: DragDropPayload): void { console.log('[FormGrid] itemRemoved', event); }
+  onItemSelected(event: DragDropPayload): void { console.log('[FormGrid] itemSelected', event); }
+  onGridChanged(rows: any[]): void { console.log('[FormGrid] gridChanged', rows); }
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ── Unsaved Changes Demo ──────────────────────────────────────────────────
+  demoModel: any = {};
+  demoSaving: boolean = false;
+  // Snapshots of the last-saved state. Compare to detect actual user changes.
+  private _origDemoModel: string = JSON.stringify({});
+  private _origOrderRows: string = JSON.stringify([]);
+
+  demoFormElements: elements[] = [
+    { columns: 4, elementType: 'textbox', key: 'fullName', label: 'Full Name', required: true },
+    { columns: 4, elementType: 'textbox', key: 'email', label: 'Email', inputType: 'email' },
+    {
+      columns: 4, elementType: 'select', key: 'status', label: 'Status', datasource: [
+        { label: 'Active', value: 1 },
+        { label: 'Inactive', value: 2 },
+      ], displayField: 'label', valueField: 'value'
+    },
+    { columns: 12, elementType: 'textarea', key: 'notes', label: 'Notes' },
+  ];
+
+  // Call this after loading existing data (edit mode) so the guard never
+  // triggers for data the user hasn't touched yet.
+  loadDemoEditData(data: any, rows: any[] = []): void {
+    this.demoModel = { ...data };
+    this.orderRows = [...rows];
+    this._origDemoModel = JSON.stringify(this.demoModel);
+    this._origOrderRows = JSON.stringify(this.orderRows);
+    this.markFormClean();
+  }
+
+  private _checkDirty(): void {
+    const formDirty = JSON.stringify(this.demoModel) !== this._origDemoModel;
+    const gridDirty = JSON.stringify(this.orderRows) !== this._origOrderRows;
+    if (formDirty || gridDirty) {
+      this.markFormDirty(() => this.saveDemoForm());
+    } else {
+      this.markFormClean();
+    }
+  }
+
+  onDemoFormChange(model: any): void {
+    this.demoModel = model;
+    this._checkDirty();
+  }
+
+  onDemoGridChange(rows: any[]): void {
+    this.orderRows = rows;
+    this._checkDirty();
+  }
+
+  async saveDemoForm(): Promise<boolean> {
+    this.demoSaving = true;
+    await new Promise(r => setTimeout(r, 800));
+    this.demoSaving = false;
+    // Advance the snapshot so the guard resets to a clean baseline
+    this._origDemoModel = JSON.stringify(this.demoModel);
+    this._origOrderRows = JSON.stringify(this.orderRows);
+    this.showSuccess('Changes saved successfully');
+    this.markFormClean();
+    return true;
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
+  beforeDisplay: ((row: any) => any) | undefined;
+  beforeSave: ((row: any) => any) | undefined;
+  loader: boolean = false;
+  constructor(public sanitizer: DomSanitizer, public cd: ChangeDetectorRef, public service: ExampleService, public skeletonService: ShSkeletonThemeService) {
+    super();
+  }
+
+  async getAllVessel(page = 1, pageSize = 10, searchValue: any) {
+    // this.cd.markForCheck()
+
+    // this.cd.detectChanges()
+
+    this.loader = true
+    // const res = await this.service.getAllVessels({
+    //   page: page,
+    //   pageSize: pageSize,
+    //   searchValue: searchValue,
+    // });
+    // if (!res.isSuccessful) return this.showError(res.error);
+    setTimeout(() => {
+      this.loader = false
+      this.listData = [
+        {
+          vesselTypeId: 1
+        }
+      ]
+      //  this.cd.detectChanges()
+      //     this.cd.markForCheck()
+    }, 200)
+
+
+    // this.listData = res.result?.data || [];
+  }
+  // onSave = async (event: any): Promise<boolean> => {
+  //   console.log('save', event);
+  //   return true;
+  // };
+
+  onEdit(row: any) {
+    console.log('edit', row);
+  }
+
+  onDeleteLead(row: any) {
+    this.leads = this.leads.filter(l => l !== row);
+  }
+
+  leadsSearchTerm = '';
+  get filteredLeads(): any[] {
+    const q = this.leadsSearchTerm.trim().toLowerCase();
+    if (!q) return this.leads;
+    return this.leads.filter(l =>
+      l.name.toLowerCase().includes(q) ||
+      l.email.toLowerCase().includes(q) ||
+      l.phone.toLowerCase().includes(q)
+    );
+  }
+
+  onSearchLeads(value: string) {
+    this.leadsSearchTerm = value || '';
+  }
+
+  onSaveLead = (event: ShSetupSaveEvent): boolean => {
+    if (event.mode === 'add') {
+      this.leads = [...this.leads, { id: Date.now(), ...event.model }];
+    } else {
+      this.leads = this.leads.map(l => l.id === event.model.id ? { ...l, ...event.model } : l);
+    }
+    return true;
+  };
+
+  onSearch() {
+
+  }
+  async onPageChange(event: any) {
+    console.log(event)
+    await this.getAllVessel(event.page, event.pageSize, event.searchValue);
+    this.cd.detectChanges()
+    this.cd.markForCheck()
+  }
+
+  // ── Report Grid Demo ──────────────────────────────────────────────────────
+
+  reportSelectedRows: any[] = [];
+  reportLoading = false;
+
+  reportColumns: ShReportColumn[] = [
+    {
+      key: 'orderId',
+      label: 'Order ID',
+      width: 100,
+      pinned: true,
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayFn: (v) => `#${String(v).padStart(5, '0')}`,
+    },
+    {
+      key: 'customer',
+      label: 'Customer',
+      width: 180,
+      pinned: true,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+    },
+    {
+      key: 'region',
+      label: 'Region',
+      width: 130,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      width: 140,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+      enums: [
+        { value: 'electronics', label: 'Electronics' },
+        { value: 'clothing', label: 'Clothing' },
+        { value: 'furniture', label: 'Furniture' },
+        { value: 'food', label: 'Food & Beverage' },
+        { value: 'sports', label: 'Sports' },
+      ],
+    },
+    {
+      key: 'product',
+      label: 'Product',
+      width: 200,
+      sortable: true,
+      filterable: true,
+      groupable: false,
+    },
+    {
+      key: 'quantity',
+      label: 'Qty',
+      width: 80,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'number',
+
+    },
+    {
+      key: 'unitPrice',
+      label: 'Unit Price',
+      width: 120,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'currency',
+      aggregate: 'avg',
+    },
+    {
+      key: 'totalAmount',
+      label: 'Total Amount',
+      width: 140,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'currency',
+      aggregate: 'sum',
+    },
+    {
+      key: 'discount',
+      label: 'Discount',
+      width: 100,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'percentage',
+      aggregate: 'avg',
+    },
+    {
+      key: 'profit',
+      label: 'Profit',
+      width: 120,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'currency',
+      aggregate: 'sum',
+      cellClass: (value: number) =>
+        value >= 0 ? 'rg-profit-pos' : 'rg-profit-neg',
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      width: 120,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+      enums: [
+        { value: 'delivered', label: 'Delivered' },
+        { value: 'shipped', label: 'Shipped' },
+        { value: 'processing', label: 'Processing' },
+        { value: 'pending', label: 'Pending' },
+        { value: 'cancelled', label: 'Cancelled' },
+      ],
+      cellClass: (_: any, row: any) => {
+        const map: Record<string, string> = {
+          delivered: 'rg-status-delivered',
+          shipped: 'rg-status-shipped',
+          processing: 'rg-status-processing',
+          pending: 'rg-status-pending',
+          cancelled: 'rg-status-cancelled',
+        };
+        return map[row.status] ?? '';
+      },
+    },
+    {
+      key: 'paymentMethod',
+      label: 'Payment',
+      width: 130,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+      enums: [
+        { value: 'card', label: 'Credit Card' },
+        { value: 'bank', label: 'Bank Transfer' },
+        { value: 'cash', label: 'Cash' },
+        { value: 'wallet', label: 'E-Wallet' },
+      ],
+    },
+    {
+      key: 'orderDate',
+      label: 'Order Date',
+      width: 120,
+      sortable: true,
+      filterable: true,
+      groupable: false,
+      displayType: 'date',
+    },
+    {
+      key: 'deliveryDate',
+      label: 'Delivery Date',
+      width: 130,
+      sortable: true,
+      filterable: true,
+      groupable: false,
+      displayType: 'date',
+    },
+    {
+      key: 'rating',
+      label: 'Rating',
+      width: 100,
+      align: 'center',
+      sortable: true,
+      filterable: true,
+      groupable: false,
+      displayFn: (v: number) => v ? '★'.repeat(v) + '☆'.repeat(5 - v) : '--',
+      aggregate: 'avg',
+    },
+    {
+      key: 'salesRep',
+      label: 'Sales Rep',
+      width: 150,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+    },
+  ];
+
+  reportData: any[] = this.generateReportData(1000);
+
+  private generateReportData(count: number): any[] {
+    const customers = [
+      'Alpha Corp', 'Beta Industries', 'Gamma LLC', 'Delta Enterprises',
+      'Epsilon Holdings', 'Zeta Solutions', 'Eta Dynamics', 'Theta Global',
+      'Iota Systems', 'Kappa Group', 'Lambda Tech', 'Mu Logistics',
+    ];
+    const regions = ['North', 'South', 'East', 'West', 'Central'];
+    const categories = ['electronics', 'clothing', 'furniture', 'food', 'sports'];
+    const products: Record<string, string[]> = {
+      electronics: ['Laptop Pro X1', 'Wireless Earbuds', '4K Monitor', 'Smart Watch', 'Tablet Air'],
+      clothing: ['Winter Jacket', 'Denim Jeans', 'Running Shoes', 'Polo Shirt', 'Casual Dress'],
+      furniture: ['Office Chair', 'Standing Desk', 'Bookshelf', 'Sofa Set', 'Dining Table'],
+      food: ['Premium Coffee', 'Protein Bars', 'Organic Juice', 'Snack Box', 'Tea Collection'],
+      sports: ['Gym Bag', 'Yoga Mat', 'Resistance Bands', 'Water Bottle', 'Jump Rope'],
+    };
+    const statuses = ['delivered', 'shipped', 'processing', 'pending', 'cancelled'];
+    const payments = ['card', 'bank', 'cash', 'wallet'];
+    const salesReps = ['Ali Hassan', 'Sara Khan', 'Umar Sheikh', 'Maryam Noor', 'Bilal Raza', 'Fatima Syed'];
+    const statusWeights = [40, 25, 20, 10, 5];
+
+    const weightedStatus = () => {
+      const r = Math.random() * 100;
+      let acc = 0;
+      for (let i = 0; i < statuses.length; i++) {
+        acc += statusWeights[i];
+        if (r < acc) return statuses[i];
+      }
+      return statuses[0];
+    };
+
+    const rnd = (min: number, max: number) => Math.random() * (max - min) + min;
+    const rndInt = (min: number, max: number) => Math.floor(rnd(min, max + 1));
+    const pick = <T>(arr: T[]) => arr[rndInt(0, arr.length - 1)];
+
+    const baseDate = new Date('2024-01-01');
+    const addDays = (d: Date, days: number) => {
+      const nd = new Date(d);
+      nd.setDate(nd.getDate() + days);
+      return nd;
+    };
+
+    return Array.from({ length: count }, (_, i) => {
+      const category = pick(categories);
+      const product = pick(products[category]);
+      const qty = rndInt(1, 50);
+      const unitPrice = parseFloat(rnd(10, 2000).toFixed(2));
+      const totalAmount = parseFloat((qty * unitPrice).toFixed(2));
+      const discount = parseFloat(rnd(0, 25).toFixed(2));
+      const profit = parseFloat((totalAmount * (1 - discount / 100) - totalAmount * 0.6).toFixed(2));
+      const orderDate = addDays(baseDate, rndInt(0, 365));
+      const deliveryDate = addDays(orderDate, rndInt(1, 14));
+      return {
+        orderId: 10000 + i + 1,
+        customer: pick(customers),
+        region: pick(regions),
+        category,
+        product,
+        quantity: qty,
+        unitPrice,
+        totalAmount,
+        discount,
+        profit,
+        status: weightedStatus(),
+        paymentMethod: pick(payments),
+        orderDate: orderDate.toISOString(),
+        deliveryDate: deliveryDate.toISOString(),
+        rating: rndInt(1, 5),
+        salesRep: pick(salesReps),
+      };
+    });
+  }
+
+  get selectedTotalAmount(): number {
+    return this.reportSelectedRows.reduce((sum, r) => sum + (r.totalAmount ?? 0), 0);
+  }
+
+  onReportRowClick(row: any): void {
+    console.log('Report row clicked:', row);
+  }
+
+  onReportSelection(rows: any[]): void {
+    this.reportSelectedRows = rows;
+    console.log(`${rows.length} rows selected`);
+  }
+
+  // ── Account Ledger Report ─────────────────────────────────────────────────────
+
+  ledgerModel: any = {
+    dateFrom: '2025-01-01',
+    dateTo: '2025-12-31',
+  };
+
+  ledgerFormElements: elements[] = [
+    {
+      columns: 4,
+      elementType: 'select',
+      label: 'Account',
+      key: 'accountId',
+      required: true,
+      displayField: 'label',
+      valueField: 'value',
+      selectPlaceholder: 'Select account...',
+      datasource: [
+        { label: 'Cash in Hand', value: 1 },
+        { label: 'Bank - HBL Main Account', value: 2 },
+        { label: 'Bank - MCB Current Account', value: 3 },
+        { label: 'Accounts Receivable', value: 4 },
+        { label: 'Accounts Payable', value: 5 },
+        { label: 'Sales Revenue', value: 6 },
+        { label: 'Purchase Account', value: 7 },
+        { label: 'General Expenses', value: 8 },
+      ],
+    },
+    {
+      columns: 3,
+      elementType: 'datepicker',
+      label: 'Date From',
+      key: 'dateFrom',
+      required: true,
+    },
+    {
+      columns: 3,
+      elementType: 'datepicker',
+      label: 'Date To',
+      key: 'dateTo',
+      required: true,
+    },
+    {
+      columns: 2,
+      elementType: 'slide-toggle',
+      label: 'Include Narration',
+      key: 'includeNarration',
+      labelPosition: 'after',
+    },
+  ];
+
+  ledgerColumns: ShReportColumn[] = [
+    {
+      key: 'date',
+      label: 'Date',
+      width: 110,
+      displayType: 'date',
+      sortable: true,
+      filterable: true,
+      groupable: false,
+      pinned: false,
+    },
+    {
+      key: 'voucherNo',
+      label: 'Voucher No',
+      width: 140,
+      sortable: true,
+      filterable: true,
+      groupable: false,
+      pinned: true,
+      displayFn: (v) => String(v),
+    },
+    {
+      key: 'voucherType',
+      label: 'Type',
+      width: 100,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+      enums: [
+        { value: 'PV', label: 'Payment Voucher' },
+        { value: 'RV', label: 'Receipt Voucher' },
+        { value: 'JV', label: 'Journal Voucher' },
+        { value: 'BT', label: 'Bank Transfer' },
+        { value: 'SJ', label: 'Sales Journal' },
+        { value: 'PJ', label: 'Purchase Journal' },
+      ],
+    },
+    {
+      key: 'description',
+      label: 'Description / Narration',
+      width: 280,
+      sortable: false,
+      filterable: false,
+      groupable: false,
+    },
+    {
+      key: 'reference',
+      label: 'Reference',
+      width: 140,
+      sortable: true,
+      filterable: true,
+      groupable: false,
+    },
+    {
+      key: 'party',
+      label: 'Party / Payee',
+      width: 180,
+      sortable: true,
+      filterable: true,
+      groupable: true,
+    },
+    {
+      key: 'debit',
+      label: 'Debit',
+      width: 140,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'currency',
+      headerGroup: 'Opening',
+      aggregate: 'sum',
+    },
+    {
+      key: 'credit',
+      label: 'Credit',
+      width: 140,
+      align: 'right',
+      sortable: true,
+      filterable: false,
+      groupable: false,
+      displayType: 'currency',
+      headerGroup: 'Opening',
+
+      aggregate: 'sum',
+    },
+    {
+      key: 'balance',
+      label: 'Running Balance',
+      width: 155,
+      align: 'right',
+      sortable: false,
+      filterable: true,
+      groupable: false,
+      displayType: 'currency',
+      headerGroup: 'Opening',
+
+      cellClass: (_: any, row: any) => row.balance >= 0 ? 'rg-profit-pos' : 'rg-profit-neg',
+    },
+  ];
+
+  // Pre-fills the "Email" compose dialog opened from the report-form's Email tab.
+  ledgerEmailConfig: ShReportEmailConfig = {
+    to: ['finance@example.com'],
+    cc: ['controller@example.com'],
+    subject: 'Account Ledger Report',
+    body: 'Hi,\n\nPlease find attached the account ledger report for the selected period.\n\nRegards,\nAccounts Team',
+  };
+
+  onLedgerGenerate = async (_model: any, type: ReportGenerateType): Promise<any[]> => {
+    await new Promise(r => setTimeout(r, 900));
+    const rows = this._generateLedgerData();
+
+    if (type === 'email') {
+      // Build the attachment to include with the email (e.g. a CSV export of the report).
+      const csv = ['Date,Voucher No,Type,Description,Party,Debit,Credit,Balance']
+        .concat(rows.map(r => `${r.date},${r.voucherNo},${r.voucherType},"${r.description}",${r.party},${r.debit},${r.credit},${r.balance}`))
+        .join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const file = new File([blob], 'account-ledger.csv', { type: 'text/csv' });
+      return [{ name: file.name, size: file.size, type: file.type, file, removable: false }];
+    }
+
+    return rows;
+  };
+
+  onLedgerEmailSend = async (result: ShEmailSendResult, model: any): Promise<void> => {
+    console.log('Sending ledger report email:', result, 'filters:', model);
+    await new Promise(r => setTimeout(r, 1000));
+    this.showSuccess(`Email sent to ${result.to.join(', ')}`);
+  };
+
+  // ── Generic Email Dialog Demo (baseComponent.openEmailDialog) ────────────
+  openGenericEmailDialogDemo(): void {
+    this.openEmailDialog(
+      ['ali.raza@example.com'],
+      ['sara.khan@example.com'],
+      'Quarterly Invoice - INV-2049',
+      'Hi Ali,\n\nPlease find attached the invoice for this quarter.\n\nThanks,\nBilal',
+      [{ name: 'Invoice_INV-2049.pdf', size: 245_000, type: 'application/pdf', removable: false }],
+      async (result) => {
+        console.log('Sending generic email:', result);
+        await new Promise(r => setTimeout(r, 1000));
+        this.showSuccess(`Email sent to ${result.to.join(', ')}`);
+      },
+      'Send Invoice',
+    );
+  }
+
+  private _generateLedgerData(): any[] {
+    const parties = [
+      'Alpha Trading Co.', 'Beta Suppliers Ltd.', 'Gamma Enterprises',
+      'Delta Distribution', 'Epsilon Corp', 'Karachi Traders',
+      'Lahore Merchants', 'Islamabad Services', 'Multan Holdings', 'Faisalabad Mills',
+    ];
+    const vouchers: Array<{ type: string; prefix: string; descs: string[] }> = [
+      {
+        type: 'RV', prefix: 'RV',
+        descs: [
+          'Cash received against invoice', 'Advance received from customer',
+          'Receipt against outstanding balance', 'Earnest money received',
+        ],
+      },
+      {
+        type: 'PV', prefix: 'PV',
+        descs: [
+          'Payment to supplier against PO', 'Utility bill payment',
+          'Salary disbursement', 'Office rent payment', 'Transport charges paid',
+        ],
+      },
+      {
+        type: 'JV', prefix: 'JV',
+        descs: [
+          'Depreciation adjustment', 'Accrued expense entry',
+          'Provision for doubtful debts', 'Opening balance entry', 'Contra entry',
+        ],
+      },
+      {
+        type: 'BT', prefix: 'BT',
+        descs: [
+          'Inter-bank transfer', 'Fund transfer to branch',
+          'Online transfer via IBFT', 'RTGS transfer',
+        ],
+      },
+      {
+        type: 'SJ', prefix: 'SJ',
+        descs: [
+          'Sales invoice posted', 'Revenue recognized', 'Credit sale entry',
+        ],
+      },
+      {
+        type: 'PJ', prefix: 'PJ',
+        descs: [
+          'Purchase bill posted', 'Import clearance charges',
+          'Stock purchase entry', 'Raw material received',
+        ],
+      },
+    ];
+
+    const pick = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+    const rnd = (min: number, max: number) => parseFloat((Math.random() * (max - min) + min).toFixed(2));
+
+    const rows: any[] = [];
+    let balance = 125000;
+    let voucherSeq = 1001;
+
+    for (let m = 0; m < 12; m++) {
+      const txPerMonth = Math.floor(Math.random() * 6) + 4;
+      for (let t = 0; t < txPerMonth; t++) {
+        const day = Math.floor(Math.random() * 28) + 1;
+        const date = new Date(2025, m, day).toISOString();
+        const vGroup = pick(vouchers);
+        const isDebit = ['PV', 'PJ', 'BT'].includes(vGroup.type) ? Math.random() > 0.2 : Math.random() < 0.25;
+        const amount = rnd(5000, 250000);
+        const debit = isDebit ? amount : 0;
+        const credit = isDebit ? 0 : amount;
+        balance += credit - debit;
+
+        rows.push({
+          date,
+          voucherNo: `${vGroup.prefix}-${voucherSeq++}`,
+          voucherType: vGroup.type,
+          description: pick(vGroup.descs),
+          reference: `REF-${Math.floor(Math.random() * 90000) + 10000}`,
+          party: pick(parties),
+          debit,
+          credit,
+          balance: parseFloat(balance.toFixed(2)),
+        });
+      }
+    }
+
+    console.log('download')
+
+    return rows.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  ngAfterViewInit() {
+    this.markFormClean();
+  }
+  ngOnInit() {
+
+
+    this.cd.detectChanges()
+    this.cd.markForCheck()
+    setTimeout(() => {
+      this.model.testObj = {
+        name: "Bilal",
+        value: "KR"
+      }
+      this.model.country = "KR"
+
+
+    }, 2000)
+
+
+    this.beforeDisplay = async (row) => {
+      const result: any = await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({ isSuccessful: true, result: { portOfRegistry: 4 } })
+        }, 250);
+      })
+
+      return result?.result
+
+    }
+    this.beforeSave = (model) => {
+      console.log(model)
+
+    }
+    this.formElements = [
+      {
+        columns: 12,
+        elementType: 'fieldset',
+        label: 'Basic Info',
+        key: 'basicInfo',
+        rows: [
+          {
+            columns: 3,
+            elementType: 'select',
+            label: 'Type',
+            key: 'type',
+            valueField: 'id',
+            displayField: 'displayName',
+            apiService: this.service,
+            apiMethod: 'getCombo',
+            // datasource: [
+            //   {
+            //     id: 1,
+            //     displayName: 'Cellular',
+            //   },
+            //   {
+            //     id: 2,
+            //     displayName: 'Non-Cellular',
+            //   },
+            //   {
+            //     id: 3,
+            //     displayName: 'Multi Purpose',
+            //   },
+            // ],
+          },
+          {
+            columns: 12,
+            elementType: 'datepicker',
+            label: 'IMO',
+            key: 'imoNo',
+            // maxDate:'5-4-2026'
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Vessel Name',
+            key: 'vesselName',
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Call Sign',
+            key: 'callSign',
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Flag',
+            key: 'flag',
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Port Of Registry',
+            key: 'portOfRegistry',
+            inputType: 'number',
+            decimalPortion: 4
+          },
+          {
+            columns: 3,
+            elementType: 'slide-toggle',
+            label: 'Gear',
+            key: 'gear',
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'No Of Gears',
+            key: 'noOfGears',
+            inputType: 'number',
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'SWL',
+            key: 'swl',
+          },
+          {
+            columns: 3,
+            elementType: 'select',
+            label: 'Class',
+            key: 'class',
+            valueField: 'id',
+            displayField: 'displayName',
+            datasource: [
+              {
+                id: 1,
+                displayName: 'IBS',
+              },
+              {
+                id: 2,
+                displayName: 'RINA',
+              },
+              {
+                id: 3,
+                displayName: 'DNV',
+              },
+            ],
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Bow Thurster',
+            key: 'bowThurster',
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Stern Thurster',
+            key: 'sternThurster',
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Year of Built',
+            key: 'yearofBuilt',
+          },
+        ],
+      },
+      {
+        columns: 12,
+        elementType: 'fieldset',
+        label: 'Vessel Owner',
+        key: 'vesselOwnFieldset',
+        rows: [
+          {
+            columns: 4,
+            label: "Vessel Owner's Name",
+            elementType: 'textbox',
+            key: 'vesselOwnerName',
+          },
+          {
+            columns: 4,
+            label: 'Country',
+            elementType: 'autocomplete',
+            apiService: this.service,
+            apiMethod: 'loadAutocomplete',
+            apiConfigMethod: 'config',
+            searchType: 'Api',
+            // isListerAutocomplete:false,
+
+            displayField: 'name',
+            valueField: 'value',
+            objectName: 'testObj',
+            key: 'country',
+          },
+        ],
+      },
+      {
+        columns: 12,
+        elementType: 'fieldset',
+        label: 'Vessel Specifications',
+        key: 'vesselSpecsFieldset',
+        rows: [
+          {
+            columns: 3,
+            label: 'GRT Int',
+            elementType: 'textbox',
+            key: 'grtInt',
+          },
+          {
+            columns: 3,
+            label: 'NRT Int',
+            elementType: 'textbox',
+            key: 'nrtInt',
+          },
+          {
+            columns: 3,
+            label: 'Summer DWT',
+            elementType: 'textbox',
+            key: 'summerDWT',
+          },
+          {
+            columns: 3,
+            label: 'LOA (m)',
+            elementType: 'textbox',
+            key: 'loam',
+          },
+          {
+            columns: 3,
+            label: 'MTRS',
+            elementType: 'textbox',
+            key: 'mtrs',
+          },
+          {
+            columns: 3,
+            label: 'Beam (m)',
+            elementType: 'textbox',
+            key: 'beam',
+          },
+          {
+            columns: 3,
+            label: 'MTRS',
+            elementType: 'textbox',
+            key: 'beammtrs',
+          },
+          {
+            columns: 3,
+            label: 'Depth',
+            elementType: 'textbox',
+            key: 'depth',
+          },
+          {
+            columns: 3,
+            label: 'Suez Canal GT',
+            elementType: 'textbox',
+            key: 'suezCanalGT',
+          },
+          {
+            columns: 3,
+            label: 'Suez Canal NT',
+            elementType: 'textbox',
+            key: 'suezCanalNT',
+          },
+        ],
+      },
+      {
+        columns: 12,
+        elementType: 'fieldset',
+        label: 'Cargo Capacity',
+        key: 'cargoCapacityFieldset',
+        rows: [
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Nominal Cap',
+            key: 'nominalCap',
+          },
+
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Effective Cap/14 mt TEU',
+            key: 'effectiveCap14',
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Reefer Plugs',
+            key: 'reeferplugs',
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Reefer Plugs In Hold',
+            key: 'reeferplugsinHold',
+          },
+
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'Reefer Plugs On Deck',
+            key: 'reeferplugsinDeck',
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'No. of Hold',
+            key: 'noOfHold',
+          },
+          {
+            columns: 3,
+            elementType: 'textbox',
+            label: 'No of Hatches',
+            key: 'noOfHatches',
+          },
+          {
+            columns: 3,
+            elementType: 'radio',
+            label: 'Russian Stowed',
+            key: 'russianStowed',
+            valueField: 'value',
+            displayField: 'display',
+            datasource: [
+              {
+                display: 'Allowed',
+                value: 1,
+              },
+              {
+                display: 'Not Allowed',
+                value: 2,
+              },
+            ],
+          },
+          {
+            columns: 4,
+            elementType: 'textbox',
+            label: 'Under Deck of HC Intake W/O LS',
+            key: 'underDeckOfHCIntake',
+          },
+        ],
+      },
+      {
+        columns: 12,
+        elementType: 'fieldset',
+        label: 'Deck Strength',
+        key: 'vesselOwnFieldset',
+        rows: [
+          {
+            columns: 6,
+            elementType: 'fieldset',
+            label: 'Stack Wgt in cargo hold',
+            key: 'stackWgtInCargoHold',
+            rows: [
+              {
+                columns: 6,
+                label: '20FT',
+                elementType: 'textbox',
+                key: '20ftStackInCargoHold',
+              },
+              {
+                columns: 6,
+                label: '40FT',
+                elementType: 'textbox',
+                key: '40ftStackInCargoHold',
+              },
+            ],
+          },
+          {
+            columns: 6,
+            elementType: 'fieldset',
+            label: 'Stack Wgt on deck',
+            key: 'stackWgtonDeck',
+            rows: [
+              {
+                columns: 6,
+                label: '20FT',
+                elementType: 'textbox',
+                key: '20ftStackonDeck',
+              },
+              {
+                columns: 6,
+                label: '40FT',
+                elementType: 'textbox',
+                key: '40ftStackonDeck',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        columns: 12,
+        elementType: 'fieldset',
+        label: 'Fuel Specifications / Tank Capacity',
+        key: 'fuelSpecifications',
+        rows: [
+          {
+            columns: 3,
+            label: 'LSFO',
+            elementType: 'textbox',
+            key: 'lsfo',
+          },
+          {
+            columns: 3,
+            label: 'MGO',
+            elementType: 'textbox',
+            key: 'mgo',
+          },
+
+          {
+            columns: 3,
+            label: 'VLSFO',
+            elementType: 'textbox',
+            key: 'vlsfo',
+          },
+          {
+            columns: 3,
+            label: 'Fresh water (cbm)',
+            elementType: 'textbox',
+            key: 'freshWaterCBM',
+          },
+          {
+            columns: 3,
+            label: 'Ballast (cbm)',
+            elementType: 'textbox',
+            key: 'ballastCBM',
+          },
+          {
+            columns: 3,
+            label: 'Other Tanks',
+            elementType: 'textbox',
+            key: 'otherTanks',
+          },
+
+        ],
+      },
+      {
+        columns: 12,
+        elementType: 'fieldset',
+        label: 'Vessel Particular',
+        key: 'fuelSpecifications',
+        rows: [
+          {
+            columns: 6,
+            elementType: 'templateRef',
+            label: "",
+            key: "",
+            templateRef: this.mainEngineConsumptionGrid
+          }
+        ]
+      },
+      {
+        columns: 12,
+        elementType: 'fieldset',
+        label: 'Multi-Select / Chips / Multi-Autocomplete Demo',
+        key: 'newFeaturesFieldset',
+        rows: [
+          {
+            columns: 4,
+            elementType: 'select',
+            label: 'Ports (Multi-Select with Select All)',
+            key: 'ports',
+            selectMultiple: true,
+            showSelectAll: true,
+            clearable: true,
+            displayField: 'label',
+            valueField: 'value',
+            datasource: [
+              { label: 'Karachi', value: 'KHI' },
+              { label: 'Port Qasim', value: 'PQA' },
+              { label: 'Gwadar', value: 'GWD' },
+              { label: 'Dubai', value: 'DXB' },
+              { label: 'Singapore', value: 'SGP' },
+            ],
+          },
+          {
+            columns: 4,
+            elementType: 'select',
+            label: 'Flags (Multi-Select, no Select All)',
+            key: 'flags',
+            selectMultiple: true,
+            showSelectAll: false,
+            clearable: true,
+            displayField: 'label',
+            valueField: 'value',
+            datasource: [
+              { label: 'Pakistan', value: 'PK' },
+              { label: 'Panama', value: 'PA' },
+              { label: 'Marshall Islands', value: 'MH' },
+              { label: 'Liberia', value: 'LR' },
+              { label: 'Bahamas', value: 'BS' },
+            ],
+          },
+          {
+            columns: 4,
+            elementType: 'chips-input',
+            label: 'Certificate Numbers (Chips Input)',
+            key: 'certificateNumbers',
+            placeholder: 'Type a number and press Enter...',
+            required: true,
+          },
+          {
+            columns: 6,
+            elementType: 'autocomplete',
+            label: 'Crew Nationalities (Multi Autocomplete)',
+            key: 'crewNationalities',
+            autocompleteType: 'chips',
+            displayField: 'name',
+            valueField: 'code',
+            searchType: 'Local',
+            datasource: [
+              { name: 'Pakistani', code: 'PK' },
+              { name: 'Filipino', code: 'PH' },
+              { name: 'Indian', code: 'IN' },
+              { name: 'Chinese', code: 'CN' },
+              { name: 'Indonesian', code: 'ID' },
+              { name: 'Myanmar', code: 'MM' },
+              { name: 'Ukrainian', code: 'UA' },
+              { name: 'Russian', code: 'RU' },
+            ],
+          },
+          {
+            columns: 6,
+            elementType: 'chips-input',
+            label: 'Trading Routes (Chips Input)',
+            key: 'tradingRoutes',
+            placeholder: 'Add a route and press Enter...',
+          },
+          {
+            columns: 6,
+            elementType: 'autocomplete',
+            label: 'Crew Nationalities (Chips + Checkbox Lister)',
+            key: 'crewNationalitiesLister',
+            autocompleteType: 'chips',
+            displayField: 'name',
+            valueField: 'code',
+            searchType: 'Api',
+            apiService: this.service,
+            apiMethod: 'searchNationalities',
+            apiConfigMethod: 'nationalityConfig',
+            isListerAutocomplete: true,
+          },
+        ],
+      },
+    ];
+
+    this.colList = [
+      {
+        key: 'speed',
+        displayName: 'Speed',
+        label: 'Speed',
+        formElem: {
+          columns: 12,
+          elementType: 'textbox',
+          key: 'speed',
+          label: 'Speed'
+        }
+      },
+      {
+        key: 'consumptionMT',
+        displayName: 'Consumption MT',
+        label: 'Consumption MT',
+        formElem: {
+          columns: 12,
+          elementType: 'textbox',
+          key: 'consumptionMT',
+          label: ''
+        }
+      },
+      {
+        key: 'rpm',
+        displayName: 'RPM',
+        label: 'RPM',
+        formElem: {
+          columns: 12,
+          elementType: 'checkbox',
+          key: 'rpm',
+          label: ''
+        }
+      },
+
+    ]
+
+  }
+
+}

@@ -1,0 +1,399 @@
+// ═════════════════════════════════════════════════════════════════════
+//  Shared HubSpot-style mixins for sh-* components
+//  Usage inside a component stylesheet:
+//      @use '../../../styles/sh-mixins' as sh;
+//      .label { @include sh.label; }
+// ═════════════════════════════════════════════════════════════════════
+
+$font: var(--sh-font-family, "Lexend Deca", Helvetica, Arial, sans-serif);
+
+@mixin font-body {
+  font-family: $font;
+  font-size: var(--sh-font-size, 14px);
+  font-weight: var(--sh-font-weight, 300);
+  line-height: var(--sh-line-height, 24px);
+  color: var(--sh-text, #333);
+}
+
+// Field label: 14px / 600 / #333
+@mixin label {
+  font-family: $font;
+  font-size: var(--sh-label-font-size, 14px);
+  font-weight: var(--sh-label-font-weight, 600);
+  line-height: 18px;
+  color: var(--sh-text, #333);
+  margin-bottom: var(--sh-label-gap, 8px);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow: hidden;
+
+  .label-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .label-required {
+    flex-shrink: 0;
+    color: var(--sh-error-text, #ac0020);
+    font-weight: 600;
+  }
+}
+
+// Field box: white, 1px #333, radius 6px, 40px high, 8px 16px padding
+@mixin field-box {
+  font-family: $font;
+  font-size: var(--sh-text-font-size, 14px);
+  font-weight: var(--sh-font-weight, 300);
+  line-height: 24px;
+  color: var(--sh-text, #333);
+  background: var(--sh-field-bg, #fff);
+  border: 1px solid var(--sh-border-color, #333);
+  border-radius: var(--sh-border-radius, 6px);
+  min-height: var(--sh-control-height, 40px);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+// HubSpot focus: border hidden behind a 2px blue outline with a 2px white inset
+@mixin focus-ring {
+  outline: 2px solid var(--sh-focus-ring, #016de1);
+  outline-offset: 0;
+  border-color: transparent;
+  box-shadow: inset 0 0 0 2px #fff;
+}
+
+@mixin field-error {
+  border-color: var(--sh-error-color, #d9002b);
+}
+
+@mixin field-disabled {
+  background: var(--sh-disabled-bg, #f5f5f5);
+  border-color: var(--sh-border-disabled, #e6e6e6);
+  color: var(--sh-text-disabled, #8a8a8a);
+  cursor: not-allowed;
+}
+
+@mixin placeholder {
+  color: var(--sh-placeholder, #8a8a8a);
+  font-weight: 300;
+  opacity: 1;
+}
+
+// Validation message: 12px / 600 / #ac0020
+@mixin hint {
+  display: block;
+  font-family: $font;
+  font-size: var(--sh-hint-font-size, 12px);
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--sh-error-text, #ac0020);
+  margin-top: 4px;
+}
+
+// Popover (dropdowns, menus): white, 1px #ccc, radius 16px, shadow-400
+@mixin popover {
+  background: var(--sh-surface, #fff);
+  border: 1px solid var(--sh-border, #ccc);
+  border-radius: var(--sh-radius-lg, 16px);
+  box-shadow: var(--sh-shadow-400, 0 24px 48px 0 rgba(20, 20, 20, 0.08));
+  overflow: hidden;
+}
+
+// Dropdown option: 14px / 400, padding 8px 16px, hover #f0f0f0
+@mixin option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 16px;
+  font-family: $font;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--sh-text, #333);
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  &:hover, &.is-active { background: var(--sh-dropdown-hover-bg, #f0f0f0); }
+  &.is-selected { background: var(--sh-dropdown-selected-bg, #f0f0f0); }
+}
+
+// Search input inside popovers (pill shaped)
+@mixin popover-search {
+  padding: 12px;
+  background: var(--sh-popover-search-bg, #f0f0f0);
+  position: relative;
+  input {
+    width: 100%;
+    height: 40px;
+    border-radius: var(--sh-radius-pill, 999999px);
+    border: 1px solid var(--sh-border-strong, #333);
+    background: #fff;
+    padding: 8px 40px 8px 16px;
+    font-family: $font;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--sh-text, #333);
+    outline: none;
+    &::placeholder { color: var(--sh-placeholder, #8a8a8a); }
+    &:focus { outline: 2px solid var(--sh-focus-ring, #016de1); border-color: transparent; box-shadow: inset 0 0 0 2px #fff; }
+  }
+  svg {
+    position: absolute;
+    right: 28px;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+    color: #666;
+    pointer-events: none;
+  }
+}
+
+// CSS-triangle caret used by HubSpot selects (10x5, #333)
+@mixin caret($color: var(--sh-text, #333)) {
+  width: 0;
+  height: 0;
+  border-top: 5px solid $color;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  flex-shrink: 0;
+}
+
+// Tag / chip: #ebebeb, 1px #8a8a8a, radius 6px, 12px/600, 24px tall
+@mixin tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  max-width: 100%;
+  padding: 0 6px 0 8px;
+  font-family: $font;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--sh-text, #333);
+  background: var(--sh-tag-bg, #ebebeb);
+  border: 1px solid var(--sh-tag-border, #8a8a8a);
+  border-radius: var(--sh-radius-sm, 6px);
+  white-space: nowrap;
+}
+
+// Pill button base
+@mixin btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: $font;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  border-radius: var(--sh-radius-pill, 999999px);
+  border: 1px solid transparent;
+  padding: 10px 24px;
+  min-height: 40px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  &:focus-visible { outline: 2px solid var(--sh-focus-ring, #016de1); outline-offset: 2px; }
+  &:disabled {
+    background: var(--sh-disabled-bg, #f5f5f5) !important;
+    color: var(--sh-disabled-text, #8a8a8a) !important;
+    border-color: transparent !important;
+    cursor: not-allowed;
+  }
+}
+
+@mixin btn-primary {
+  @include btn-base;
+  background: var(--sh-primary, #00494b);
+  color: var(--sh-primary-text, #fff);
+  border-color: var(--sh-primary, #00494b);
+  &:hover:not(:disabled) { background: var(--sh-primary-hover, #007c7d); border-color: var(--sh-primary-hover, #007c7d); }
+  &:active:not(:disabled) { background: var(--sh-primary-pressed, #009b9c); }
+}
+
+@mixin btn-secondary {
+  @include btn-base;
+  background: var(--sh-secondary, #fff);
+  color: var(--sh-secondary-text, #333);
+  border-color: var(--sh-secondary-border, #8a8a8a);
+  &:hover:not(:disabled) { background: var(--sh-secondary-hover, #ebfdfc); }
+  &:active:not(:disabled) { background: var(--sh-secondary-pressed, #e6e6e6); }
+}
+
+@mixin btn-danger {
+  @include btn-base;
+  background: var(--sh-danger, #ac0020);
+  color: #fff;
+  border-color: var(--sh-danger, #ac0020);
+  &:hover:not(:disabled) { background: var(--sh-danger-hover, #d9002b); border-color: var(--sh-danger-hover, #d9002b); }
+}
+
+// Small toolbar button (Sort by, Export…): 12px / 300, 32px pill, #8a8a8a border
+@mixin btn-toolbar {
+  @include btn-base;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 14px;
+  min-height: 32px;
+  height: 32px;
+  padding: 8px 16px;
+  background: #fff;
+  color: var(--sh-text, #333);
+  border-color: var(--sh-border-interactive, #8a8a8a);
+  &:hover:not(:disabled) { background: var(--sh-secondary-hover, #ebfdfc); }
+  &.is-active { background: var(--sh-surface-pressed, #e6e6e6); }
+}
+
+// Circular icon button (32x32, outline)
+@mixin btn-icon-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--sh-border-interactive, #8a8a8a);
+  background: #fff;
+  color: var(--sh-text, #333);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  svg { width: 14px; height: 14px; }
+  &:hover:not(:disabled) { background: var(--sh-secondary-hover, #ebfdfc); }
+  &:disabled { color: var(--sh-text-disabled, #8a8a8a); border-color: var(--sh-border-disabled, #e6e6e6); cursor: not-allowed; }
+}
+
+// Transparent text button (Clear all, Advanced filters, bulk actions)
+@mixin btn-transparent {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--sh-radius-pill, 999999px);
+  font-family: $font;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--sh-text, #333);
+  padding: 10px 12px;
+  cursor: pointer;
+  &:hover:not(:disabled) { background: var(--sh-surface-hover, #f0f0f0); }
+  &:disabled { color: var(--sh-text-disabled, #8a8a8a); cursor: not-allowed; }
+}
+
+// HubSpot checkbox box: 20x20, 1px #333, radius 6px
+@mixin checkbox-box {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex-shrink: 0;
+  border: 1px solid var(--sh-border-strong, #333);
+  border-radius: var(--sh-radius-sm, 6px);
+  background: #fff center / 12px 12px no-repeat;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+  &:hover:not(:disabled) { background-color: var(--sh-surface-hover, #f0f0f0); }
+  &:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M1.5 6.3 4.6 9.2 10.5 2.8' fill='none' stroke='%23333333' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  &:indeterminate {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6h7' fill='none' stroke='%23333333' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+  &:focus-visible { outline: 2px solid var(--sh-focus-ring, #016de1); outline-offset: 1px; }
+  &:disabled { border-color: var(--sh-border-disabled, #e6e6e6); background-color: var(--sh-disabled-bg, #f5f5f5); cursor: not-allowed; }
+}
+
+@mixin spinner($size: 16px, $color: var(--sh-brand, #ff4800)) {
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  border-top-color: $color;
+  animation: sh-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes sh-spin { to { transform: rotate(360deg); } }
+
+// ─────────────────────────────────────────────────────────────────
+//  HubSpot confirmation modal layout (delete / warning / error / unsaved)
+//  Include once at the root of a component stylesheet: @include sh.modal;
+// ─────────────────────────────────────────────────────────────────
+@mixin modal {
+  .sh-modal {
+    position: relative;
+    font-family: $font;
+    color: var(--sh-text, #333);
+    background: #fff;
+  }
+  .sh-modal__header {
+    padding: 36px 72px 28px 40px;
+    border-bottom: 1px solid var(--sh-border, #ccc);
+  }
+  .sh-modal__title {
+    margin: 0;
+    font-family: var(--sh-font-family-heading);
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 39px;
+    color: var(--sh-text, #333);
+  }
+  .sh-modal__close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--sh-text, #333);
+    cursor: pointer;
+    svg { width: 16px; height: 16px; }
+    &:hover { background: var(--sh-surface-hover, #f0f0f0); }
+  }
+  .sh-modal__body {
+    padding: 24px 40px 8px !important;
+    margin: 0 !important;
+    max-height: 60vh;
+    font-family: $font !important;
+    font-size: 14px !important;
+    font-weight: 300 !important;
+    line-height: 24px !important;
+    letter-spacing: normal !important;
+    color: var(--sh-text, #333) !important;
+    p { margin: 0 0 12px; }
+  }
+  .sh-modal__footer {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start !important;
+    gap: 12px;
+    padding: 16px 40px 32px !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+  }
+  .sh-modal__btn--primary { @include btn-primary; }
+  .sh-modal__btn--secondary { @include btn-secondary; }
+  .sh-modal__btn--danger { @include btn-danger; }
+  .sh-modal__btn--warning {
+    @include btn-base;
+    background: var(--sh-warning, #f7c03e);
+    border-color: var(--sh-warning, #f7c03e);
+    color: #333;
+    &:hover:not(:disabled) { background: var(--sh-warning-hover, #eeb117); }
+  }
+}

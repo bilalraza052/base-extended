@@ -1,0 +1,93 @@
+// ViewEncapsulation.None — all selectors are global
+// HubSpot dropdown menu: white, 1px #ccc, radius 16px, shadow-400, 40px items
+
+.sh-menu-panel {
+  min-width: 200px;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid var(--sh-border, #cccccc);
+  border-radius: var(--sh-radius-lg, 16px);
+  box-shadow: var(--sh-shadow-400, 0 24px 48px 0 rgba(20, 20, 20, 0.08));
+  overflow: hidden;
+  font-family: var(--sh-font-family, "Lexend Deca", Helvetica, Arial, sans-serif);
+  animation: sh-menu-in 0.14s ease-out;
+}
+
+@keyframes sh-menu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sh-menu-label {
+  padding: 12px 20px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--sh-text-subtle, #666666);
+  user-select: none;
+}
+
+.sh-menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 20px;
+  background: #ffffff;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--sh-text, #333333);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.1s;
+
+  &:hover { background: var(--sh-dropdown-hover-bg, #f0f0f0); }
+
+  &:focus-visible { outline: 2px solid var(--sh-focus-ring, #016de1); outline-offset: -2px; }
+
+  &:disabled {
+    color: var(--sh-text-disabled, #8a8a8a);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  // Overrides the generic :disabled styling with a spinner in place of the content.
+  &.sh-menu-item--loading:disabled {
+    > * { visibility: hidden; }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      width: 14px;
+      height: 14px;
+      margin-top: -7px;
+      border: 2px solid #cccccc;
+      border-top-color: var(--sh-brand, #ff4800);
+      border-radius: 50%;
+      animation: sh-menu-item-spin 0.6s linear infinite;
+    }
+  }
+}
+
+@keyframes sh-menu-item-spin {
+  to { transform: rotate(360deg); }
+}
+
+.sh-menu-divider {
+  height: 1px;
+  background: var(--sh-border, #cccccc);
+  margin: 0;
+  border: none;
+}
+
+.sh-menu-backdrop {
+  background: transparent;
+}

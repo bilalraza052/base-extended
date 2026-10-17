@@ -1,0 +1,519 @@
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  inject,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { baseComponent } from '../../../base/base.component';
+import { AUTOCOMPLETE_LISTER_COMPONENT, shListerData } from '../autocomplete-lister/autocomplete-lister-types';
+import { HttpResponse } from '../../../http/httpbase';
+
+@Component({
+  selector: 'sh-autocomplete',
+  standalone: false,
+  templateUrl: './autocomplete.html',
+  styleUrl: './autocomplete.scss',
+})
+export class ShAutocomplete extends baseComponent implements OnInit, OnChanges, OnDestroy {
+  @Input('label') label: string = '';
+  @Input('required') required: boolean = false;
+  private _isDisabled: any;
+  @Input('disabled') set disabled(val: any) {
+    this._isDisabled = val;
+    if (val) {
+      this.inputControl.disable();
+    } else {
+      this.inputControl.enable();
+    }
+  }
+
+  get disabled(){
+    return this._isDisabled
+  }
+
+  private _model: any = null;
+  private _object: any;
+
+  // Fix: removed if(val) guard — _model must be settable to null/0/false
+  @Input('model') set model(val: any) {
+    this._model = val;
+    if (this.autocompleteType === 'chips') {
+      // Keep selectedItems (the chip render source) in lockstep with an externally
+      // reassigned model array — otherwise chips linger after e.g. `model.x = []`,
+      // and toggleItem() misreads a stale _model and re-adds a "removed" chip.
+      this.syncSelectedItemsFromModel();
+      return;
+    }
+    // manualEntry echoes typed text back through [(model)] on every keystroke — that is
+    // not an external change, so it must not reset the datasource to the stale _object.
+    const isTypedEcho = this.isManualText && val === this.inputValue;
+    if (!isTypedEcho) this.isManualText = false;
+    if (val !== null && val !== undefined && this._object && !isTypedEcho) {
+      this.datasource = [this._object];
+      this.filteredItems = [...this.datasource];
+      this.syncInputFromModel();
+      this.datasourceChange.emit(this.datasource);
+    }
+  }
+
+  get model(): any {
+    return this._model;
+  }
+
+  @Input('datasource') datasource: any[] = [];
+  @Output() datasourceChange = new EventEmitter<any>();
+  @Input('displayField') displayField: string = '';
+  @Input('valueField') valueField: string = '';
+  @Input('placeholder') placeholder: string = 'Search';
+  @Input('loading') loading: boolean = false;
+  @Input('searchType') searchType: 'Local' | 'Api' = 'Local';
+  @Input('methodName') methodName: string = '';
+  @Input('configMethodName') configMethodName: string = '';
+  @Input('service') service: any;
+
+  @Input('object') set object(val: any) {
+    if (this.autocompleteType === 'chips') {
+      if (Array.isArray(val)) {
+        this.selectedItems = val;
+      }
+      return;
+    }
+    if (val) {
+      this._object = val;
+      this.datasource = [val];
+      this.filteredItems = [...this.datasource];
+      this.datasourceChange.emit(this.datasource);
+    }
+    if (this._model !== null && this._model !== undefined) {
+      this.syncInputFromModel();
+    }
+  }
+
+  @Input('skeletonLoading') skeletonLoading: boolean = false;
+  @Input('skeletonTheme') skeletonTheme: 'light' | 'dark' = 'light';
+  @Input('isLister') isLister: boolean = false;
+  @Input('apiBody') apiBody: any;
+  @Input('displayFn') displayFn: ((item: any) => string) | null = null;
+  /** 'chips' enables multi-select: model becomes an array of valueField values, rendered as removable chips. */
+  @Input('autocompleteType') autocompleteType: 'default' | 'chips' = 'default';
+  /** Allows free text beyond the options: typed text that matches no option is kept as the model instead of being cleared. Ignored in chips mode. */
+  @Input('manualEntry') manualEntry: boolean = false;
+  /** True while the model holds text the user is typing rather than a picked option (manualEntry only). */
+  private isManualText: boolean = false;
+  /** Search text the current Api datasource was loaded for — lets blur tell whether the results are current. */
+  private lastSearchedText: string | null = null;
+
+  @Output() modelChange = new EventEmitter<any>();
+  @Output() changeEv = new EventEmitter<any>();
+
+  /** Full objects behind the current chip selection (chips mode only). */
+  selectedItems: any[] = [];
+
+  private listerComponent = inject(AUTOCOMPLETE_LISTER_COMPONENT);
+  inputControl = new FormControl('');
+
+  inputValue: string = '';
+  private _showDropdown: boolean = false;
+  get showDropdown(): boolean { return this._showDropdown; }
+  set showDropdown(val: boolean) {
+    this._showDropdown = val;
+    if (val) this.updateDropdownPosition();
+  }
+  dropdownStyle: { [key: string]: string } = {};
+  filteredItems: any[] = [];
+  touched: boolean = false;
+
+  private scrollHandler = (event: Event) => {
+    if (!this._showDropdown) return;
+    const dropdown = this.elRef.nativeElement.querySelector('.dropdown');
+    if (dropdown && dropdown.contains(event.target as Node)) return;
+    this._showDropdown = false;
+    this.cdr.markForCheck();
+  };
+
+  constructor(
+    private elRef: ElementRef,
+    public cdr: ChangeDetectorRef,
+    private zone: NgZone,
+  ) {
+    super();
+  }
+
+  ngOnDestroy() {
+    document.removeEventListener('scroll', this.scrollHandler, true);
+  }
+
+  private updateDropdownPosition() {
+    const wrapper = this.elRef.nativeElement.querySelector('.autocomplete-wrapper');
+    if (!wrapper) return;
+    const rect = wrapper.getBoundingClientRect();
+    this.dropdownStyle = {
+      'position': 'fixed',
+      'top': `${rect.bottom + 4}px`,
+      'left': `${rect.left}px`,
+      'width': `${rect.width}px`,
+    };
+    this.cdr.markForCheck();
+  }
+
+  openLister() {
+    const isChips = this.autocompleteType === 'chips';
+    const inputLister: shListerData = {
+      title: this.label,
+      methodName: this.methodName,
+      configMethodName: this.configMethodName,
+      service: this.service,
+      apiBody :this.apiBody,
+      ...(isChips ? { multiple: true, valueField: this.valueField, selected: this.selectedItems } : {}),
+    };
+    const dialogRef = this.openDialog(
+      undefined,
+      undefined,
+      undefined,
+      '60vw',
+      inputLister,
+      this.listerComponent,
+    );
+    dialogRef.afterClosed().subscribe((result: any) => {
+      // MatDialog finalizes the close (and emits afterClosed) once its closing
+      // animation ends, which runs outside Angular's zone — markForCheck/detectChanges
+      // alone update this component's own view, but nothing re-enters the zone, so
+      // nothing else in the app re-renders until an unrelated event happens to. Running
+      // the whole callback back inside the zone fixes that at the source.
+      this.zone.run(() => {
+        if (isChips) {
+          if (!Array.isArray(result)) return;
+          this.selectedItems = result;
+          this._model = result.map((item) => this.getValue(item));
+          this.modelChange.emit(this._model);
+          this.changeEv.emit(this._model);
+          this.cdr.markForCheck();
+          return;
+        }
+        const selectedRow = result;
+        if (selectedRow && selectedRow[this.valueField]) {
+          this.datasource = [selectedRow];
+          this.datasourceChange.emit(this.datasource);
+          this.filteredItems = [...this.datasource];
+          this.selectItem(selectedRow);
+        }
+      });
+    });
+  }
+
+  ngOnInit() {
+    document.addEventListener('scroll', this.scrollHandler, { capture: true, passive: true });
+
+    if (this.searchType === 'Api' && this.methodName && this.service) {
+      this.placeholder = this.isLister ? 'Type to Search Or Press Enter' : 'Type to Search';
+
+      // Fix: [formControl] already updates inputControl on user input, so valueChanges
+      // fires once per keystroke. Do NOT call inputControl.setValue() inside onInput
+      // for API mode to avoid double emission.
+      this.inputControl.valueChanges
+        .pipe(debounceTime(500), distinctUntilChanged())
+        .subscribe(async (value) => {
+          if (!value) return;
+          const res: HttpResponse = await this.service[this.methodName]({searchValue:value,apiBody:this.apiBody});
+          if (!res.isSuccessful) return;
+          this.datasource = res?.result && Array.isArray(res?.result) ? res.result : res?.result?.data;
+          this.lastSearchedText = value;
+          this.datasourceChange.emit(this.datasource);
+          this.filteredItems = this.datasource;
+          this.cdr.markForCheck();
+        });
+
+      if (this._object) {
+        this.datasource = [this._object];
+        this.datasourceChange.emit(this.datasource);
+        this.filteredItems = [...this.datasource];
+      }
+    }
+    
+    this.syncInputFromModel();
+    this.cdr.markForCheck();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['datasource']) {
+      this.filteredItems = [...(this.datasource || [])];
+      // Only sync when dropdown is closed (user is not actively typing/searching)
+      if (!this._showDropdown) {
+        this.syncInputFromModel();
+      }
+    }
+    if (changes['model']) {
+      this.syncInputFromModel();
+    }
+  }
+
+  private syncSelectedItemsFromModel() {
+    const values: any[] = Array.isArray(this._model) ? this._model : [];
+    if (!values.length) {
+      this.selectedItems = [];
+      return;
+    }
+    // Preserve display data for chips that are still selected (existing selectedItems
+    // may hold richer objects than a freshly-loaded datasource page would).
+    const pool = [...this.selectedItems, ...this.datasource];
+    this.selectedItems = values
+      .map((value) => pool.find((item) => this.getValue(item) === value))
+      .filter((item): item is any => item !== undefined);
+  }
+
+  private syncInputFromModel() {
+    if (this.autocompleteType === 'chips') return;
+    if (this._model !== null && this._model !== undefined) {
+      // Text the user is typing is already in the input — don't let a coincidental
+      // valueField match swap it for that option's display mid-typing.
+      if (this.isManualText && this._model === this.inputValue) return;
+      const found = this.datasource?.find((item) => this.getValue(item) === this._model);
+      if (found) {
+        const display = this.getDisplay(found);
+        this.inputValue = display;
+        this.inputControl.setValue(display, { emitEvent: false });
+      } else if (this.manualEntry) {
+        // Model holds a manually entered value that is not among the options.
+        const display = String(this._model);
+        this.inputValue = display;
+        this.inputControl.setValue(display, { emitEvent: false });
+      }
+    } else {
+      this.inputValue = '';
+      this.inputControl.setValue('', { emitEvent: false });
+    }
+    this.cdr.markForCheck();
+  }
+
+  getDisplay(item: any): string {
+    if (this.displayFn) return this.displayFn(item);
+    return item && this.displayField ? item[this.displayField] : String(item);
+  }
+
+  getValue(item: any): any {
+    return this.valueField ? item[this.valueField] : item;
+  }
+
+  get isInvalid(): boolean {
+    if (this.autocompleteType === 'chips') {
+      return this.touched && this.required && (!Array.isArray(this._model) || this._model.length === 0);
+    }
+    return this.touched && this.required && !this._model;
+  }
+
+  onInput(val: string) {
+    this.inputValue = val;
+    const isChips = this.autocompleteType === 'chips';
+    if (!isChips) {
+      // Fix: set _model directly so null is always stored, bypassing the setter's
+      // datasource-refresh side effect which should only run on external model changes
+      this._model = this.manualEntry && val ? val : null;
+      this.isManualText = this._model !== null;
+      // manualEntry: keep the parent model live while typing; changeEv fires once on blur.
+      if (this.isManualText) this.modelChange.emit(val);
+    }
+
+    if (this.searchType === 'Local') {
+      this.showDropdown = true;
+      this.filteredItems = this.datasource.filter((item) =>
+        this.getDisplay(item)?.toLowerCase()?.includes(val?.toLowerCase()),
+      );
+      if (!val && !isChips) {
+        this.modelChange.emit(null);
+        this.changeEv.emit(null);
+      }
+    } else {
+      // API mode: [formControl] already updated inputControl, valueChanges handles the search
+      if (!val) {
+        this.filteredItems = [];
+        this.showDropdown = false;
+        if (!isChips) {
+          this.modelChange.emit(null);
+          this.changeEv.emit(null);
+        }
+      } else {
+        this.showDropdown = true;
+      }
+    }
+  }
+
+  onFocus() {
+    if (this.loading) return;
+    this.showDropdown = true;
+    if (this.searchType === 'Local') {
+      this.filteredItems = this.datasource.filter((item) =>
+        this.getDisplay(item)?.toLowerCase()?.includes(this.inputValue?.toLowerCase()),
+      );
+    }
+  }
+
+  onFocusOut() {
+    this.touched = true;
+    this.showDropdown = false;
+    if (this.autocompleteType === 'chips') {
+      // The input text is only a filter in chips mode — never a pending selection.
+      this.inputValue = '';
+      this.inputControl.setValue('', { emitEvent: false });
+      this.cdr.markForCheck();
+      return;
+    }
+    // Fix: removed auto-select-on-single-match — it caused refill when user
+    // cleared text and datasource had only 1 item.
+    // If no selection was made, clear the typed text.
+    if (this.isManualText) {
+      void this.commitManualEntry();
+    } else if (this._model === null || this._model === undefined) {
+      this.inputValue = '';
+      this.inputControl.setValue('', { emitEvent: false });
+    }
+    this.cdr.markForCheck();
+  }
+
+  /** manualEntry: finalize typed text on blur — pick the option it exactly names, otherwise keep the trimmed text as the model. */
+  private async commitManualEntry() {
+    const text = this.inputValue.trim();
+    let match = this.findExactOption(text, this.datasource);
+    const resultsAreStale = this.lastSearchedText?.trim() !== text;
+    if (!match && text && this.searchType === 'Api' && this.methodName && this.service && resultsAreStale) {
+      // Blurred before the debounced search returned for this text — look it up so an
+      // exact option is still picked instead of being kept as manual text.
+      let res: HttpResponse | undefined;
+      try {
+        res = await this.service[this.methodName]({ searchValue: text, apiBody: this.apiBody });
+      } catch {
+        res = undefined;
+      }
+      // Picked, cleared or retyped while the lookup was in flight — nothing left to commit here.
+      if (!this.isManualText || this.inputValue.trim() !== text) return;
+      if (res?.isSuccessful) {
+        const results: any[] = Array.isArray(res.result) ? res.result : res.result?.data;
+        match = this.findExactOption(text, results);
+        if (match) {
+          this.datasource = results;
+          this.datasourceChange.emit(this.datasource);
+          this.filteredItems = this.datasource;
+        }
+      }
+    }
+    if (match) {
+      this.selectItem(match);
+      this.cdr.markForCheck();
+      return;
+    }
+    this.inputValue = text;
+    this.inputControl.setValue(text, { emitEvent: false });
+    this._model = text || null;
+    this.isManualText = false;
+    this.modelChange.emit(this._model);
+    this.changeEv.emit(this._model);
+    this.cdr.markForCheck();
+  }
+
+  /** Option whose display text (displayFn or displayField) equals the typed text, ignoring case and surrounding spaces. */
+  private findExactOption(text: string, list: any[] | null | undefined): any {
+    if (!text || !Array.isArray(list)) return undefined;
+    const target = text.toLowerCase();
+    const same = (v: any) => v !== null && v !== undefined && String(v).trim().toLowerCase() === target;
+    return list.find(
+      (item) => same(this.getDisplay(item)) || (!!this.displayField && same(item?.[this.displayField])),
+    );
+  }
+
+  clearValue(event?: Event) {
+    event?.stopPropagation();
+    this.inputValue = '';
+    this.inputControl.setValue('', { emitEvent: false });
+    this.showDropdown = false;
+    if (this.autocompleteType === 'chips') {
+      // The clear (x) button only clears the typed search text — chip selections stay intact.
+      this.cdr.markForCheck();
+      return;
+    }
+    // Fix: set _model directly to null — using the setter would trigger the
+    // datasource-refresh side effect unnecessarily
+    this._model = null;
+    this.isManualText = false;
+    this.modelChange.emit(null);
+    this.changeEv.emit(null);
+    this.cdr.markForCheck();
+  }
+
+  selectItem(item: any) {
+    const display = this.getDisplay(item);
+    const value = this.getValue(item);
+    this.inputValue = display;
+    this.inputControl.setValue(display, { emitEvent: false });
+    this._model = value;
+    this.isManualText = false;
+    // Keep the object behind the model current — otherwise the [(model)] echo of this
+    // pick resets the datasource to the previous object and the display can't resolve.
+    if (this._object) this._object = item;
+    this.modelChange.emit(value);
+    this.changeEv.emit(value);
+    this.showDropdown = false;
+  }
+
+  isChecked(item: any): boolean {
+    return Array.isArray(this._model) && this._model.includes(this.getValue(item));
+  }
+
+  toggleItem(item: any) {
+    const value = this.getValue(item);
+    const current: any[] = Array.isArray(this._model) ? this._model : [];
+    const idx = current.indexOf(value);
+    if (idx === -1) {
+      this._model = [...current, value];
+      this.selectedItems = [...this.selectedItems, item];
+    } else {
+      this._model = current.filter((v) => v !== value);
+      this.selectedItems = this.selectedItems.filter((it) => this.getValue(it) !== value);
+    }
+    this.modelChange.emit(this._model);
+    this.changeEv.emit(this._model);
+
+    // Reset the search text so the full option list (last loaded datasource) is visible again for the next pick.
+    this.inputValue = '';
+    this.inputControl.setValue('', { emitEvent: false });
+    this.filteredItems = [...this.datasource];
+    this.cdr.markForCheck();
+  }
+
+  // preventDefault on the mousedown event keeps focus on the text input,
+  // preventing blur → onFocusOut from closing the dropdown / clearing the search text.
+  removeChip(item: any, event?: Event) {
+    event?.preventDefault();
+    event?.stopPropagation();
+    if (this.disabled) return;
+    this.toggleItem(item);
+  }
+
+  onHintClick(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const route: string | undefined = this.service?.route;
+    if (!route) return;
+
+    const id = this._model;
+    const sep = route.includes('?') ? '&' : '?';
+    const paramId = (id !== null && id !== undefined) ? id : 0;
+    window.open(`${route}${sep}id=${paramId}`, '_blank');
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.elRef.nativeElement.contains(event.target)) {
+      this.showDropdown = false;
+    }
+  }
+}

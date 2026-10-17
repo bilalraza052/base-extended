@@ -1,0 +1,46 @@
+<div class="d-flex flex-column">
+    @if(label) {
+        <div [shSkeleton]="skeletonLoading" [shSkeletonTheme]="skeletonTheme">
+            <label class="label" [class.txt-clr-red]="isRequiredInvalid">
+                <span class="label-text" [title]="label">{{label}}</span><span class="txt-clr-red label-required">{{required ? '*' : ''}}</span>
+            </label>
+        </div>
+    }
+
+    <div class="chips-wrapper" [shSkeleton]="skeletonLoading" [shSkeletonTheme]="skeletonTheme"
+         [class.error]="isInvalid"
+         [class.chips-disabled]="disabled"
+         (click)="focusInput()">
+        @for(chip of chips; track chip; let i = $index) {
+            <span class="chip">
+                <span class="chip-label">{{chip}}</span>
+                @if(!disabled) {
+                    <!-- preventDefault keeps the text input focused so blur doesn't auto-commit partial input -->
+                    <button type="button" class="chip-remove"
+                            (mousedown)="removeChip(i, $event)"
+                            tabindex="-1" title="Remove">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                }
+            </span>
+        }
+        @if(!disabled) {
+            <input
+                #chipInput
+                class="chips-inner-input"
+                [value]="inputValue"
+                (input)="onInput($any($event.target).value)"
+                (keydown)="onKeydown($event)"
+                (blur)="onBlur()"
+                [placeholder]="chips.length === 0 ? placeholder : ''"
+                autocomplete="off"
+            >
+        }
+    </div>
+
+    @if(inputError) {
+        <mat-hint class="hint">{{inputError}}</mat-hint>
+    } @else if(isRequiredInvalid) {
+        <mat-hint class="hint">Please complete this required field.</mat-hint>
+    }
+</div>

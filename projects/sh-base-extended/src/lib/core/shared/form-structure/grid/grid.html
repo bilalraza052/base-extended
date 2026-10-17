@@ -1,0 +1,269 @@
+<div class="sh-grid-wrapper">
+
+  <!-- ── HubSpot selection bar ("1 contact selected  → Assign  ✎ Edit  🗑 Delete   ✕") ── -->
+  @if (checkboxSelection && selectedCount > 0) {
+    <div class="sh-grid-bulkbar">
+      <span class="sh-grid-bulkbar__count">{{ selectedLabel }}</span>
+      @for (action of visibleBulkActions; track $index) {
+        <button type="button" class="sh-grid-bulkbar__btn" [class.sh-grid-bulkbar__btn--danger]="action.danger"
+                [disabled]="bulkLoadingIndex !== null" (click)="onBulkAction(action, $index)">
+          @if (bulkLoadingIndex === $index) {
+            <span class="sh-grid-spinner"></span>
+          } @else if (action.icon) {
+            @if (isSvgIcon(action.icon)) {
+              <span class="sh-grid-bulkbar__icon" [innerHTML]="safeIcon(action.icon)"></span>
+            } @else {
+              <mat-icon class="sh-grid-bulkbar__mat">{{ action.icon }}</mat-icon>
+            }
+          }
+          {{ action.label }}
+        </button>
+      }
+      <button type="button" class="sh-grid-bulkbar__close" (click)="onClearSelection()" shTooltip="Clear selection" aria-label="Clear selection">
+        <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3 3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  }
+
+  <div #tableContainer class="sh-grid-table-container" [style.height]="tableHeight">
+    <table class="sh-grid-table">
+      <thead class="sh-grid-thead">
+        <tr>
+          @if (loading && columns.length === 0) {
+            @for (sk of skeletonColumns; track $index) {
+              <th class="sh-grid-th sh-grid-th--skeleton">
+                <div class="sh-skeleton sh-skeleton--header"></div>
+              </th>
+            }
+          } @else {
+            @if (checkboxSelection) {
+              <th class="sh-grid-th sh-grid-th--checkbox" (click)="$event.stopPropagation()">
+                <input type="checkbox" class="sh-grid-check" [checked]="pageAllSelected" [indeterminate]="pageSomeSelected"
+                  (change)="toggleSelectPage($any($event.target).checked)"
+                  (mouseenter)="onPageCheckboxMouseEnter($event)" (mouseleave)="onPageCheckboxMouseLeave()"
+                  aria-label="Select all rows on this page">
+              </th>
+            }
+            @for (col of displayColumns; track col.key; let last = $last) {
+              <th
+                class="sh-grid-th"
+                [class.sh-grid-th--last]="last && !columnChooser"
+                [class.sh-grid-th--actions]="col.isActions"
+                [class.sh-grid-th--sorted]="sortKey === col.key"
+                [style.width]="col.width || null"
+                [attr.aria-sort]="sortKey === col.key ? (sortAsc ? 'ascending' : 'descending') : null"
+                (click)="sort(col.key, col.isActions)"
+              >
+                @if (!col.isActions) {
+                  <span class="sh-grid-th-inner">
+                    <span class="sh-grid-th-label">{{ col.label }}</span>
+                    <span class="sh-grid-sort-icon" [class.sh-grid-sort-icon--active]="sortKey === col.key">
+                      @if (sortKey === col.key) {
+                        <svg viewBox="0 0 12 12" [class.is-desc]="!sortAsc"><path d="M6 2v8M2.5 6.5 6 10l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      } @else {
+                        <svg class="sh-grid-sort-icon--idle" viewBox="0 0 12 12"><path d="M4 2v8M1.8 4.2 4 2l2.2 2.2M8 10V2M5.8 7.8 8 10l2.2-2.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      }
+                    </span>
+                  </span>
+                }
+              </th>
+            }
+            @if (columnChooser) {
+              <th class="sh-grid-th sh-grid-th--chooser">
+                <button type="button" class="sh-grid-chooser-btn" (click)="openColumnChooser($event)" shTooltip="Edit columns" aria-label="Edit columns">
+                  <svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                </button>
+              </th>
+            }
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading) {
+          @for (sk of skeletonRows; track $index) {
+            <tr class="sh-grid-row sh-grid-row--skeleton">
+              @if (checkboxSelection) {
+                <td class="sh-grid-td sh-grid-td--checkbox"><div class="sh-skeleton sh-skeleton--check"></div></td>
+              }
+              @if (columns.length > 0) {
+                @for (col of displayColumns; track col.key; let last = $last) {
+                  <td class="sh-grid-td" [class.sh-grid-td--last]="last" [class.sh-grid-td--actions]="col.isActions">
+                    @if (col.isActions) {
+                      <div class="sh-skeleton sh-skeleton--actions"></div>
+                    } @else {
+                      <div class="sh-skeleton"></div>
+                    }
+                  </td>
+                }
+              } @else {
+                @for (sk2 of skeletonColumns; track $index; let last = $last) {
+                  <td class="sh-grid-td" [class.sh-grid-td--last]="last">
+                    <div class="sh-skeleton"></div>
+                  </td>
+                }
+              }
+              @if (columnChooser) { <td class="sh-grid-td sh-grid-td--chooser"></td> }
+            </tr>
+          }
+        } @else {
+          @if (pagedData.length === 0) {
+            <tr>
+              <td [attr.colspan]="displayColumns.length + (checkboxSelection ? 1 : 0) + (columnChooser ? 1 : 0)" class="sh-grid-empty">
+                <div class="sh-grid-empty__inner">
+                  <div class="sh-grid-empty__text">
+                    <p class="sh-grid-empty__title">No {{ recordLabel }}s match the current filters.</p>
+                    <p class="sh-grid-empty__desc">Expecting to see new {{ recordLabel }}s? Try again in a few seconds as the system catches up.</p>
+                  </div>
+                  <i class="icon" aria-hidden="true"></i>
+                </div>
+              </td>
+            </tr>
+          }
+          @for (row of pagedData; track $index; let rowIdx = $index) {
+            <tr class="sh-grid-row"
+                [class.pointer]="isSelectable"
+                [class.sh-grid-row--checked]="checkboxSelection && isRowChecked(row)"
+                [class.sh-grid-row--highlighted]="isHighlightedRow(row)"
+                (click)="onRowClick.emit(row)">
+              @if (checkboxSelection) {
+                <td class="sh-grid-td sh-grid-td--checkbox">
+                  <input type="checkbox" class="sh-grid-check" [checked]="isRowChecked(row)"
+                    (click)="toggleRowCheck(row, $any($event.target).checked, $event)" aria-label="Select row">
+                </td>
+              }
+              @for (col of displayColumns; track col.key; let last = $last) {
+                @if (col.isActions) {
+                  <td class="sh-grid-td sh-grid-td--actions" [class.sh-grid-td--last]="last">
+                    <div class="sh-grid-actions">
+                      @if(canEdit){
+                        <button class="sh-grid-icon-btn sh-grid-icon-btn--edit" (click)="$event.stopPropagation(); editClick.emit(row)" shTooltip="Edit" aria-label="Edit">
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.8 2.6l2.6 2.6L5.6 13H3v-2.6z"/><path d="M9.4 4l2.6 2.6"/>
+                          </svg>
+                        </button>
+                      }
+                      @if(canDelete){
+                        <button class="sh-grid-icon-btn sh-grid-icon-btn--danger" (click)="$event.stopPropagation(); deleteClick.emit(row)" shTooltip="Delete" aria-label="Delete">
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2.5 4h11M6 4V2.6h4V4M4 4l.7 9.4h6.6L12 4M6.7 6.6v4.4M9.3 6.6v4.4"/>
+                          </svg>
+                        </button>
+                      }
+                      @if (moreMenuActions.length > 0 && hasVisibleActions(row)) {
+                        <div class="sh-menu-wrapper">
+                          <button class="sh-grid-icon-btn sh-grid-icon-btn--more" (click)="toggleMenu(rowIdx, $event)" shTooltip="More" aria-label="More actions">
+                            <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3.2" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="12.8" r="1.4"/></svg>
+                          </button>
+                          @if (openMenuIndex === rowIdx) {
+                            <div class="sh-custom-menu"
+                                 [style.top.px]="menuPosition.top"
+                                 [style.left.px]="menuPosition.left">
+                              @for (action of moreMenuActions; track $index) {
+                                @if (!action.hideIf || !action.hideIf(row)) {
+                                  <button class="sh-custom-menu-item"
+                                          [disabled]="loadingActionIndex !== null"
+                                          (click)="$event.stopPropagation(); onActionClick(action, row, $index)">
+                                    @if (loadingActionIndex === $index) {
+                                      <span class="sh-custom-menu-spinner"></span>
+                                    }
+                                    {{ getActionLabel(action, row) }}
+                                  </button>
+                                }
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </td>
+                } @else {
+                  <td class="sh-grid-td" [class.sh-grid-td--last]="last && !columnChooser" [style.width]="col.width || null">
+                    <span class="sh-grid-cell" [class.link]="col.displayType == 'link'" (click)="col.click ? col.click(row,col):null">
+                    @switch (col.displayType) {
+                      @case ('date') { {{ (row[col.key] | date) || '--' }} }
+                      @case ('datetime') { {{ (row[col.key] | date:'medium') || '--' }} }
+                      @case ('time') { {{ (row[col.key] | date:'shortTime') || '--' }} }
+                      @case ('customDateFormat') { {{ (row[col.key] | date:col.customDateFormat) || '--' }} }
+                      @case ('boolean') {
+                        @if (row[col.key]) {
+                          <span class="sh-bool-badge sh-bool-badge--true">Yes</span>
+                        } @else {
+                          <span class="sh-bool-badge sh-bool-badge--false">No</span>
+                        }
+                      }
+                      @default { {{ getCellValue(row, col) }} }
+                    }
+                  </span>
+                  </td>
+                }
+              }
+              @if (columnChooser) { <td class="sh-grid-td sh-grid-td--chooser"></td> }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (isPaginated) {
+    <!-- HubSpot pagination: ‹ Prev  1  2  3  Next ›    25 per page ▾ -->
+    <div class="sh-grid-pagination">
+
+      <span class="sh-grid-pagination__info">
+        @if (loading) {
+          Loading...
+        } @else {
+          <span class="sh-grid-count-pill">{{ recordCountLabel }}</span>
+        }
+      </span>
+
+      <div class="sh-grid-pagination__controls">
+        <button class="sh-grid-page-btn sh-grid-page-btn--nav" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1 || loading" aria-label="Previous page">
+          <svg viewBox="0 0 16 16"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Prev
+        </button>
+
+        @for (page of pageNumbers; track $index) {
+          @if (page === -1) {
+            <span class="sh-grid-page-ellipsis">…</span>
+          } @else {
+            <button
+              class="sh-grid-page-btn sh-grid-page-btn--num"
+              [class.sh-grid-page-btn--active]="page === currentPage"
+              [attr.aria-current]="page === currentPage ? 'page' : null"
+              [disabled]="loading"
+              (click)="goToPage(page)"
+            >{{ page }}</button>
+          }
+        }
+
+        <button class="sh-grid-page-btn sh-grid-page-btn--nav" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages || loading" aria-label="Next page">
+          Next
+          <svg viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+
+        <div class="sh-grid-pagination__size">
+          <button type="button" class="sh-grid-page-size" [disabled]="loading" (click)="togglePageSizeMenu($event)" [attr.aria-expanded]="pageSizeMenuOpen">
+            {{ pageSize }} per page <span class="sh-grid-caret"></span>
+          </button>
+          @if (pageSizeMenuOpen) {
+            <div class="sh-grid-size-menu" (click)="$event.stopPropagation()">
+              @for (opt of pageSizeOptions; track opt) {
+                <button type="button" class="sh-grid-size-option" [class.is-selected]="opt == pageSize" (click)="choosePageSize(opt, $event)">{{ opt }} per page</button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <span class="sh-grid-pagination__spacer"></span>
+    </div>
+  }
+
+</div>
+
+@if (showPageCheckboxHint) {
+  <div class="sh-grid-checkbox-popup" [style.top.px]="pageCheckboxHintPosition.top" [style.left.px]="pageCheckboxHintPosition.left">
+    <span>Selects only the rows on this page — not all records.</span>
+  </div>
+}

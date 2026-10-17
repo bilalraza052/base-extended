@@ -1,0 +1,153 @@
+
+
+  <!-- ── Setup (Searchbar demo) ───────────────────────────────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Setup</span>
+      <span class="ex-card__desc">sh-setup's header embeds sh-searchbar — type to filter leads client-side. Open a row's "more actions" menu and click Approve / Send Reminder to see the loader.</span>
+    </div>
+    <div class="ex-card__body">
+      <sh-setup
+        title="Leads"
+        [columns]="columns"
+        [datasource]="filteredLeads"
+        [formElements]="formElements"
+        [pageSize]="5"
+        tableHeight="320px"
+        [moreMenuActions]="moreMenu"
+        (onSearch)="onSearchLeads($event)"
+        (onEdit)="onEdit($event)"
+        (onDelete)="onDeleteLead($event)"
+        [onSave]="onSaveLead"
+      ></sh-setup>
+    </div>
+  </div>
+
+  <!-- ── sh-menu (generic overlay menu) + loading item demo ────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Menu</span>
+      <span class="ex-card__desc">sh-menu + shMenuTriggerFor with [sh-menu-item] loading items — click Export or Publish to see the spinner replace the item while it awaits</span>
+    </div>
+    <div class="ex-card__body">
+      <button type="button" class="tip-btn tip-btn--indigo"
+              #demoTrigger="shMenuTriggerFor"
+              [shMenuTriggerFor]="demoMenu">
+        More Actions
+      </button>
+
+      <sh-menu #demoMenu position="below">
+        <button class="sh-menu-item" sh-menu-item
+                [loading]="demoMenuLoadingKey === 'export'"
+                (click)="onDemoMenuAction('export', 'Export')">
+          Export
+        </button>
+        <button class="sh-menu-item" sh-menu-item
+                [loading]="demoMenuLoadingKey === 'publish'"
+                (click)="onDemoMenuAction('publish', 'Publish')">
+          Publish
+        </button>
+        <button class="sh-menu-item" sh-menu-item
+                [loading]="demoMenuLoadingKey === 'archive'"
+                (click)="onDemoMenuAction('archive', 'Archive')">
+          Archive
+        </button>
+      </sh-menu>
+    </div>
+  </div>
+
+  <!-- ── Form Grid ─────────────────────────────────────────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Form Grid</span>
+      <span class="ex-card__desc">Inline edits and row add/delete also mark the page dirty</span>
+    </div>
+    <div class="ex-card__body">
+      <sh-form-grid
+        [columns]="orderColumns"
+        [datasource]="orderRows"
+        (datasourceChange)="onDemoGridChange($event)"
+        [canAdd]="false"
+        [canDelete]="true"
+        tableHeight="300px"
+        [enableDragDrop]="true"
+        [draggingList]="draggingList"
+        [draggingColumns]="draggingColumns"
+        [leftPanelWidth]="280"
+        dragTitle="Charges"
+        [showSearch]="true"
+        [allowReorder]="false"
+        [allowRemove]="true"
+        panelSearchType="Api"
+        [panelLoading]="panelLoading"
+        [panelTotalRecords]="panelTotalRecords"
+        (panelSearch)="onPanelSearch($event)"
+        (panelPageChange)="onPanelPageChange($event)"
+        (dragStarted)="onDragStarted($event)"
+        (dragEnded)="onDragEnded($event)"
+        (dragEntered)="onDragEntered($event)"
+        (dragExited)="onDragExited($event)"
+        (itemDropped)="onItemDropped($event)"
+        (itemMoved)="onItemMoved($event)"
+        (itemRemoved)="onItemRemoved($event)"
+        (itemSelected)="onItemSelected($event)"
+        (gridChanged)="onGridChanged($event)"
+      ></sh-form-grid>
+    </div>
+
+</div>
+
+  <!-- ── Draggable Dialog ──────────────────────────────────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Draggable Dialog</span>
+      <span class="ex-card__desc">openDialog(..., isDraggable: true) — drag by the header, bounded to the viewport</span>
+    </div>
+    <div class="ex-card__body">
+      <button type="button" class="tip-btn tip-btn--indigo" (click)="openDraggableDialogDemo()">
+        Open Draggable Dialog
+      </button>
+    </div>
+  </div>
+
+  <ng-template #draggableDialogBody>
+    <p>Grab the header — anywhere, or the drag icon in the middle — and move this dialog around the screen. It's clamped to the browser viewport so it can never be dragged out of view.</p>
+  </ng-template>
+
+  <ng-template #draggableDialogFooter let-dialogData>
+    <button type="button" class="tip-btn tip-btn--default" (click)="dialogData.dialogRef.close()">Close</button>
+  </ng-template>
+
+  <!-- ── Report Form: PDF / Grid / Excel / Email ──────────────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Report Form</span>
+      <span class="ex-card__desc">generateOptions now includes 'email' — pick the Email tab and click Compose Email; onGenerate builds a CSV attachment and the compose dialog opens pre-filled from emailConfig.</span>
+    </div>
+    <div class="ex-card__body">
+      <sh-report-form
+        title="Account Ledger Report"
+        [formElements]="ledgerFormElements"
+        [(model)]="ledgerModel"
+        [reportColumns]="ledgerColumns"
+        [generateOptions]="['grid', 'pdf', 'excel', 'email']"
+        [onGenerate]="onLedgerGenerate"
+        [emailConfig]="ledgerEmailConfig"
+        [onEmailSend]="onLedgerEmailSend"
+      ></sh-report-form>
+    </div>
+  </div>
+
+  <!-- ── Email Dialog (baseComponent.openEmailDialog) ─────────────────── -->
+  <div class="ex-card mb-4">
+    <div class="ex-card__head">
+      <span class="ex-badge ex-badge--blue">Email Dialog</span>
+      <span class="ex-card__desc">openEmailDialog(to, cc, subject, body, attachments, onSendClick, title) — reusable from any component extending baseComponent, with chip recipients and drag-drop attachments</span>
+    </div>
+    <div class="ex-card__body">
+      <button type="button" class="tip-btn tip-btn--indigo" (click)="openGenericEmailDialogDemo()">
+        Open Email Dialog
+      </button>
+    </div>
+  </div>
+

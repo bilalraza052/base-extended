@@ -1,0 +1,46 @@
+// ── Fieldset → HubSpot card section ───────────────────────────
+.sh-fieldset {
+  border: 1px solid var(--sh-border, #ccc);
+  border-radius: var(--sh-radius-lg, 16px);
+  padding: 4px 24px 20px;
+  margin: 0;
+  background: #fff;
+  position: relative;
+}
+
+.sh-fieldset-legend {
+  padding: 0 8px;
+  margin-left: -8px;
+  line-height: 1;
+  float: none;
+  width: auto;
+}
+
+.sh-fieldset-legend__text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sh-font-family);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--sh-text, #333);
+  background: #ffffff;
+  padding: 0 4px;
+}
+
+.sh-fieldset-body { margin-top: 4px; }
+
+// ── Field rows: HubSpot spacing — 24px between stacked fields ──
+.sh-form-row {
+  --bs-gutter-x: 1.5rem;
+  align-items: flex-start !important;
+
+  > .mt-2 {
+    margin-top: 0 !important;
+    margin-bottom: 20px;
+  }
+}
+
+.f-w-b { font-weight: 600; }
+.txt-clr-red { color: var(--sh-error-text, #ac0020); }

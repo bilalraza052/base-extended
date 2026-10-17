@@ -1,0 +1,204 @@
+@if(elements && elements.length > 0) {
+<div class="row align-items-center w-100 sh-form-row">
+    @for(elem of elements; track elem) {
+    @if(!(elem.hideIf ? elem.hideIf(model) : elem.hide)) {
+    <ng-container *ngTemplateOutlet="formField; context: { $implicit: elem }"></ng-container>
+    }
+    }
+</div>
+}
+
+<ng-template #formField let-elem>
+    @if(elem.hideIf ? !elem.hideIf(model) : true) {
+    @switch (elem.elementType) {
+
+    @case ("textbox") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-input [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme" [label]="elem.label"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [type]="elem.inputType || 'text'"
+            [placeholder]="elem.placeholder || ''" [mask]="elem.mask || ''" [min]="elem.min ?? ''"
+            [max]="elem.max ?? ''" [minLength]="elem.minLength ?? null" [maxLength]="elem.maxLength ?? null"
+            [prefixIcon]="elem.prefixIcon || ''" [suffixIcon]="elem.suffixIcon || ''"
+            [suffixRef]="elem.suffixRef || null" [onlyChars]="!!elem.onlyChars"
+            [decimalPortion]="elem.decimalPortion ?? null" [allowNegative]="!elem.restrictNegative"
+            (changeEv)="elem.change ? elem.change(model) : null" [model]="model[elem.key]"
+            (modelChange)="onModelChange($event, elem.key)" [isCapitalize]="elem.isCapitalize"></sh-input>
+    </div>
+    }
+
+    @case ("textarea") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-textarea [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [rows]="elem.textareaRows || 3"
+            [placeholder]="elem.placeholder || ''" [maxLength]="elem.maxLength ?? null"
+            [minLength]="elem.minLength ?? null" [characterCounter]="!!elem.characterCounter"
+            [resize]="elem.resize || 'none'" (changeEv)="elem.change ? elem.change(model) : null"
+            [model]="model[elem.key]" (modelChange)="onModelChange($event, elem.key)"></sh-textarea>
+    </div>
+    }
+
+    @case ("select") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-select [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [datasource]="elem.datasource || []"
+            [displayField]="elem.displayField || ''" [valueField]="elem.valueField || ''"
+            [placeholder]="elem.selectPlaceholder || ''"
+            [loading]="elem.loadingIf ? elem.loadingIf(model) : false" [clearable]="!!elem.clearable"
+            [multiple]="!!elem.selectMultiple" [showSelectAll]="!!elem.showSelectAll"
+            [searchable]="elem.searchable ?? true" [descriptionField]="elem.descriptionField || ''"
+            (changeEv)="elem.change ? onSelectChange(elem, $event) : null" [model]="model[elem.key]"
+            (modelChange)="onModelChange($event, elem.key)"></sh-select>
+    </div>
+    }
+
+    @case ("chips-input") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-chips-input [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
+            [placeholder]="elem.placeholder || 'Type and press Enter...'" [inputType]="elem.inputType || 'text'"
+            [returnType]="elem.returnType || 'raw'" (changeEv)="elem.change ? elem.change(model) : null"
+            [model]="model[elem.key]" (modelChange)="onModelChange($event, elem.key)"></sh-chips-input>
+    </div>
+    }
+
+    @case ("radio") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-radio [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [datasource]="elem.datasource || []"
+            [displayField]="elem.displayField || ''" [valueField]="elem.valueField || ''" [inline]="!!elem.inline"
+            (changeEv)="elem.change ? elem.change(model) : null" [model]="model[elem.key]"
+            (modelChange)="onModelChange($event, elem.key)"></sh-radio>
+    </div>
+    }
+
+    @case ("slide-toggle") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-slide-toggle [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [labelPosition]="elem.labelPosition || 'after'" [trueLabel]="elem.trueLabel || ''"
+            [falseLabel]="elem.falseLabel || ''" (changeEv)="elem.change ? elem.change(model) : null"
+            [model]="model[elem.key]" (modelChange)="onModelChange($event, elem.key)"></sh-slide-toggle>
+    </div>
+    }
+
+    @case ("autocomplete") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-autocomplete [label]="elem.label" [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [(datasource)]="elem.datasource"
+            [displayField]="elem.displayField || ''" [valueField]="elem.valueField || ''"
+            [placeholder]="elem.autocompletePlaceholder || 'Search'"
+            [loading]="elem.loadingIf ? elem.loadingIf(model) : false" (changeEv)="onFieldChange(elem, $event)"
+            [(model)]="model[elem.key]" [methodName]="elem.apiMethod" [service]="elem.apiService"
+            [object]="model[elem.objectName]" [searchType]="elem.searchType" [configMethodName]="elem.apiConfigMethod"
+            [isLister]="elem.isListerAutocomplete" [apiBody]="elem.apiBody ? elem.apiBody(model):null"
+            [displayFn]="elem.displayFn || null" [autocompleteType]="elem.autocompleteType || 'default'"
+            [manualEntry]="!!elem.manualEntry"></sh-autocomplete>
+    </div>
+    }
+
+    @case ("file-uploader") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-file-upload [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme" [label]="elem.label"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [accept]="elem.accept || ''"
+            [multiple]="!!elem.multiple" [maxSize]="elem.maxFileSize || 0" [fileMode]="elem.fileMode || 'raw'"
+            [downloadFn]="elem.fileDownloadFn ? elem.fileDownloadFn.bind(null, model) : null"
+            (changeEv)="elem.change ? elem.change(model) : null" [model]="model[elem.key]"
+            (modelChange)="onModelChange($event, elem.key)"></sh-file-upload>
+    </div>
+    }
+
+    @case ("datepicker") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-datepicker [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme" [label]="elem.label"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required" [dateType]="elem.dateType || 'date'"
+            [placeholder]="elem.placeholder || ''"
+            [minDate]="elem.minDateIf ? elem.minDateIf(model) : elem.minDate || ''"
+            [maxDate]="elem.maxDateIf ? elem.maxDateIf(model) : elem.maxDate || ''"
+            (changeEv)="elem.change ? elem.change(model) : null" [model]="model[elem.key]"
+            (modelChange)="onModelChange($event, elem.key)"></sh-datepicker>
+    </div>
+    }
+
+    @case ("datetimepicker") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-datetimepicker [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme" [label]="elem.label"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
+            [placeholder]="elem.placeholder || ''"
+            [minDatetime]="elem.minDatetimeIf ? elem.minDatetimeIf(model) : elem.minDatetime || ''"
+            [maxDatetime]="elem.maxDatetimeIf ? elem.maxDatetimeIf(model) : elem.maxDatetime || ''"
+            [format]="elem.datetimepickerFormat || 'YYYY-MM-DDTHH:mm'" [showSeconds]="!!elem.datetimepickerShowSeconds" [onlyHours]="!!elem.onlyHours"
+            [enableMeridian]="!!elem.datetimepickerEnableMeridian" (changeEv)="elem.change ? elem.change(model) : null"
+            [model]="model[elem.key]" (modelChange)="onModelChange($event, elem.key)"></sh-datetimepicker>
+    </div>
+    }
+
+    @case ("checkbox") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-checkbox [skeletonLoading]="skeletonLoading" [skeletonTheme]="skeletonTheme" [label]="elem.label"
+            [disabled]="elem.disabledIf ? elem.disabledIf(model) : !!elem.disabled"
+            [required]="elem.requiredIf ? elem.requiredIf(model) : !!elem.required"
+            [indeterminate]="!!elem.indeterminate" (changeEv)="elem.change ? elem.change(model) : null"
+            [model]="model[elem.key]" (modelChange)="onModelChange($event, elem.key)"></sh-checkbox>
+    </div>
+    }
+
+    @case ("button") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <sh-button [label]="elem.label" [loading]="elem.loadingIf ? elem.loadingIf(model) : false" variant="secondary"
+            (clickEv)="elem.change ? elem.change(model) : null"></sh-button>
+    </div>
+    }
+
+    @case ("fieldset") {
+    <div [class]="'col-md-'+elem.columns+' mt-3'">
+        <fieldset class="sh-fieldset">
+            @if(elem.label) {
+            <legend class="sh-fieldset-legend" [shSkeleton]="skeletonLoading" [shSkeletonTheme]="skeletonTheme">
+                <span class="sh-fieldset-legend__text">{{ elem.label }}</span>
+            </legend>
+            }
+            <div class="row w-100 sh-fieldset-body sh-form-row">
+                @for(innerElem of elem.rows; track innerElem) {
+                @if(!(innerElem.hideIf ? innerElem.hideIf(model) : innerElem.hide)) {
+                <ng-container *ngTemplateOutlet="formField; context: { $implicit: innerElem }"></ng-container>
+                }
+                }
+            </div>
+        </fieldset>
+    </div>
+    }
+
+    @case ("templateRef"){
+    <div [class]="'col-md-'+elem.columns+' mt-3'">
+        <ng-container *ngTemplateOutlet="elem.templateRef; context: { $implicit: elem}"></ng-container>
+    </div>
+    }
+
+    @case ("spacer") {
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+    </div>
+    }
+
+    @case ("text"){
+    <div [class]="'col-md-'+elem.columns+' mt-2'" [attr.data-field-key]="elem.key">
+        <span class="f-w-b">{{elem.label}}</span>
+                           @if(elem.requiredIf ? elem.requiredIf() : elem.required){
+                       <span class="txt-clr-red">*</span>
+
+                   }
+    </div>
+
+    }
+
+    }
+    }
+</ng-template>

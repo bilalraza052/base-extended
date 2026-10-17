@@ -1,0 +1,20 @@
+<div class="sh-modal">
+  <header class="sh-modal__header">
+    <h2 class="sh-modal__title">Leave without saving?</h2>
+  </header>
+  <button type="button" class="sh-modal__close" (click)="cancel()" aria-label="Close">
+    <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3 3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+  </button>
+
+  <mat-dialog-content class="sh-modal__body">
+    <p>You have unsaved changes that will be lost if you leave this page.</p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="sh-modal__footer">
+    @if (data.hasSaveCallback) {
+      <button type="button" class="sh-modal__btn--primary" (click)="save()">Save and leave</button>
+    }
+    <button type="button" class="sh-modal__btn--danger" (click)="leave()">Leave without saving</button>
+    <button type="button" class="sh-modal__btn--secondary" (click)="cancel()">Stay on page</button>
+  </mat-dialog-actions>
+</div>

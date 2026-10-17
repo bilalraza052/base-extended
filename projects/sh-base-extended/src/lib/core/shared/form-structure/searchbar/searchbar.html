@@ -1,0 +1,27 @@
+<div class="sh-searchbar-wrap" [class.sh-searchbar-wrap--focused]="focused">
+  <input
+    #searchInput
+    type="text"
+    class="sh-searchbar-input"
+    (keyup)="onKeyChange()"
+    (keydown.escape)="onEscape()"
+    [formControl]="searchControl"
+    [placeholder]="placeholderText"
+    [(ngModel)]="searchQuery"
+    (focus)="focused = true"
+    (blur)="focused = false"
+    aria-label="Search"
+  />
+  @if (searchQuery) {
+    <button type="button" class="sh-searchbar-clear" tabindex="-1" aria-label="Clear search" (click)="clearSearch()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  }
+  <svg class="sh-searchbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="10.5" cy="10.5" r="7"/>
+    <line x1="21" y1="21" x2="15.6" y2="15.6"/>
+  </svg>
+</div>

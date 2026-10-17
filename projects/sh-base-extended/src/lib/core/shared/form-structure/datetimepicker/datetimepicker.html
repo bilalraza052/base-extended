@@ -1,0 +1,50 @@
+<div class="d-flex flex-column">
+    @if (label) {
+        <div [shSkeleton]="skeletonLoading" [shSkeletonTheme]="skeletonTheme">
+            <label class="label" [class.txt-clr-red]="dtField.touched && dtField.invalid">
+                {{label}} <span class="txt-clr-red">{{required ? '*' : ''}}</span>
+            </label>
+        </div>
+    }
+    <div class="input-wrapper" [shSkeleton]="skeletonLoading" [shSkeletonTheme]="skeletonTheme">
+        <input
+            class="dt-input"
+            [ngxMatDatetimePicker]="picker"
+            [ngModel]="dateModel"
+            (ngModelChange)="onDateChange($event)"
+            [required]="required"
+            [disabled]="disabled"
+            [min]="minDate"
+            [max]="maxDate"
+            [placeholder]="placeholder"
+            [class.error]="dtField.touched && dtField.invalid"
+            #dtField="ngModel"
+            readonly
+        />
+        <button
+            type="button"
+            class="dt-icon-btn"
+            (click)="picker.open()"
+            [disabled]="disabled"
+            tabindex="-1">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="14" height="14" rx="2"/>
+                <line x1="3" y1="8" x2="17" y2="8"/>
+                <line x1="7" y1="2" x2="7" y2="6"/>
+                <line x1="13" y1="2" x2="13" y2="6"/>
+            </svg>
+        </button>
+        <ngx-mat-datetime-picker
+            #picker
+            [showSpinners]="true"
+            [showSeconds]="showSeconds"
+            [enableMeridian]="enableMeridian"
+            [stepMinute]="stepMinutes"
+            [disableMinute]="onlyHours"
+            [defaultTime]="$any(defaultTime)">
+        </ngx-mat-datetime-picker>
+    </div>
+    @if (dtField.touched && dtField.invalid && required) {
+        <mat-hint class="hint">Please complete this required field.</mat-hint>
+    }
+</div>

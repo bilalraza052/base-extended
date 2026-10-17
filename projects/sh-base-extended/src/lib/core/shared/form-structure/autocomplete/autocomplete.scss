@@ -1,0 +1,216 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: block; }
+
+.label { @include sh.label; }
+.label.txt-clr-red { color: var(--sh-text, #333); }
+.txt-clr-red { color: var(--sh-error-text, #ac0020); }
+.hint { @include sh.hint; }
+
+.autocomplete-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    // Direct child only — the dropdown (with its own checkbox inputs in chips mode)
+    // is also nested inside this wrapper and must not inherit these text-input styles.
+    > input {
+        @include sh.field-box;
+        height: var(--sh-control-height);
+        width: 100%;
+        outline: none;
+        padding: 8px 40px 8px 16px;
+
+        &:focus { @include sh.focus-ring; }
+        &:disabled { @include sh.field-disabled; }
+        &::placeholder { @include sh.placeholder; }
+        &.error { @include sh.field-error; }
+        &.error:focus { border-color: transparent; }
+    }
+
+    // ── Chips (multi-select) variant — HubSpot tags inline with the search input
+    &--chips {
+        @include sh.field-box;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        min-height: var(--sh-control-height);
+        height: auto;
+        padding: 7px 40px 7px 12px;
+
+        &:focus-within { @include sh.focus-ring; }
+        &.error { @include sh.field-error; }
+        &.error:focus-within { border-color: transparent; }
+
+        &.autocomplete-wrapper--disabled {
+            @include sh.field-disabled;
+            > input { cursor: not-allowed; }
+        }
+
+        > input {
+            flex: 1 1 80px;
+            min-width: 80px;
+            width: auto;
+            height: 24px;
+            min-height: 0;
+            border: none;
+            padding: 0;
+            background: transparent;
+            transition: none;
+
+            &:focus { outline: none; box-shadow: none; border-color: transparent; }
+        }
+    }
+}
+
+.autocomplete-wrapper--api {
+    > input { padding-right: 72px; }
+}
+
+.ac-spinner {
+    position: absolute;
+    right: 14px;
+    @include sh.spinner(14px);
+    pointer-events: none;
+}
+
+.ac-search-icon {
+    position: absolute;
+    right: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--sh-text, #333);
+    pointer-events: none;
+}
+
+.ac-clear {
+    position: absolute;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--sh-text-subtle, #666);
+
+    mat-icon { font-size: 14px; width: 14px; height: 14px; }
+    &:hover { background: var(--sh-surface-hover, #f0f0f0); color: var(--sh-text, #333); }
+
+    &--shifted { right: 44px; }
+}
+
+.ac-lister-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 50%;
+    color: var(--sh-text, #333);
+    transition: background-color 0.15s;
+
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    &:hover { background: var(--sh-secondary-hover, #ebfdfc); }
+}
+
+.ac-lister-img {
+    width: 24px;
+    height: 24px;
+    display: block;
+    pointer-events: none;
+}
+
+// HubSpot popover list
+.dropdown {
+    @include sh.popover;
+    z-index: 9999;
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 0;
+
+    &::-webkit-scrollbar { width: 8px; }
+    &::-webkit-scrollbar-thumb { background: #b3b3b3; border-radius: 999px; }
+}
+
+.dropdown-item {
+    @include sh.option;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &--checkbox {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        input[type="checkbox"] {
+            @include sh.checkbox-box;
+            pointer-events: none;
+        }
+
+        span {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}
+
+.ac-chip { @include sh.tag; flex-shrink: 0; max-width: 220px; }
+
+.ac-chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ac-chip-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    padding: 0;
+    cursor: pointer;
+    color: var(--sh-text, #333);
+
+    mat-icon { font-size: 13px; width: 13px; height: 13px; }
+    &:hover { background: rgba(20, 20, 20, 0.11); }
+}
+
+.no-results {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--sh-text-subtle, #666);
+}
+
+.ac-hint-icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-left: 6px;
+    color: var(--sh-link, #006162);
+    cursor: pointer;
+
+    &:hover { color: var(--sh-link-hover, #00494b); }
+}

@@ -1,0 +1,43 @@
+@use '../../../styles/sh-mixins' as sh;
+
+:host { display: block; }
+
+.checkbox-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 24px;
+    cursor: pointer;
+    user-select: none;
+    font-family: var(--sh-font-family);
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 24px;
+    color: var(--sh-text, #333);
+
+    input[type="checkbox"] { @include sh.checkbox-box; }
+
+    &.checkbox-disabled {
+        cursor: not-allowed;
+        color: var(--sh-text-disabled, #8a8a8a);
+    }
+
+    &.checkbox-invalid input[type="checkbox"] { border-color: var(--sh-error-color, #d9002b); }
+}
+
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+}
+
+.label-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.label-required { color: var(--sh-error-text, #ac0020); font-weight: 600; }
+.hint { @include sh.hint; }
+.txt-clr-red { color: var(--sh-error-text, #ac0020); }

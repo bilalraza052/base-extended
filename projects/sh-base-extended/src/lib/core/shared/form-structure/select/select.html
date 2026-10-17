@@ -1,0 +1,111 @@
+<div class="d-flex flex-column">
+    @if (label) {
+        <div [shSkeleton]="skeletonLoading" [shSkeletonTheme]="skeletonTheme">
+            <label class="label" (click)="toggle()">
+                <span class="label-text" [title]="label">{{label}}</span><span class="label-required">{{required?'*':''}}</span>
+            </label>
+        </div>
+    }
+
+    <div class="select-trigger"
+         #triggerEl
+         cdkOverlayOrigin
+         #origin="cdkOverlayOrigin"
+         role="combobox"
+         tabindex="0"
+         [attr.aria-expanded]="open"
+         [attr.aria-disabled]="disabled || loading"
+         [shSkeleton]="skeletonLoading" [shSkeletonTheme]="skeletonTheme"
+         [class.is-open]="open"
+         [class.error]="isInvalid"
+         [class.select-disabled]="disabled || loading"
+         [class.is-multiple]="multiple && hasValue"
+         (click)="toggle()"
+         (keydown)="onTriggerKeydown($event)">
+
+        @if (loading) {
+            <span class="select-spinner"></span>
+            <span class="select-placeholder">Loading...</span>
+        } @else if (multiple && hasValue) {
+            <span class="select-tags">
+                @for (item of selectedItems; track $index) {
+                    <span class="sh-tag">
+                        <span class="sh-tag-label">{{ getDisplay(item) }}</span>
+                        @if (!disabled) {
+                            <button type="button" class="sh-tag-remove" tabindex="-1" (click)="removeTag(item, $event)" aria-label="Remove">
+                                <svg viewBox="0 0 10 10"><path d="M2 2l6 6M8 2 2 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                            </button>
+                        }
+                    </span>
+                }
+            </span>
+        } @else if (hasValue && displayText) {
+            <span class="select-value" [title]="displayText">{{ displayText }}</span>
+        } @else {
+            <span class="select-placeholder">{{ placeholder }}</span>
+        }
+
+        @if (clearable && hasValue && !disabled && !loading) {
+            <button type="button" class="select-clear" tabindex="-1" (click)="onClear($event)" aria-label="Clear">
+                <svg viewBox="0 0 10 10"><path d="M2 2l6 6M8 2 2 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+        }
+        <span class="select-caret" aria-hidden="true"></span>
+    </div>
+
+    @if (isInvalid) {
+        <mat-hint class="hint">Please complete this required field.</mat-hint>
+    }
+</div>
+
+<ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="origin"
+    [cdkConnectedOverlayOpen]="open"
+    [cdkConnectedOverlayPositions]="positions"
+    [cdkConnectedOverlayMinWidth]="panelWidth"
+    [cdkConnectedOverlayWidth]="panelWidth"
+    (overlayOutsideClick)="close()"
+    (detach)="close()"
+    (attach)="onAttach()">
+    <div class="sh-select-panel" (keydown)="onPanelKeydown($event)" tabindex="-1">
+        @if (searchable) {
+            <div class="sh-select-search">
+                <input #searchEl type="text" [placeholder]="searchPlaceholder" autocomplete="off"
+                       [value]="query" (input)="onQueryChange($any($event.target).value)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="7"/><line x1="21" y1="21" x2="15.6" y2="15.6"/></svg>
+            </div>
+        }
+        <div class="sh-select-list" #listEl role="listbox" [attr.aria-multiselectable]="multiple">
+            @if (multiple && showSelectAll && filteredItems.length > 0) {
+                <button type="button" class="sh-option sh-option--all" tabindex="-1" (click)="toggleSelectAll()">
+                    <span class="sh-option-check" [class.is-checked]="allFilteredSelected"></span>
+                    <span class="sh-option-text"><span class="sh-option-label">Select all</span></span>
+                </button>
+            }
+            @for (item of filteredItems; track $index; let i = $index) {
+                <button type="button"
+                        class="sh-option"
+                        role="option"
+                        tabindex="-1"
+                        [attr.aria-selected]="isSelected(item)"
+                        [class.is-selected]="!multiple && isSelected(item)"
+                        [class.is-active]="i === activeIndex"
+                        (mouseenter)="activeIndex = i"
+                        (click)="select(item)">
+                    @if (multiple) {
+                        <span class="sh-option-check" [class.is-checked]="isSelected(item)"></span>
+                    }
+                    <span class="sh-option-text">
+                        <span class="sh-option-label">{{ getDisplay(item) }}</span>
+                        @if (getDescription(item)) {
+                            <small class="sh-option-desc">{{ getDescription(item) }}</small>
+                        }
+                    </span>
+                </button>
+            } @empty {
+                <div class="sh-select-empty">{{ noResultsText }}</div>
+            }
+        </div>
+    </div>
+</ng-template>
