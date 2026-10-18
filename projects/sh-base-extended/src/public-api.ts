@@ -45,6 +45,7 @@ export * from './lib/core/services/dirty-state.service'
 export * from './lib/core/guards/unsaved-changes.guard'
 export * from './lib/core/shared/components/unsaved-changes-dialog/unsaved-changes-dialog'
 export * from './lib/core/shared/components/error-dialog/error-dialog'
+export * from './lib/core/shared/components/toast/toast'
 
 
 
