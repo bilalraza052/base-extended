@@ -1,7 +1,7 @@
 {
-  "name": "sh-base-extended",  
-  "version": "1.1.0",
-  
+  "name": "sh-base-extended",
+  "version": "1.2.0",
+
   "peerDependencies": {
     "@angular/common": "^21.2.0",
     "@angular/core": "^21.2.0",
