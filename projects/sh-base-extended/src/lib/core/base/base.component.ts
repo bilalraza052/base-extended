@@ -9,6 +9,7 @@ import { ErrorDialog, ErrorDialogData } from "../shared/components/error-dialog/
 import { WarningDialog, WarningDialogData } from "../shared/components/warning-dialog/warning-dialog";
 import { ShEmailAttachment, ShEmailDialog, ShEmailDialogData, ShEmailSendResult } from "../shared/components/email-dialog/email-dialog";
 import { DirtyStateService } from "../services/dirty-state.service";
+import { ShToast, ShToastData, ShToastKind } from "../shared/components/toast/toast";
 @Injectable()
 
 export class baseComponent{
@@ -51,11 +52,13 @@ export class baseComponent{
         this._injector.get(Router).navigate([url])
     }
 
-    private showSnack(message:string, kind: 'success' | 'error' | 'warning' | 'info' = 'info'){
+    private showSnack(message:string, kind: ShToastKind = 'info'){
         message =  String(message ?? '').replace(/<[^>]*>/g, '');
-        this._injector.get(MatSnackBar).open(message,'Dismiss',{
+        const data: ShToastData = { kind, message };
+        this._injector.get(MatSnackBar).openFromComponent(ShToast,{
+            data,
             duration: kind === 'error' ? 5000 : 3000,
-            horizontalPosition: 'right',
+            horizontalPosition: 'center',
             verticalPosition: 'top',
             panelClass: ['sh-toast', `sh-toast--${kind}`],
         })
