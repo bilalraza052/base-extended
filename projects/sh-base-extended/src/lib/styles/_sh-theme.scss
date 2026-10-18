@@ -144,6 +144,9 @@
   --sh-tooltip-bg:           #141414;
   --sh-tooltip-text:         #ffffff;
 
+  // Toast – HubSpot floats alerts 24px below its 44px top bar
+  --sh-toast-offset-top:     68px;
+
   // File upload / misc (kept for parity with osl tokens)
   --sh-file-browse-bg:       #f5f5f5;
   --sh-border-subtle:        rgba(20, 20, 20, 0.06);
@@ -243,39 +246,28 @@
 }
 
 // ─────────────────────────────────────────────────────────────────────
-//  Toasts (MatSnackBar) → HubSpot floating alert
+//  Toasts (MatSnackBar + ShToast) → HubSpot floating alert
+//  Material's surface is stripped so only the ShToast card is visible;
+//  the card itself is styled in shared/components/toast/toast.scss.
 // ─────────────────────────────────────────────────────────────────────
 .mat-mdc-snack-bar-container.sh-toast {
-  --mdc-snackbar-container-color: #ffffff;
-  --mat-snack-bar-container-color: #ffffff;
-  --mdc-snackbar-supporting-text-color: #333333;
-  --mat-snack-bar-supporting-text-color: #333333;
+  --mdc-snackbar-container-color: transparent;
+  --mat-snack-bar-container-color: transparent;
   --mdc-snackbar-container-shape: 16px;
   --mat-snack-bar-container-shape: 16px;
-  --mat-snack-bar-button-color: #006162;
-  --mat-snackbar-button-color: #006162;
+  margin: var(--sh-toast-offset-top) 16px 16px !important;
+  max-width: min(668px, calc(100vw - 32px)) !important;
+  min-width: 0 !important;
   .mdc-snackbar__surface {
-    border: 1px solid var(--sh-border) !important;
-    border-left: 6px solid var(--sh-info) !important;
-    box-shadow: var(--sh-shadow-400) !important;
-    border-radius: 16px !important;
-    min-width: 360px;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-width: 0 !important;
+    max-width: none !important;
   }
   .mdc-snackbar__label, .mat-mdc-snack-bar-label {
-    font-family: var(--sh-font-family);
-    font-size: 14px;
-    font-weight: 300;
-    line-height: 24px;
-    padding: 14px 16px 14px 20px;
+    padding: 0 !important;
   }
-  .mat-mdc-button, .mdc-button {
-    font-family: var(--sh-font-family);
-    font-weight: 600;
-    border-radius: 999999px;
-  }
-  &.sh-toast--success .mdc-snackbar__surface { border-left-color: var(--sh-success) !important; }
-  &.sh-toast--error   .mdc-snackbar__surface { border-left-color: var(--sh-danger-hover) !important; }
-  &.sh-toast--warning .mdc-snackbar__surface { border-left-color: var(--sh-warning) !important; }
 }
 
 // ─────────────────────────────────────────────────────────────────────
