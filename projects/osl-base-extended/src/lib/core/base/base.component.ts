@@ -43,7 +43,7 @@ export class baseComponent{
     private showSnack(message:string){
         message =  message.replace(/<[^>]*>/g, '');
         this._injector.get(MatSnackBar).open(message,'Ok',{
-            duration:3000
+            duration:8000
         })
     }
 
