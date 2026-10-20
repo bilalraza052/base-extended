@@ -371,7 +371,9 @@
                      [style.left.px]="col._pinned ? col._stickyLeft : null"
                      [style.position]="col._pinned ? 'sticky' : 'relative'"
                      [style.zIndex]="col._pinned ? 2 : 0"
+                     [class.link]="col.click"
                      [style.textAlign]="col.align ?? 'left'"
+                     (click)="col.click?col.click(row):null"
                      (dblclick)="copyCell(getCellDisplay(asDataRow(row)._data, col), $event)"
                      [title]="getCellDisplay(asDataRow(row)._data, col)">
                   <span class="osl-rg-cell-text">{{ getCellDisplay(asDataRow(row)._data, col) }}</span>

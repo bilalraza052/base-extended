@@ -29,6 +29,7 @@ export interface OslReportColumn {
   headerGroup?: string;
   /** When true, this column's values are summed in PDF/Excel exports (subtotal per group + grand total). */
   sumOnPdf?: boolean;
+  click?:(row:any)=>any
 }
 
 export interface OslReportPageEvent { page: number; pageSize: number; }
