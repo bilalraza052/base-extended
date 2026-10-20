@@ -144,12 +144,14 @@
           } @else {
             @for (row of pagedData; track row; let i = $index) {
               <tr class="osl-fg-row"
+                  [class.osl-fg-row--highlighted]="isRowHighlighted(row)"
                   cdkDrag
                   [cdkDragData]="row"
                   [cdkDragDisabled]="!allowReorder || isReorderDisabled(row)"
                   (cdkDragStarted)="onDragStartedEvent($event, row, 'grid')"
                   (cdkDragEnded)="onDragEndedEvent($event, row, 'grid')"
-                  (click)="enableDragDrop ? selectGridItem(row, i) : null">
+                  (click)="onRowClick(row, i)"
+                  (focusin)="onRowFocus(row)">
 
                 <!-- Drag handle -->
                 @if (allowReorder) {

@@ -173,6 +173,10 @@
 
   &:hover { background: #eef2ff !important; }
 
+  // Clicked row when [highlightedRow]="true" — wins over zebra and hover.
+  &.osl-fg-row--highlighted,
+  &.osl-fg-row--highlighted:hover { background: #086a9769 !important; }
+
   &:last-child { border-bottom: none; }
   &--skeleton { pointer-events: none; }
 }

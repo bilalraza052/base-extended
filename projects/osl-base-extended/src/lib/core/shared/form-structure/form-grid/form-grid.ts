@@ -142,6 +142,8 @@ export class OslFormGrid implements OnChanges {
   @Input('loading') loading: boolean = false;
   @Input('tableHeight') tableHeight: string = '350px';
   @Input('footerColumns') footerColumns: OslFormGridFooterColumn[] = [];
+  /** When true, clicking a row highlights the whole row until another row is clicked. */
+  @Input('highlightedRow') highlightedRow: boolean = false;
 
   @Output() rowAdd = new EventEmitter<any>();
   @Output() rowDelete = new EventEmitter<OslFormGridRowEvent>();
@@ -279,6 +281,23 @@ export class OslFormGrid implements OnChanges {
 
   get skeletonRows(): number[] {
     return Array.from({ length: Math.min(this.pageSize, 6) });
+  }
+
+  // ── Row highlight ──────────────────────────────────────────────────────────
+  activeRow: any = null;
+
+  onRowClick(row: any, pagedIndex: number): void {
+    if (this.highlightedRow) this.activeRow = row;
+    if (this.enableDragDrop) this.selectGridItem(row, pagedIndex);
+  }
+
+  /** focusin bubbles from any control in the row, so mouse clicks and keyboard Tab both land here. */
+  onRowFocus(row: any): void {
+    if (this.highlightedRow) this.activeRow = row;
+  }
+
+  isRowHighlighted(row: any): boolean {
+    return this.highlightedRow && this.activeRow === row;
   }
 
   // ── Existing row methods ───────────────────────────────────────────────────
