@@ -50,6 +50,24 @@ export interface OslPdfConfig {
   alternatingRows?: boolean;
 }
 
+/** One cell of the custom grand total row in PDF/Excel exports. Cells are laid out left to right; colspans should add up to the visible column count. */
+export interface OslPdfFooterColumn {
+  /** Number of columns this cell spans (default: 1). */
+  colspan?: number;
+  /** Static text, e.g. 'Grand Total'. Ignored when displayFn is set. */
+  display?: string;
+  /** Computes the cell from the exported rows (filtered + sorted). Numbers are formatted '1.0-2' in PDF and kept numeric in Excel. */
+  displayFn?: (rows: any[]) => any;
+  /** Horizontal alignment (default: 'left' for text, 'right' for numbers). */
+  align?: 'left' | 'center' | 'right';
+  /** Bold text (default: true). */
+  bold?: boolean;
+  /** Background color as hex, e.g. '#DCDCDC' (default: light gray). */
+  fillColor?: string;
+  /** Text color as hex, e.g. '#000000' (default: black). */
+  textColor?: string;
+}
+
 // ─── Internal types ───────────────────────────────────────────────────────────
 
 export interface InternalColumn extends OslReportColumn {
@@ -99,6 +117,8 @@ export class OslReportGrid implements OnChanges {
   @Input() title = '';
   @Input() pdfExportFromGrid = false;
   @Input() pdfConfig: OslPdfConfig = {};
+  /** Custom grand total row for PDF/Excel exports. When set, it replaces the automatic sumOnPdf grand total (group subtotals are unchanged). */
+  @Input() pdfFooterColumns: OslPdfFooterColumn[] = [];
 
   // Outputs
   @Output() pageChange = new EventEmitter<OslReportPageEvent>();
@@ -875,7 +895,29 @@ export class OslReportGrid implements OnChanges {
 
     // ── Grand total row ─────────────────────────────────────────────────────────
     const sumCols = cols.filter(c => c.sumOnPdf);
-    if (sumCols.length > 0) {
+    if (this.pdfFooterColumns?.length) {
+      let ci = 0;
+      for (const f of this.pdfFooterColumns) {
+        const v = this.getFooterValue(f, filteredRows);
+        const isNum = typeof v === 'number';
+        const span = f.colspan ?? 1;
+        const style = {
+          font: { bold: f.bold !== false, sz: 10, color: { rgb: (f.textColor ?? '#000000').replace('#', '') } },
+          fill: { patternType: 'solid', fgColor: { rgb: (f.fillColor ?? '#D9D9D9').replace('#', '') } },
+          alignment: { horizontal: f.align ?? (isNum ? 'right' : 'left') },
+          border: thinBorder('000000'),
+        };
+        ws[XLSX.utils.encode_cell({ r: rowIdx, c: ci })] = isNum
+          ? { v, t: 'n', s: style }
+          : { v: String(v ?? ''), t: 's', s: style };
+        for (let k = 1; k < span; k++) {
+          ws[XLSX.utils.encode_cell({ r: rowIdx, c: ci + k })] = { v: '', t: 's', s: style };
+        }
+        if (span > 1) merges.push({ s: { r: rowIdx, c: ci }, e: { r: rowIdx, c: ci + span - 1 } });
+        ci += span;
+      }
+      rowIdx++;
+    } else if (sumCols.length > 0) {
       const grandStyle = {
         font: { bold: true, sz: 10 },
         fill: { patternType: 'solid', fgColor: { rgb: 'D9D9D9' } },
@@ -903,6 +945,10 @@ export class OslReportGrid implements OnChanges {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, (this.title || 'Report').slice(0, 31));
     XLSX.writeFile(wb, `${this.title || 'report'}.xlsx`);
+  }
+
+  private getFooterValue(f: OslPdfFooterColumn, rows: any[]): any {
+    return f.displayFn ? f.displayFn(rows) : (f.display ?? '');
   }
 
   // ─── Export PDF ───────────────────────────────────────────────────────────────
@@ -1023,7 +1069,22 @@ export class OslReportGrid implements OnChanges {
     }
 
     // Grand total row
-    if (sumCols.length > 0) {
+    if (this.pdfFooterColumns?.length) {
+      body.push(this.pdfFooterColumns.map(f => {
+        const v = this.getFooterValue(f, filteredRows);
+        const isNum = typeof v === 'number';
+        return {
+          content: isNum ? (this.decimalPipe.transform(v, '1.0-2') ?? String(v)) : String(v ?? ''),
+          colSpan: f.colspan ?? 1,
+          styles: {
+            fontStyle: f.bold === false ? 'normal' : 'bold',
+            halign: f.align ?? (isNum ? 'right' : 'left'),
+            fillColor: f.fillColor ?? [220, 220, 220],
+            textColor: f.textColor ?? [0, 0, 0],
+          },
+        };
+      }));
+    } else if (sumCols.length > 0) {
       body.push(cols.map((col, i) => {
         if (col.sumOnPdf) {
           const s = filteredRows.map(r => Number(r[col.key])).filter(v => !isNaN(v)).reduce((a, b) => a + b, 0);
@@ -1038,7 +1099,8 @@ export class OslReportGrid implements OnChanges {
     cols.forEach((_col, i) => { colStylesMap[i] = { cellWidth: colWidths[i] }; });
 
     // Build double header rows when headerGroup is used
-    const colLabelsRow = cols.map((c, i) => ({ content: c.label, styles: { halign: c.align ?? 'left', cellWidth: colWidths[i] } }));
+    // Headings follow left/center alignment only — right-aligned columns keep a left heading.
+    const colLabelsRow = cols.map((c, i) => ({ content: c.label, styles: { halign: c.align === 'center' ? 'center' : 'left', cellWidth: colWidths[i] } }));
     const pdfHead: any[][] = [];
     if (this.hasHeaderGroups) {
       const groupRow: any[] = [];
