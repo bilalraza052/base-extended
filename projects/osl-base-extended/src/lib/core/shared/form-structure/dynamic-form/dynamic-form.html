@@ -96,7 +96,7 @@
             [object]="model[elem.objectName]" [searchType]="elem.searchType" [configMethodName]="elem.apiConfigMethod"
             [isLister]="elem.isListerAutocomplete" [apiBody]="elem.apiBody ? elem.apiBody(model):null"
             [displayFn]="elem.displayFn || null" [autocompleteType]="elem.autocompleteType || 'default'"
-            [manualEntry]="!!elem.manualEntry"></osl-autocomplete>
+            [manualEntry]="!!elem.manualEntry" [isCapitalize]="!!elem.isCapitalize"></osl-autocomplete>
     </div>
     }
 

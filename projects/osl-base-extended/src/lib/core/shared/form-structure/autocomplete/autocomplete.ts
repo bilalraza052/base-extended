@@ -109,6 +109,8 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
   @Input('autocompleteType') autocompleteType: 'default' | 'chips' = 'default';
   /** Allows free text beyond the options: typed text that matches no option is kept as the model instead of being cleared. Ignored in chips mode. */
   @Input('manualEntry') manualEntry: boolean = false;
+  /** Uppercases the typed text while typing (same behaviour as osl-input's isCapitalize). */
+  @Input('isCapitalize') isCapitalize: boolean = false;
   /** True while the model holds text the user is typing rather than a picked option (manualEntry only). */
   private isManualText: boolean = false;
   /** Search text the current Api datasource was loaded for — lets blur tell whether the results are current. */
@@ -312,7 +314,18 @@ export class OslAutocomplete extends baseComponent implements OnInit, OnChanges,
     return this.touched && this.required && !this._model;
   }
 
-  onInput(val: string) {
+  onInput(val: string, el?: HTMLInputElement) {
+    if (this.isCapitalize && typeof val === 'string' && val !== val.toUpperCase()) {
+      val = val.toUpperCase();
+      if (el) {
+        // Rewrite the DOM value before [formControl] reads it, keeping the caret in place.
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        el.value = val;
+        el.setSelectionRange(start, end);
+      }
+      this.inputControl.setValue(val);
+    }
     this.inputValue = val;
     const isChips = this.autocompleteType === 'chips';
     if (!isChips) {

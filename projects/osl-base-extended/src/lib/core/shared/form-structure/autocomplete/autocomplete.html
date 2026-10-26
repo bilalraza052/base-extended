@@ -29,7 +29,7 @@
             }
         }
         <input
-            (input)="onInput($any($event.target).value)"
+            (input)="onInput($any($event.target).value, $any($event.target))"
             (focus)="onFocus()"
             (focusout)="onFocusOut()"
 
