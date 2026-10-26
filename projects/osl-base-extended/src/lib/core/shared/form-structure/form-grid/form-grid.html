@@ -86,9 +86,13 @@
         </thead>
 
         <ng-template #colHeader let-col>
-          {{ col.displayName }}
-          @if (colRequired(col)) {
-            <span class="osl-fg-th-required">*</span>
+          @if (col.headerTemplate) {
+            <ng-container *ngTemplateOutlet="col.headerTemplate; context: { $implicit: col, datasource: datasource, pagedData: pagedData }"></ng-container>
+          } @else {
+            {{ col.displayName }}
+            @if (colRequired(col)) {
+              <span class="osl-fg-th-required">*</span>
+            }
           }
         </ng-template>
 
@@ -208,7 +212,9 @@
                               [prefixIcon]="col.formElem.prefixIcon || ''"
                               [suffixIcon]="col.formElem.suffixIcon || ''"
                               [decimalPortion]="col.formElem.decimalPortion ?? null"
+                              [isCapitalize]="!!col.formElem.isCapitalize"
                               [model]="row[col.key]"
+                              [allowNegative]="!col.formElem.restrictNegative"
                               (modelChange)="onCellChange(row, col, $event)"
                               (changeEv)="col.formElem.change ? col.formElem.change(row,i) : null">
                             </osl-input>
@@ -266,6 +272,7 @@
                               [object]="col.formElem.objectName ? row[col.formElem.objectName] : null"
                               [isLister]="!!col.formElem.isListerAutocomplete"
                               [manualEntry]="!!col.formElem.manualEntry"
+                              [isCapitalize]="!!col.formElem.isCapitalize"
                               [model]="row[col.key]"
                               [apiBody]="col.formElem?.apiBody ? col.formElem?.apiBody(row):null"
                               (modelChange)="onCellChange(row, col, $event)"

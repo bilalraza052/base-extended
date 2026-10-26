@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, TemplateRef } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { elements } from '../dynamic-form/dynamic-form';
 import { DatasourceCacheService } from '../datasource-cache/datasource-cache.service';
@@ -23,6 +23,11 @@ export interface OslFormGridColumn {
   width?: string;
   /** When set on any column the header becomes two rows; adjacent columns sharing the same title sit under one group header. */
   groupTitle?: string;
+  /**
+   * Custom header content (e.g. a "select all" checkbox). Replaces displayName + required marker.
+   * Context: { $implicit: column, datasource, pagedData }.
+   */
+  headerTemplate?: TemplateRef<any>;
 }
 
 export interface OslFormGridHeaderCell {
