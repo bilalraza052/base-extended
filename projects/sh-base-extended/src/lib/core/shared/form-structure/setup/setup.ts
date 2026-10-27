@@ -114,6 +114,8 @@ export class ShSetup implements OnInit, OnChanges, AfterViewInit {
   @Input('canExport') canExport: boolean = true;
   /** File name (without extension) used by Export. Defaults to the title. */
   @Input('exportFileName') exportFileName: string = '';
+  /** Optional custom export handler. When provided, it replaces the built-in CSV download. Receives the current rows and visible columns. */
+  @Input('exportCsvFn') exportCsvFn: ((rows: any[], columns: ShGridColumn[]) => void | Promise<void>) | undefined;
   /** Optional sub-heading under the title. */
   @Input('subtitle') subtitle: string = '';
 
@@ -586,6 +588,10 @@ export class ShSetup implements OnInit, OnChanges, AfterViewInit {
     const rows = this.datasource ?? [];
     this.onExport.emit(rows);
     const cols = (this.gridRef?.displayColumns ?? this.columns).filter(c => !c.isActions);
+    if (typeof this.exportCsvFn === 'function') {
+      this.exportCsvFn(rows, cols);
+      return;
+    }
     const esc = (v: any) => {
       const str = v === null || v === undefined ? '' : String(v);
       return /[",\n]/.test(str) ? '"' + str.replace(/"/g, '""') + '"' : str;
