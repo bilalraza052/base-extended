@@ -84,7 +84,7 @@ providers: [provideNativeDateAdapter()]
 | `ShGridColumn` | `hidden`, `width` | column hidden by default (user can add it back), fixed width |
 | `sh-setup` / `sh-grid` | `bulkActions: ShBulkAction[]`, `(clearSelection)` | HubSpot selection bar ("2 contacts selected · Assign · Edit · Delete · ✕") when `checkboxSelection` rows are ticked |
 | `sh-setup` / `sh-grid` | `recordLabel` | record noun used in "37 contacts", "1 contact selected", empty states |
-| `sh-setup` | `canExport` (default `true`), `exportFileName`, `(onExport)` | Footer **Export** button — downloads the visible columns as CSV |
+| `sh-setup` | `canExport` (default `true`), `exportFileName`, `exportCsvFn`, `(onExport)` | Footer **Export** button — downloads the visible columns as CSV, or calls `exportCsvFn(rows, columns)` instead when provided |
 | `sh-setup` | `subtitle` | grey line under the page title |
 | `sh-setup` | board view | the old card view is now a HubSpot board (cards with "Label: value" lines) |
 | `sh-select` | `searchable` (default `true`) | search box inside the dropdown, keyboard navigation (↑ ↓ Enter Esc) |
